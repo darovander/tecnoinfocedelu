@@ -288,7 +288,7 @@ function renderGrid(){
       <div class="card-img">
         <span class="sku-tag">${sku}</span>
         <span class="stock-tag ${stockClass}">${stockLabel}</span>
-        ${p.emoji||"📦"}
+        ${p.image ? `<img src="${p.image}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;">` : (p.emoji||"📦")}
       </div>
       <div class="card-body">
         <div class="card-cat">${p.cat||"general"}</div>
