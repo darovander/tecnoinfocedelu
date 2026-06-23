@@ -3,343 +3,989 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TecnoInformática — Admin</title>
+<title>Tecno Informatica Admin</title>
 <style>
 :root{
-  --bg:#0B0F14; --surface:#121821; --surface-2:#1A222D; --line:#233040;
-  --text:#E6EDF3; --text-dim:#8FA1B3; --cyan:#22D3EE; --cyan-dim:#0E7490;
-  --amber:#F5A623; --danger:#EF4444; --radius:10px;
+  --bg:#070B12;
+  --bg-2:#0C1320;
+  --surface:#111A28;
+  --surface-2:#162233;
+  --line:#253449;
+  --text:#EAF2FF;
+  --text-dim:#9AAAC0;
+  --brand:#4DE1FF;
+  --brand-2:#7C7CFF;
+  --success:#34D399;
+  --warning:#F5B740;
+  --danger:#F87171;
+  --radius:18px;
+  --radius-lg:26px;
+  --shadow:0 24px 80px rgba(0,0,0,.34);
   --mono:'JetBrains Mono','Fira Code',Consolas,monospace;
-  --sans:'Space Grotesk','Inter',system-ui,sans-serif;
-  --body:'Inter',system-ui,sans-serif;
+  --sans:'Inter','Segoe UI',system-ui,sans-serif;
+  --display:'Space Grotesk','Inter',system-ui,sans-serif;
 }
-*{box-sizing:border-box;}
-body{margin:0; background:var(--bg); color:var(--text); font-family:var(--body); -webkit-font-smoothing:antialiased; min-height:100vh;}
-button{font-family:inherit; cursor:pointer; border:none;}
-input{font-family:inherit;}
-a{color:var(--cyan); text-decoration:none;}
-:focus-visible{outline:2px solid var(--cyan); outline-offset:2px;}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  font-family:var(--sans);
+  background:
+    radial-gradient(circle at top left, rgba(77,225,255,.18), transparent 28%),
+    radial-gradient(circle at 80% 10%, rgba(124,124,255,.16), transparent 30%),
+    linear-gradient(180deg, #05080E 0%, #07101A 30%, #05080E 100%);
+  -webkit-font-smoothing:antialiased;
+}
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+  background-size:72px 72px;
+  opacity:.3;
+}
+a{color:inherit; text-decoration:none}
+button,input{font:inherit}
+button{cursor:pointer;border:none}
+:focus-visible{outline:2px solid var(--brand); outline-offset:3px}
+img{display:block;max-width:100%}
+@media (prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation-duration:.01ms !important; transition-duration:.01ms !important}
+}
 
-.topbar{position:sticky; top:0; z-index:10; background:rgba(11,15,20,0.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--line);}
-.topbar-inner{max-width:1000px; margin:0 auto; padding:14px 20px; display:flex; align-items:center; justify-content:space-between;}
-.brand{font-family:var(--sans); font-weight:700; font-size:1.1rem; display:flex; align-items:center; gap:8px;}
-.brand .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan); box-shadow:0 0 8px var(--cyan);}
-.brand .tag{font-family:var(--mono); font-size:0.7rem; color:var(--cyan); border:1px solid var(--cyan-dim); padding:2px 8px; border-radius:20px; margin-left:6px;}
-.logout-btn, .back-link{font-family:var(--mono); font-size:0.78rem; color:var(--text-dim); background:var(--surface); border:1px solid var(--line); padding:7px 13px; border-radius:7px;}
-.logout-btn:hover{color:var(--text); border-color:var(--cyan-dim);}
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:20;
+  backdrop-filter:blur(18px);
+  background:rgba(5,8,14,.82);
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.topbar-inner{
+  max-width:1280px;
+  margin:0 auto;
+  padding:16px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:fit-content;
+}
+.brand-mark{
+  width:40px;
+  height:40px;
+  border-radius:14px;
+  background:linear-gradient(135deg, var(--brand), var(--brand-2));
+  display:grid;
+  place-items:center;
+  color:#04131C;
+  font-weight:900;
+}
+.brand-copy strong{
+  display:block;
+  font-family:var(--display);
+  font-size:1rem;
+}
+.brand-copy span{
+  display:block;
+  margin-top:4px;
+  font-family:var(--mono);
+  color:var(--text-dim);
+  font-size:.72rem;
+}
+.top-actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.ghost-btn,.back-link{
+  padding:11px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  color:var(--text);
+  font-size:.92rem;
+}
+.ghost-btn:hover,.back-link:hover{border-color:rgba(77,225,255,.22)}
 
-/* ---- login ---- */
-.login-wrap{min-height:90vh; display:flex; align-items:center; justify-content:center; padding:20px;}
-.login-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:32px; width:100%; max-width:360px;}
-.login-card h1{font-family:var(--sans); font-size:1.2rem; margin:0 0 4px;}
-.login-card p{color:var(--text-dim); font-size:0.85rem; margin:0 0 22px;}
-.field{margin-bottom:14px;}
-.field label{display:block; font-family:var(--mono); font-size:0.72rem; color:var(--text-dim); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;}
-.field input{width:100%; padding:10px 12px; background:var(--surface-2); border:1px solid var(--line); border-radius:7px; color:var(--text); font-size:0.9rem;}
-.login-btn{width:100%; background:var(--cyan); color:#04141A; padding:11px; border-radius:8px; font-weight:700; font-size:0.9rem; margin-top:6px;}
-.login-btn:hover{background:#5EEAFD;}
-.login-error{color:var(--danger); font-family:var(--mono); font-size:0.78rem; margin-top:12px; display:none;}
+.page{
+  max-width:1280px;
+  margin:0 auto;
+  padding:28px 24px 80px;
+}
+.hero{
+  display:grid;
+  grid-template-columns:1.15fr .85fr;
+  gap:18px;
+  align-items:stretch;
+  margin-bottom:18px;
+}
+.panel{
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(17,26,40,.88);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow);
+}
+.hero-copy{
+  padding:24px;
+  position:relative;
+  overflow:hidden;
+}
+.hero-copy:before{
+  content:"";
+  position:absolute;
+  width:260px;
+  height:260px;
+  border-radius:50%;
+  right:-120px;
+  top:-120px;
+  background:rgba(77,225,255,.12);
+  filter:blur(20px);
+}
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(77,225,255,.08);
+  border:1px solid rgba(77,225,255,.16);
+  color:var(--brand);
+  font-family:var(--mono);
+  font-size:.75rem;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+}
+.hero-copy h1{
+  margin:16px 0 12px;
+  font-family:var(--display);
+  font-size:clamp(2rem, 4vw, 3.4rem);
+  line-height:.98;
+  letter-spacing:-.04em;
+  max-width:13ch;
+}
+.hero-copy p{
+  margin:0;
+  color:var(--text-dim);
+  line-height:1.7;
+  max-width:60ch;
+}
+.hero-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:18px;
+}
+.action-btn{
+  padding:12px 16px;
+  border-radius:999px;
+  font-weight:700;
+}
+.action-btn.primary{
+  background:linear-gradient(135deg, var(--brand), #8AF0FF);
+  color:#05111B;
+}
+.action-btn.secondary{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  color:var(--text);
+}
+.hero-stats{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:12px;
+  margin-top:20px;
+}
+.stat{
+  padding:16px;
+  border-radius:20px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+}
+.stat strong{
+  display:block;
+  font-family:var(--display);
+  font-size:1.5rem;
+  margin-bottom:4px;
+}
+.stat span{
+  color:var(--text-dim);
+  font-size:.88rem;
+  line-height:1.45;
+}
+.hero-side{
+  padding:22px;
+  display:grid;
+  gap:12px;
+}
+.info-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.info-row:last-child{border-bottom:0; padding-bottom:0}
+.info-label{
+  color:var(--text-dim);
+  font-size:.82rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.info-value{font-weight:700}
+.status-dot{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.status-dot:before{
+  content:"";
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:var(--success);
+  box-shadow:0 0 0 6px rgba(52,211,153,.12);
+}
 
-/* ---- panel ---- */
-.panel{display:none; max-width:1000px; margin:0 auto; padding:30px 20px 80px;}
-.panel.show{display:block;}
-.panel h2{font-family:var(--sans); font-size:1.2rem; margin:0 0 4px;}
-.panel .sub{color:var(--text-dim); font-size:0.85rem; margin:0 0 24px;}
+.login-wrap{
+  min-height:calc(100vh - 88px);
+  display:grid;
+  place-items:center;
+  padding:26px 0 20px;
+}
+.login-card{
+  width:min(440px, 100%);
+  padding:28px;
+}
+.login-card h2{
+  margin:0 0 8px;
+  font-family:var(--display);
+  font-size:1.5rem;
+}
+.login-card p{
+  margin:0 0 18px;
+  color:var(--text-dim);
+  line-height:1.6;
+}
+.field{margin-bottom:14px}
+.field label{
+  display:block;
+  margin-bottom:6px;
+  color:var(--text-dim);
+  font-family:var(--mono);
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.field input{
+  width:100%;
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+}
+.login-btn{
+  width:100%;
+  padding:13px 16px;
+  border-radius:14px;
+  background:linear-gradient(135deg, var(--brand), #8AF0FF);
+  color:#05111B;
+  font-weight:800;
+}
+.login-error{
+  display:none;
+  margin-top:12px;
+  color:var(--danger);
+  font-family:var(--mono);
+  font-size:.8rem;
+}
 
-.form-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:28px;}
-.form-card h3{font-family:var(--sans); font-size:0.95rem; margin:0 0 16px;}
-.form-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
-.form-grid .full{grid-column:1/-1;}
-.form-grid label{display:block; font-family:var(--mono); font-size:0.68rem; color:var(--text-dim); margin-bottom:5px; text-transform:uppercase;}
-.form-grid input{width:100%; padding:9px 11px; background:var(--surface-2); border:1px solid var(--line); border-radius:6px; color:var(--text); font-size:0.86rem;}
-.save-btn{background:var(--cyan); color:#04141A; padding:10px 20px; border-radius:7px; font-weight:700; font-size:0.85rem; margin-top:14px;}
-.save-btn:hover{background:#5EEAFD;}
-.cancel-edit{background:var(--surface-2); color:var(--text-dim); padding:10px 16px; border-radius:7px; font-size:0.85rem; margin-top:14px; margin-left:8px; border:1px solid var(--line);}
+.panel.show{display:block}
+.panel-hidden{display:none}
 
-.product-list{display:flex; flex-direction:column; gap:8px;}
-.product-row{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; display:flex; align-items:center; gap:14px;}
-.pr-emoji{font-size:1.5rem; width:34px; text-align:center;}
-.pr-info{flex:1; min-width:0;}
-.pr-name{font-weight:600; font-size:0.92rem; margin:0 0 2px;}
-.pr-meta{font-family:var(--mono); font-size:0.72rem; color:var(--text-dim); display:flex; gap:10px; flex-wrap:wrap;}
-.pr-stock-low{color:var(--amber);}
-.pr-stock-out{color:var(--danger);}
-.pr-actions{display:flex; gap:6px; flex-shrink:0;}
-.pr-actions button{font-family:var(--mono); font-size:0.74rem; padding:6px 12px; border-radius:6px; border:1px solid var(--line); background:var(--surface-2); color:var(--text);}
-.pr-actions button:hover{border-color:var(--cyan-dim);}
-.pr-actions .del:hover{border-color:var(--danger); color:var(--danger);}
-.list-empty{text-align:center; padding:40px; color:var(--text-dim); font-family:var(--mono); font-size:0.85rem; border:1px dashed var(--line); border-radius:var(--radius);}
+.dashboard{
+  display:grid;
+  gap:18px;
+}
+.dashboard-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.dashboard-head h2{
+  margin:0;
+  font-family:var(--display);
+  font-size:1.5rem;
+}
+.dashboard-head p{
+  margin:8px 0 0;
+  color:var(--text-dim);
+}
+.dashboard-tools{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.filter{
+  appearance:none;
+  padding:12px 14px;
+  border-radius:14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  color:var(--text);
+  min-width:180px;
+}
 
-.toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--surface); border:1px solid var(--cyan-dim); color:var(--text); padding:10px 18px; border-radius:8px; font-size:0.85rem; z-index:80; opacity:0; pointer-events:none; transition:.25s; font-family:var(--mono);}
-.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:14px;
+}
+.stat-card{
+  padding:18px;
+  border-radius:22px;
+  background:rgba(17,26,40,.88);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:var(--shadow);
+}
+.stat-card .label{
+  color:var(--text-dim);
+  font-size:.78rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.stat-card .value{
+  margin-top:8px;
+  font-family:var(--display);
+  font-size:1.7rem;
+}
+.stat-card .hint{
+  margin-top:6px;
+  color:var(--text-dim);
+  font-size:.86rem;
+  line-height:1.45;
+}
 
-@media (max-width:600px){
-  .form-grid{grid-template-columns:1fr;}
-  .product-row{flex-wrap:wrap;}
+.form-card,.list-card{
+  padding:22px;
+}
+.form-card h3,.list-card h3{
+  margin:0 0 14px;
+  font-family:var(--display);
+  font-size:1.1rem;
+}
+.sub{
+  color:var(--text-dim);
+  margin:0 0 18px;
+  line-height:1.6;
+}
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:12px;
+}
+.full{grid-column:1/-1}
+.form-grid label{
+  display:block;
+  margin-bottom:6px;
+  color:var(--text-dim);
+  font-family:var(--mono);
+  font-size:.68rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.form-grid input{
+  width:100%;
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+}
+.form-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+.save-btn,.cancel-edit{
+  padding:12px 16px;
+  border-radius:14px;
+  font-weight:700;
+}
+.save-btn{
+  background:linear-gradient(135deg, var(--brand), #8AF0FF);
+  color:#05111B;
+}
+.cancel-edit{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  color:var(--text);
+}
+
+.image-row{
+  display:grid;
+  gap:10px;
+}
+.image-preview{
+  display:none;
+  align-items:center;
+  gap:12px;
+}
+.image-preview img{
+  width:72px;
+  height:72px;
+  object-fit:cover;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.08);
+}
+.remove-image{
+  padding:8px 12px;
+  border-radius:12px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  color:var(--text-dim);
+  font-size:.82rem;
+}
+
+.list-toolbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+.list-search{
+  flex:1;
+  min-width:240px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  color:var(--text);
+}
+.product-list{
+  display:grid;
+  gap:10px;
+}
+.product-row{
+  display:grid;
+  grid-template-columns:54px 1fr auto;
+  gap:14px;
+  align-items:center;
+  padding:14px;
+  border-radius:18px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+}
+.pr-thumb{
+  width:54px;
+  height:54px;
+  border-radius:16px;
+  overflow:hidden;
+  background:rgba(255,255,255,.04);
+  display:grid;
+  place-items:center;
+  font-size:1.35rem;
+}
+.pr-thumb img{width:100%;height:100%;object-fit:cover}
+.pr-name{
+  margin:0 0 4px;
+  font-weight:800;
+}
+.pr-meta{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  color:var(--text-dim);
+  font-family:var(--mono);
+  font-size:.76rem;
+}
+.chip{
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.06);
+}
+.chip.low{color:#FFE2A3; border-color:rgba(245,183,64,.2); background:rgba(245,183,64,.08)}
+.chip.out{color:#FFD1D1; border-color:rgba(248,113,113,.2); background:rgba(248,113,113,.08)}
+.pr-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.pr-actions button{
+  padding:10px 12px;
+  border-radius:12px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  color:var(--text);
+}
+.pr-actions .del:hover{
+  border-color:rgba(248,113,113,.24);
+  color:#FFD1D1;
+}
+.list-empty{
+  padding:40px 24px;
+  text-align:center;
+  color:var(--text-dim);
+  border-radius:18px;
+  border:1px dashed rgba(255,255,255,.12);
+}
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:24px;
+  transform:translateX(-50%) translateY(18px);
+  background:rgba(17,26,40,.96);
+  border:1px solid rgba(77,225,255,.2);
+  color:var(--text);
+  padding:12px 18px;
+  border-radius:999px;
+  opacity:0;
+  z-index:50;
+  transition:.22s ease;
+  box-shadow:var(--shadow);
+  font-family:var(--mono);
+  font-size:.84rem;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+@media (max-width:1100px){
+  .hero{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2, minmax(0, 1fr))}
+}
+@media (max-width:720px){
+  .topbar-inner,.page{padding-left:16px; padding-right:16px}
+  .topbar-inner{flex-wrap:wrap}
+  .hero-stats{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .product-row{grid-template-columns:1fr}
+  .pr-actions{width:100%}
+  .pr-actions button{flex:1}
+  .stats-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
-
-<header class="topbar">
-  <div class="topbar-inner">
-    <div class="brand"><span class="dot"></span> TecnoInformática <span class="tag">ADMIN</span></div>
-    <div id="topbarRight"><a class="back-link" href="index.html">← ver catálogo</a></div>
-  </div>
-</header>
-
-<!-- ---- LOGIN ---- -->
-<div class="login-wrap" id="loginWrap">
-  <div class="login-card">
-    <h1>Acceso administrador</h1>
-    <p>Ingresá con el usuario que creaste en Firebase Authentication.</p>
-    <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="tu@email.com"></div>
-    <div class="field"><label>Contraseña</label><input type="password" id="loginPass" placeholder="••••••••"></div>
-    <button class="login-btn" id="loginBtn">Ingresar</button>
-    <div class="login-error" id="loginError"></div>
-  </div>
-</div>
-
-<!-- ---- PANEL ---- -->
-<main class="panel" id="panel">
-  <h2 id="formTitle">Agregar producto</h2>
-  <p class="sub">Los cambios se ven al instante en el catálogo público, sin tocar ningún archivo.</p>
-
-  <div class="form-card">
-    <h3 id="formCardTitle">Nuevo producto</h3>
-    <input type="hidden" id="editingId" value="">
-    <div class="form-grid">
-      <div><label>Nombre</label><input type="text" id="f_name" placeholder="Notebook Lenovo IdeaPad 3"></div>
-      <div><label>Categoría</label><input type="text" id="f_cat" placeholder="Notebooks"></div>
-      <div class="full"><label>Especificaciones</label><input type="text" id="f_specs" placeholder="i5 11th · 8GB RAM · 256GB SSD"></div>
-      <div><label>Precio (ARS)</label><input type="number" id="f_price" placeholder="520000"></div>
-      <div><label>Stock</label><input type="number" id="f_stock" placeholder="2"></div>
-      <div><label>Emoji</label><input type="text" id="f_emoji" placeholder="💻" maxlength="4"></div>
-      <div><label>SKU (opcional)</label><input type="text" id="f_sku" placeholder="NB-001"></div>
-      <div class="full">
-        <label>Foto (opcional)</label>
-        <input type="file" id="f_imageFile" accept="image/*">
-        <div id="imagePreviewWrap" style="display:none; margin-top:10px; align-items:center; gap:12px;">
-          <img id="imagePreview" style="width:70px; height:70px; object-fit:cover; border-radius:7px; border:1px solid var(--line);">
-          <button type="button" id="removeImageBtn" style="background:var(--surface-2); color:var(--text-dim); border:1px solid var(--line); padding:7px 12px; border-radius:6px; font-size:0.78rem;">Quitar foto</button>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">
+        <div class="brand-mark">T</div>
+        <div class="brand-copy">
+          <strong>Tecno Informatica</strong>
+          <span>admin marketplace</span>
         </div>
+      </a>
+      <div class="top-actions" id="topbarRight">
+        <a class="back-link" href="index.html">Ver catalogo</a>
       </div>
     </div>
-    <button class="save-btn" id="saveBtn">Guardar producto</button>
-    <button class="cancel-edit" id="cancelEditBtn" style="display:none;">Cancelar edición</button>
+  </header>
+
+  <div class="page">
+    <section class="hero" id="loginWrap">
+      <div class="panel login-card">
+        <div class="eyebrow">acceso privado</div>
+        <h2>Panel administrador</h2>
+        <p>Ingresar con el usuario de Firebase Authentication para cargar, editar y borrar productos.</p>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="tu@email.com">
+        </div>
+        <div class="field">
+          <label>Contrasena</label>
+          <input type="password" id="loginPass" placeholder="********">
+        </div>
+        <button class="login-btn" id="loginBtn">Ingresar</button>
+        <div class="login-error" id="loginError"></div>
+      </div>
+      <div class="panel hero-side">
+        <div class="info-row">
+          <div>
+            <div class="info-label">sync</div>
+            <div class="info-value status-dot">Catalogo en vivo</div>
+          </div>
+          <div class="info-value">Firebase</div>
+        </div>
+        <div class="info-row">
+          <div>
+            <div class="info-label">publicacion</div>
+            <div class="info-value">Cambios instantaneos</div>
+          </div>
+          <div class="info-value">Realtime</div>
+        </div>
+        <div class="info-row">
+          <div>
+            <div class="info-label">canal</div>
+            <div class="info-value">Ventas por WhatsApp</div>
+          </div>
+          <div class="info-value">Directo</div>
+        </div>
+      </div>
+    </section>
+
+    <main class="dashboard panel" id="panel" style="display:none;">
+      <div class="dashboard-head">
+        <div>
+          <h2>Tablero de catalogo</h2>
+          <p>Gestion de productos, stock y contenido visible en el marketplace.</p>
+        </div>
+        <div class="dashboard-tools">
+          <a class="ghost-btn" href="index.html">Abrir catalogo</a>
+          <button class="ghost-btn" id="logoutBtnTop" style="display:none;">Salir</button>
+        </div>
+      </div>
+
+      <section class="stats-grid">
+        <div class="stat-card"><div class="label">Productos</div><div class="value" id="statProducts">0</div><div class="hint">Total publicado en el catalogo</div></div>
+        <div class="stat-card"><div class="label">Stock bajo</div><div class="value" id="statLow">0</div><div class="hint">Productos con 1 a 3 unidades</div></div>
+        <div class="stat-card"><div class="label">Sin stock</div><div class="value" id="statOut">0</div><div class="hint">Items que conviene reponer</div></div>
+        <div class="stat-card"><div class="label">Valor inventario</div><div class="value" id="statValue">$0</div><div class="hint">Suma aproximada de precio x stock</div></div>
+      </section>
+
+      <section class="panel form-card">
+        <h3 id="formCardTitle">Nuevo producto</h3>
+        <p class="sub">Cada cambio se actualiza al instante en la tienda publica. Si agregas imagen, se guarda en base64 para no depender de otro servicio.</p>
+        <input type="hidden" id="editingId" value="">
+        <div class="form-grid">
+          <div><label>Nombre</label><input type="text" id="f_name" placeholder="Notebook Lenovo IdeaPad 3"></div>
+          <div><label>Categoria</label><input type="text" id="f_cat" placeholder="Notebooks"></div>
+          <div><label>Marca</label><input type="text" id="f_brand" placeholder="Lenovo"></div>
+          <div><label>Envio / retiro</label><input type="text" id="f_shipping" placeholder="Retiro en local / envio a coordinar"></div>
+          <div class="full"><label>Especificaciones</label><input type="text" id="f_specs" placeholder="i5 11th · 8GB RAM · 256GB SSD"></div>
+          <div><label>Precio (ARS)</label><input type="number" id="f_price" placeholder="520000"></div>
+          <div><label>Stock</label><input type="number" id="f_stock" placeholder="2"></div>
+          <div><label>Emoji</label><input type="text" id="f_emoji" placeholder="💻" maxlength="4"></div>
+          <div><label>SKU opcional</label><input type="text" id="f_sku" placeholder="NB-001"></div>
+          <div class="full image-row">
+            <div>
+              <label>URL de imagen real</label>
+              <input type="url" id="f_imageUrl" placeholder="https://.../foto.jpg">
+            </div>
+            <div>
+              <label>Foto opcional</label>
+              <input type="file" id="f_imageFile" accept="image/*">
+            </div>
+            <div class="image-preview" id="imagePreviewWrap">
+              <img id="imagePreview" alt="preview">
+              <button type="button" class="remove-image" id="removeImageBtn">Quitar foto</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="save-btn" id="saveBtn">Guardar producto</button>
+          <button class="cancel-edit" id="cancelEditBtn" style="display:none;">Cancelar edicion</button>
+        </div>
+      </section>
+
+      <section class="panel list-card">
+        <div class="dashboard-head" style="margin-bottom:14px;">
+          <div>
+            <h3>Productos cargados <span id="prodCount" style="font-family:var(--mono); color:var(--text-dim); font-size:.85rem;"></span></h3>
+            <p class="sub" style="margin:8px 0 0;">Busca rapido, revisa stock y edita en un clic.</p>
+          </div>
+          <div class="dashboard-tools">
+            <input class="list-search" id="searchProducts" type="text" placeholder="Buscar por nombre, categoria o SKU">
+            <select class="filter" id="sortProducts">
+              <option value="name">Orden: nombre</option>
+              <option value="stockDesc">Orden: stock alto</option>
+              <option value="lowStock">Orden: stock bajo</option>
+              <option value="priceDesc">Orden: precio alto</option>
+            </select>
+          </div>
+        </div>
+        <div class="product-list" id="productList"></div>
+      </section>
+    </main>
   </div>
 
-  <h2>Productos cargados <span id="prodCount" style="font-family:var(--mono); font-size:0.85rem; color:var(--text-dim);"></span></h2>
-  <div class="product-list" id="productList"></div>
-</main>
+  <div class="toast" id="toast"></div>
 
-<div class="toast" id="toast"></div>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-<script>
-/* ============================================================
-   CONFIGURACIÓN — el MISMO objeto que pegaste en index.html
-   ============================================================ */
-const firebaseConfig = {
-  apiKey: "AIzaSyAbkxHZ2SHmuj-tMuI9FOZTAY99SKwL05E",
-  authDomain: "tecnoinformatica-9a6e6.firebaseapp.com",
-  projectId: "tecnoinformatica-9a6e6",
-  storageBucket: "tecnoinformatica-9a6e6.firebasestorage.app",
-  messagingSenderId: "197033759829",
-  appId: "1:197033759829:web:1f1277af9cb7b6056270dc"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-const loginWrap = document.getElementById("loginWrap");
-const panel = document.getElementById("panel");
-const loginError = document.getElementById("loginError");
-
-document.getElementById("loginBtn").addEventListener("click", ()=>{
-  const email = document.getElementById("loginEmail").value.trim();
-  const pass = document.getElementById("loginPass").value;
-  loginError.style.display = "none";
-  auth.signInWithEmailAndPassword(email, pass).catch(err=>{
-    loginError.textContent = "no se pudo ingresar — revisá email y contraseña";
-    loginError.style.display = "block";
-  });
-});
-
-auth.onAuthStateChanged(user=>{
-  if(user){
-    loginWrap.style.display = "none";
-    panel.classList.add("show");
-    document.getElementById("topbarRight").innerHTML =
-      `<a class="back-link" href="index.html" style="margin-right:8px;">← ver catálogo</a>
-       <button class="logout-btn" id="logoutBtn">Salir (${user.email})</button>`;
-    document.getElementById("logoutBtn").addEventListener("click", ()=> auth.signOut());
-    listenProducts();
-  } else {
-    loginWrap.style.display = "flex";
-    panel.classList.remove("show");
-  }
-});
-
-/* ============================================================
-   CRUD de productos
-   ============================================================ */
-let editingId = null;
-let currentImageData = undefined; // undefined = sin cambios, null = sacar foto, string = foto nueva
-
-document.getElementById("f_imageFile").addEventListener("change", (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev)=>{
-    const img = new Image();
-    img.onload = ()=>{
-      const maxW = 640;
-      const scale = Math.min(1, maxW / img.width);
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width * scale;
-      canvas.height = img.height * scale;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      currentImageData = canvas.toDataURL("image/jpeg", 0.7);
-      document.getElementById("imagePreview").src = currentImageData;
-      document.getElementById("imagePreviewWrap").style.display = "flex";
-    };
-    img.src = ev.target.result;
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAbkxHZ2SHmuj-tMuI9FOZTAY99SKwL05E",
+    authDomain: "tecnoinformatica-9a6e6.firebaseapp.com",
+    projectId: "tecnoinformatica-9a6e6",
+    storageBucket: "tecnoinformatica-9a6e6.firebasestorage.app",
+    messagingSenderId: "197033759829",
+    appId: "1:197033759829:web:1f1277af9cb7b6056270dc"
   };
-  reader.readAsDataURL(file);
-});
 
-document.getElementById("removeImageBtn").addEventListener("click", ()=>{
-  currentImageData = null;
-  document.getElementById("f_imageFile").value = "";
-  document.getElementById("imagePreviewWrap").style.display = "none";
-});
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-function showToast(msg){
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  setTimeout(()=> t.classList.remove("show"), 1700);
-}
+  const loginWrap = document.getElementById("loginWrap");
+  const panel = document.getElementById("panel");
+  const loginError = document.getElementById("loginError");
+  const topbarRight = document.getElementById("topbarRight");
 
-function clearForm(){
-  ["f_name","f_cat","f_specs","f_price","f_stock","f_emoji","f_sku","f_imageFile"].forEach(id=>document.getElementById(id).value="");
-  editingId = null;
-  currentImageData = undefined;
-  document.getElementById("imagePreviewWrap").style.display = "none";
-  document.getElementById("formCardTitle").textContent = "Nuevo producto";
-  document.getElementById("saveBtn").textContent = "Guardar producto";
-  document.getElementById("cancelEditBtn").style.display = "none";
-}
+  let editingId = null;
+  let currentImageData = undefined;
+  let currentProducts = [];
+  let searchTerm = "";
+  let sortMode = "name";
+  let unsubscribeProducts = null;
 
-document.getElementById("cancelEditBtn").addEventListener("click", clearForm);
+  const fmt = n => "$" + Number(n || 0).toLocaleString("es-AR");
 
-document.getElementById("saveBtn").addEventListener("click", ()=>{
-  const data = {
-    name: document.getElementById("f_name").value.trim(),
-    cat: document.getElementById("f_cat").value.trim(),
-    specs: document.getElementById("f_specs").value.trim(),
-    price: Number(document.getElementById("f_price").value) || 0,
-    stock: Number(document.getElementById("f_stock").value) || 0,
-    emoji: document.getElementById("f_emoji").value.trim() || "📦",
-    sku: document.getElementById("f_sku").value.trim() || ""
-  };
-  if(currentImageData !== undefined){
-    data.image = currentImageData === null ? firebase.firestore.FieldValue.delete() : currentImageData;
+  function safeText(v){
+    return String(v ?? "").replace(/[&<>"]/g, s => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[s]));
   }
-  if(!data.name){ showToast("Falta el nombre del producto"); return; }
 
-  if(editingId){
-    db.collection("products").doc(editingId).update(data)
-      .then(()=>{ showToast("Producto actualizado"); clearForm(); })
-      .catch(()=> showToast("Error al actualizar"));
-  } else {
-    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-    db.collection("products").add(data)
-      .then(()=>{ showToast("Producto agregado"); clearForm(); })
-      .catch(()=> showToast("Error al guardar"));
+  function showToast(msg){
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(showToast._timer);
+    showToast._timer = setTimeout(() => t.classList.remove("show"), 1600);
   }
-});
 
-function editProduct(p){
-  editingId = p.id;
-  currentImageData = undefined;
-  document.getElementById("f_name").value = p.name||"";
-  document.getElementById("f_cat").value = p.cat||"";
-  document.getElementById("f_specs").value = p.specs||"";
-  document.getElementById("f_price").value = p.price||"";
-  document.getElementById("f_stock").value = p.stock||"";
-  document.getElementById("f_emoji").value = p.emoji||"";
-  document.getElementById("f_sku").value = p.sku||"";
-  if(p.image){
-    document.getElementById("imagePreview").src = p.image;
-    document.getElementById("imagePreviewWrap").style.display = "flex";
-  } else {
+  function clearForm(){
+    ["f_name","f_cat","f_brand","f_shipping","f_specs","f_price","f_stock","f_emoji","f_sku","f_imageUrl","f_imageFile"].forEach(id => document.getElementById(id).value = "");
+    editingId = null;
+    currentImageData = undefined;
     document.getElementById("imagePreviewWrap").style.display = "none";
+    document.getElementById("formCardTitle").textContent = "Nuevo producto";
+    document.getElementById("saveBtn").textContent = "Guardar producto";
+    document.getElementById("cancelEditBtn").style.display = "none";
   }
-  document.getElementById("formCardTitle").textContent = `Editando: ${p.name}`;
-  document.getElementById("saveBtn").textContent = "Guardar cambios";
-  document.getElementById("cancelEditBtn").style.display = "inline-block";
-  window.scrollTo({top:0, behavior:"smooth"});
-}
 
-function deleteProduct(id, name){
-  if(!confirm(`¿Borrar "${name}"? Esta acción no se puede deshacer.`)) return;
-  db.collection("products").doc(id).delete()
-    .then(()=> showToast("Producto eliminado"))
-    .catch(()=> showToast("Error al eliminar"));
-}
+  function normalizedProducts(products){
+    const q = searchTerm.trim().toLowerCase();
+    let items = products.filter(p => {
+      if(!q) return true;
+      const haystack = `${p.name || ""} ${p.cat || ""} ${p.specs || ""} ${p.sku || ""}`.toLowerCase();
+      return haystack.includes(q);
+    });
 
-function listenProducts(){
-  db.collection("products").orderBy("name").onSnapshot(snapshot=>{
-    const products = snapshot.docs.map(doc=>({ id:doc.id, ...doc.data() }));
-    document.getElementById("prodCount").textContent = `(${products.length})`;
+    if(sortMode === "stockDesc") items.sort((a, b) => Number(b.stock||0) - Number(a.stock||0) || String(a.name||"").localeCompare(String(b.name||""), "es"));
+    if(sortMode === "lowStock") items.sort((a, b) => Number(a.stock||0) - Number(b.stock||0) || String(a.name||"").localeCompare(String(b.name||""), "es"));
+    if(sortMode === "priceDesc") items.sort((a, b) => Number(b.price||0) - Number(a.price||0));
+    if(sortMode === "name") items.sort((a, b) => String(a.name||"").localeCompare(String(b.name||""), "es"));
+    return items;
+  }
+
+  function renderDashboardStats(products){
+    const low = products.filter(p => Number(p.stock||0) > 0 && Number(p.stock||0) <= 3).length;
+    const out = products.filter(p => Number(p.stock||0) <= 0).length;
+    const value = products.reduce((sum, p) => sum + Number(p.price||0) * Number(p.stock||0), 0);
+    document.getElementById("statProducts").textContent = products.length;
+    document.getElementById("statLow").textContent = low;
+    document.getElementById("statOut").textContent = out;
+    document.getElementById("statValue").textContent = fmt(value);
+  }
+
+  function editProduct(p){
+    editingId = p.id;
+    currentImageData = undefined;
+    document.getElementById("f_name").value = p.name || "";
+    document.getElementById("f_cat").value = p.cat || "";
+    document.getElementById("f_brand").value = p.brand || "";
+    document.getElementById("f_shipping").value = p.shipping || "";
+    document.getElementById("f_specs").value = p.specs || "";
+    document.getElementById("f_price").value = p.price || "";
+    document.getElementById("f_stock").value = p.stock || "";
+    document.getElementById("f_emoji").value = p.emoji || "";
+    document.getElementById("f_sku").value = p.sku || "";
+    document.getElementById("f_imageUrl").value = p.imageUrl || "";
+    const previewImage = p.imageUrl || p.image;
+    if(previewImage){
+      document.getElementById("imagePreview").src = previewImage;
+      document.getElementById("imagePreviewWrap").style.display = "flex";
+    } else {
+      document.getElementById("imagePreviewWrap").style.display = "none";
+    }
+    document.getElementById("formCardTitle").textContent = `Editando: ${p.name || "producto"}`;
+    document.getElementById("saveBtn").textContent = "Guardar cambios";
+    document.getElementById("cancelEditBtn").style.display = "inline-flex";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function deleteProduct(id, name){
+    if(!confirm(`Borrar "${name}"? Esta accion no se puede deshacer.`)) return;
+    db.collection("products").doc(id).delete()
+      .then(() => showToast("Producto eliminado"))
+      .catch(() => showToast("Error al eliminar"));
+  }
+
+  function renderProductsList(){
+    const items = normalizedProducts(currentProducts);
+    renderDashboardStats(currentProducts);
+    document.getElementById("prodCount").textContent = `(${currentProducts.length})`;
+
     const list = document.getElementById("productList");
-
-    if(products.length===0){
-      list.innerHTML = `<div class="list-empty">todavía no agregaste productos — usá el formulario de arriba</div>`;
+    if(items.length === 0){
+      list.innerHTML = `<div class="list-empty">No hay productos que coincidan con el filtro actual.</div>`;
       return;
     }
 
-    list.innerHTML = products.map(p=>{
-      const stock = Number(p.stock||0);
-      const stockClass = stock<=0 ? "pr-stock-out" : stock<=3 ? "pr-stock-low" : "";
+    list.innerHTML = items.map(p => {
+      const stock = Number(p.stock || 0);
+      const stockClass = stock <= 0 ? "out" : stock <= 3 ? "low" : "";
+      const stockLabel = stock <= 0 ? "sin stock" : stock <= 3 ? "stock bajo" : "ok";
       return `
-      <div class="product-row">
-        <div class="pr-emoji">${p.image ? `<img src="${p.image}" alt="" style="width:34px;height:34px;object-fit:cover;border-radius:6px;">` : (p.emoji||"📦")}</div>
-        <div class="pr-info">
-          <p class="pr-name">${p.name}</p>
-          <div class="pr-meta">
-            <span>${p.cat||"sin categoría"}</span>
-            <span>$${Number(p.price||0).toLocaleString("es-AR")}</span>
-            <span class="${stockClass}">stock: ${stock}</span>
+        <div class="product-row">
+          <div class="pr-thumb">${(p.imageUrl || p.image) ? `<img src="${safeText(p.imageUrl || p.image)}" alt="">` : safeText(p.emoji || "📦")}</div>
+          <div>
+            <p class="pr-name">${safeText(p.name || "")}</p>
+            <div class="pr-meta">
+              <span class="chip">${safeText(p.cat || "sin categoria")}</span>
+              <span class="chip">${fmt(p.price)}</span>
+              <span class="chip ${stockClass}">stock: ${stock} (${safeText(stockLabel)})</span>
+              <span class="chip">${safeText(p.sku || "sin SKU")}</span>
+            </div>
+          </div>
+          <div class="pr-actions">
+            <button class="edit" data-id="${p.id}">Editar</button>
+            <button class="del" data-id="${p.id}">Borrar</button>
           </div>
         </div>
-        <div class="pr-actions">
-          <button class="edit" data-id="${p.id}">Editar</button>
-          <button class="del" data-id="${p.id}">Borrar</button>
-        </div>
-      </div>`;
+      `;
     }).join("");
 
-    list.querySelectorAll(".edit").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const p = products.find(x=>x.id===btn.dataset.id);
+    list.querySelectorAll(".edit").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const p = currentProducts.find(x => x.id === btn.dataset.id);
         if(p) editProduct(p);
       });
     });
-    list.querySelectorAll(".del").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const p = products.find(x=>x.id===btn.dataset.id);
-        if(p) deleteProduct(p.id, p.name);
+    list.querySelectorAll(".del").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const p = currentProducts.find(x => x.id === btn.dataset.id);
+        if(p) deleteProduct(p.id, p.name || "producto");
       });
     });
+  }
+
+  function listenProducts(){
+    if(unsubscribeProducts) unsubscribeProducts();
+    unsubscribeProducts = db.collection("products").orderBy("name").onSnapshot(snapshot => {
+      currentProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderProductsList();
+    });
+  }
+
+  auth.onAuthStateChanged(user => {
+    if(user){
+      loginWrap.style.display = "none";
+      panel.style.display = "grid";
+      topbarRight.innerHTML = `
+        <a class="back-link" href="index.html">Ver catalogo</a>
+        <button class="ghost-btn" id="logoutBtn">${safeText(user.email || "Salir")}</button>
+      `;
+      document.getElementById("logoutBtn").addEventListener("click", () => auth.signOut());
+      listenProducts();
+    } else {
+      if(unsubscribeProducts) {
+        unsubscribeProducts();
+        unsubscribeProducts = null;
+      }
+      loginWrap.style.display = "grid";
+      panel.style.display = "none";
+      topbarRight.innerHTML = `<a class="back-link" href="index.html">Ver catalogo</a>`;
+    }
   });
-}
-</script>
+
+  document.getElementById("loginBtn").addEventListener("click", () => {
+    const email = document.getElementById("loginEmail").value.trim();
+    const pass = document.getElementById("loginPass").value;
+    loginError.style.display = "none";
+    auth.signInWithEmailAndPassword(email, pass).catch(() => {
+      loginError.textContent = "No se pudo ingresar. Revisar email y contrasena.";
+      loginError.style.display = "block";
+    });
+  });
+
+  document.getElementById("f_imageFile").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const maxW = 720;
+        const scale = Math.min(1, maxW / img.width);
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        currentImageData = canvas.toDataURL("image/jpeg", 0.78);
+        document.getElementById("imagePreview").src = currentImageData;
+        document.getElementById("imagePreviewWrap").style.display = "flex";
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById("removeImageBtn").addEventListener("click", () => {
+    currentImageData = null;
+    document.getElementById("f_imageFile").value = "";
+    document.getElementById("imagePreviewWrap").style.display = "none";
+  });
+
+  document.getElementById("cancelEditBtn").addEventListener("click", clearForm);
+
+  document.getElementById("saveBtn").addEventListener("click", () => {
+    const data = {
+      name: document.getElementById("f_name").value.trim(),
+      cat: document.getElementById("f_cat").value.trim(),
+      brand: document.getElementById("f_brand").value.trim(),
+      shipping: document.getElementById("f_shipping").value.trim(),
+      specs: document.getElementById("f_specs").value.trim(),
+      price: Number(document.getElementById("f_price").value) || 0,
+      stock: Number(document.getElementById("f_stock").value) || 0,
+      emoji: document.getElementById("f_emoji").value.trim() || "📦",
+      sku: document.getElementById("f_sku").value.trim() || "",
+      imageUrl: document.getElementById("f_imageUrl").value.trim(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    if(currentImageData !== undefined){
+      data.image = currentImageData === null ? firebase.firestore.FieldValue.delete() : currentImageData;
+    }
+
+    if(!data.name){
+      showToast("Falta el nombre del producto");
+      return;
+    }
+
+    if(editingId){
+      db.collection("products").doc(editingId).update(data)
+        .then(() => { showToast("Producto actualizado"); clearForm(); })
+        .catch(() => showToast("Error al actualizar"));
+    } else {
+      data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      db.collection("products").add(data)
+        .then(() => { showToast("Producto agregado"); clearForm(); })
+        .catch(() => showToast("Error al guardar"));
+    }
+  });
+
+  document.getElementById("searchProducts").addEventListener("input", e => {
+    searchTerm = e.target.value;
+    renderProductsList();
+  });
+
+  document.getElementById("sortProducts").addEventListener("change", e => {
+    sortMode = e.target.value;
+    renderProductsList();
+  });
+  </script>
 </body>
 </html>

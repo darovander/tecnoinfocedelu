@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tecno Informatica | Producto</title>
+<meta name="description" content="Ficha de producto de Tecno Informatica.">
+<meta name="theme-color" content="#070B12">
+<meta property="og:type" content="product">
+<meta property="og:title" content="Tecno Informatica | Producto">
+<meta property="og:description" content="Detalle de producto con stock, imagen real y pedido por WhatsApp.">
+<meta property="og:image" content="https://dummyimage.com/1200x630/0b0f14/4de1ff&text=Tecno+Informatica">
+<meta property="og:url" content="product.html">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{
+  --bg:#070B12;
+  --surface:#111A28;
+  --surface-2:#162233;
+  --line:rgba(255,255,255,.08);
+  --text:#EAF2FF;
+  --text-dim:#9AAAC0;
+  --brand:#4DE1FF;
+  --brand-2:#7C7CFF;
+  --success:#34D399;
+  --warning:#F5B740;
+  --danger:#F87171;
+  --radius:18px;
+  --radius-lg:26px;
+  --shadow:0 24px 80px rgba(0,0,0,.34);
+  --mono:'JetBrains Mono','Fira Code',Consolas,monospace;
+  --sans:'Inter','Segoe UI',system-ui,sans-serif;
+  --display:'Space Grotesk','Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  color:var(--text);
+  font-family:var(--sans);
+  background:
+    radial-gradient(circle at top left, rgba(77,225,255,.16), transparent 30%),
+    radial-gradient(circle at 80% 10%, rgba(124,124,255,.14), transparent 30%),
+    linear-gradient(180deg, #05080E 0%, #07101A 30%, #05080E 100%);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+  background-size:72px 72px;
+  opacity:.3;
+}
+a{color:inherit;text-decoration:none}
+button{font:inherit; cursor:pointer; border:none}
+img{display:block; max-width:100%}
+:focus-visible{outline:2px solid var(--brand); outline-offset:3px}
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:20;
+  backdrop-filter:blur(18px);
+  background:rgba(5,8,14,.84);
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.topbar-inner{
+  max-width:1280px;
+  margin:0 auto;
+  padding:16px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.brand-mark{
+  width:40px;
+  height:40px;
+  border-radius:14px;
+  background:linear-gradient(135deg, var(--brand), var(--brand-2));
+  display:grid;
+  place-items:center;
+  color:#04131C;
+  font-weight:900;
+}
+.brand-copy strong{
+  display:block;
+  font-family:var(--display);
+}
+.brand-copy span{
+  display:block;
+  margin-top:4px;
+  font-family:var(--mono);
+  color:var(--text-dim);
+  font-size:.72rem;
+}
+.back-link{
+  padding:11px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.page{
+  max-width:1280px;
+  margin:0 auto;
+  padding:28px 24px 80px;
+}
+.breadcrumbs{
+  color:var(--text-dim);
+  font-size:.85rem;
+  margin-bottom:14px;
+}
+.breadcrumbs a{color:var(--brand)}
+
+.hero{
+  display:grid;
+  grid-template-columns:1.08fr .92fr;
+  gap:18px;
+  align-items:stretch;
+}
+.panel{
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(17,26,40,.9);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow);
+}
+.gallery{
+  min-height:520px;
+  overflow:hidden;
+  position:relative;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(77,225,255,.2), transparent 28%),
+    radial-gradient(circle at 84% 18%, rgba(124,124,255,.16), transparent 28%),
+    linear-gradient(135deg, rgba(31,41,55,.9), rgba(12,19,32,.96));
+}
+.gallery img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.gallery-fallback{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  font-size:6rem;
+}
+.gallery-badges{
+  position:absolute;
+  inset:16px 16px auto;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 11px;
+  border-radius:999px;
+  background:rgba(7,11,18,.55);
+  border:1px solid rgba(255,255,255,.08);
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:.72rem;
+  backdrop-filter:blur(10px);
+}
+.stock.ok{color:#B5F5D4; background:rgba(52,211,153,.14); border-color:rgba(52,211,153,.18)}
+.stock.low{color:#FFE2A3; background:rgba(245,183,64,.14); border-color:rgba(245,183,64,.2)}
+.stock.out{color:#FFD1D1; background:rgba(248,113,113,.14); border-color:rgba(248,113,113,.22)}
+
+.content{
+  padding:24px;
+  display:grid;
+  gap:18px;
+}
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(77,225,255,.08);
+  border:1px solid rgba(77,225,255,.16);
+  color:var(--brand);
+  font-family:var(--mono);
+  font-size:.75rem;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+}
+.eyebrow:before{
+  content:"";
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--success);
+  box-shadow:0 0 0 6px rgba(52,211,153,.12);
+}
+.title{
+  margin:0;
+  font-family:var(--display);
+  font-size:clamp(2rem, 4vw, 3.4rem);
+  line-height:.98;
+  letter-spacing:-.04em;
+}
+.subtitle{
+  color:var(--text-dim);
+  line-height:1.7;
+  margin:0;
+}
+.price-row{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.price{
+  font-family:var(--display);
+  font-size:2rem;
+}
+.micro{
+  color:var(--text-dim);
+  font-size:.9rem;
+}
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.btn{
+  padding:13px 16px;
+  border-radius:14px;
+  font-weight:800;
+}
+.btn.primary{background:linear-gradient(135deg, var(--brand), #8AF0FF); color:#05111B}
+.btn.secondary{background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); color:var(--text)}
+.btn.whatsapp{background:linear-gradient(135deg, #25D366, #4AF08A); color:#04150A}
+.btn:disabled{opacity:.4; cursor:not-allowed}
+
+.grid{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:12px;
+}
+.meta{
+  padding:16px;
+  border-radius:18px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+}
+.meta .label{
+  color:var(--text-dim);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-size:.72rem;
+}
+.meta .value{
+  margin-top:7px;
+  font-family:var(--display);
+  font-size:1rem;
+}
+
+.specs,
+.related{
+  margin-top:18px;
+  padding:24px;
+}
+.section-title{
+  margin:0 0 14px;
+  font-family:var(--display);
+  font-size:1.2rem;
+}
+.spec-list{
+  display:grid;
+  gap:10px;
+}
+.spec-row{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.06);
+}
+.spec-row span:first-child{color:var(--text-dim)}
+
+.related-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+  gap:14px;
+}
+.card{
+  padding:14px;
+  border-radius:20px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+}
+.card-thumb{
+  aspect-ratio:4/3;
+  border-radius:16px;
+  overflow:hidden;
+  background:rgba(255,255,255,.04);
+  display:grid;
+  place-items:center;
+  font-size:2rem;
+  margin-bottom:12px;
+}
+.card-thumb img{width:100%; height:100%; object-fit:cover}
+.card h3{
+  margin:0 0 6px;
+  font-size:1rem;
+}
+.card p{
+  margin:0;
+  color:var(--text-dim);
+  font-size:.88rem;
+  line-height:1.5;
+}
+.card .price-small{
+  margin-top:10px;
+  font-family:var(--display);
+  font-size:1.05rem;
+}
+
+.empty{
+  padding:26px;
+  text-align:center;
+  color:var(--text-dim);
+}
+.empty strong{
+  display:block;
+  color:var(--text);
+  font-family:var(--display);
+  font-size:1.25rem;
+  margin-bottom:8px;
+}
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:24px;
+  transform:translateX(-50%) translateY(18px);
+  background:rgba(17,26,40,.96);
+  border:1px solid rgba(77,225,255,.2);
+  color:var(--text);
+  padding:12px 18px;
+  border-radius:999px;
+  opacity:0;
+  z-index:50;
+  transition:.22s ease;
+  box-shadow:var(--shadow);
+  font-family:var(--mono);
+  font-size:.84rem;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+@media (max-width:980px){
+  .hero{grid-template-columns:1fr}
+  .grid{grid-template-columns:repeat(2, minmax(0, 1fr))}
+}
+@media (max-width:640px){
+  .topbar-inner,.page{padding-left:16px; padding-right:16px}
+  .grid{grid-template-columns:1fr}
+  .gallery{min-height:360px}
+}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">
+        <div class="brand-mark">T</div>
+        <div class="brand-copy">
+          <strong>Tecno Informatica</strong>
+          <span>ficha de producto</span>
+        </div>
+      </a>
+      <a class="back-link" href="index.html">Volver al catalogo</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="breadcrumbs">
+      <a href="index.html">Catalogo</a> / <span id="crumbCategory">Producto</span>
+    </div>
+
+    <section class="hero">
+      <div class="panel gallery" id="productMedia">
+        <div class="gallery-badges">
+          <span class="badge" id="skuBadge">SKU</span>
+          <span class="badge stock" id="stockBadge">Cargando...</span>
+        </div>
+      </div>
+
+      <article class="panel content">
+        <div class="eyebrow">venta profesional</div>
+        <h1 class="title" id="productName">Cargando producto...</h1>
+        <p class="subtitle" id="productSummary">Estamos preparando la ficha del producto.</p>
+
+        <div class="price-row">
+          <div>
+            <div class="price" id="productPrice">$0</div>
+            <div class="micro" id="productSubtitle">Stock y envio en tiempo real</div>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="addToCartBtn">Agregar al carrito</button>
+            <button class="btn whatsapp" id="whatsappBtn">Consultar por WhatsApp</button>
+            <a class="btn secondary" href="index.html#catalogo">Seguir explorando</a>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="meta"><div class="label">Marca</div><div class="value" id="metaBrand">-</div></div>
+          <div class="meta"><div class="label">Categoria</div><div class="value" id="metaCategory">-</div></div>
+          <div class="meta"><div class="label">Envio</div><div class="value" id="metaShipping">-</div></div>
+          <div class="meta"><div class="label">Estado</div><div class="value" id="metaAvailability">-</div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel specs">
+      <h2 class="section-title">Especificaciones</h2>
+      <div class="spec-list" id="specList"></div>
+    </section>
+
+    <section class="panel related">
+      <h2 class="section-title">Productos relacionados</h2>
+      <div class="related-grid" id="relatedGrid"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAbkxHZ2SHmuj-tMuI9FOZTAY99SKwL05E",
+    authDomain: "tecnoinformatica-9a6e6.firebaseapp.com",
+    projectId: "tecnoinformatica-9a6e6",
+    storageBucket: "tecnoinformatica-9a6e6.firebasestorage.app",
+    messagingSenderId: "197033759829",
+    appId: "1:197033759829:web:1f1277af9cb7b6056270dc"
+  };
+  const CONFIG = { telefonoWhatsapp: "5493442419123" };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const state = {
+    products: [],
+    product: null
+  };
+
+  let cart = loadCartState();
+
+  const fmt = n => "$" + Number(n || 0).toLocaleString("es-AR");
+
+  function safeText(v){
+    return String(v ?? "").replace(/[&<>"]/g, s => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[s]));
+  }
+  function loadCartState(){
+    try{
+      return JSON.parse(localStorage.getItem("tecno_cart") || "{}") || {};
+    }catch{
+      return {};
+    }
+  }
+  function persistCartState(){
+    localStorage.setItem("tecno_cart", JSON.stringify(cart));
+  }
+  function getProductImage(product){
+    return product?.imageUrl || product?.image || "";
+  }
+  function getProductLink(product){
+    return `product.html?id=${encodeURIComponent(product.id)}`;
+  }
+  function showToast(msg){
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(showToast._timer);
+    showToast._timer = setTimeout(() => t.classList.remove("show"), 1600);
+  }
+  function cartCount(){
+    return Object.values(cart).reduce((a, b) => a + b, 0);
+  }
+  function addToCart(id){
+    cart[id] = (cart[id] || 0) + 1;
+    persistCartState();
+    showToast("Agregado al carrito");
+  }
+  function getIdFromUrl(){
+    return new URLSearchParams(window.location.search).get("id");
+  }
+  function setSeo(product){
+    const title = `${product.name} | Tecno Informatica`;
+    const description = `${product.name}. ${product.brand || ""}. ${product.specs || ""}. ${product.shipping || "Envio a coordinar"}.`;
+    const image = getProductImage(product) || "https://dummyimage.com/1200x630/0b0f14/4de1ff&text=Tecno+Informatica";
+    document.title = title;
+    document.querySelector('meta[name="description"]').setAttribute("content", description.slice(0, 160));
+    document.querySelector('meta[property="og:title"]').setAttribute("content", title);
+    document.querySelector('meta[property="og:description"]').setAttribute("content", description.slice(0, 200));
+    document.querySelector('meta[property="og:image"]').setAttribute("content", image);
+    document.querySelector('meta[property="og:url"]').setAttribute("content", `product.html?id=${encodeURIComponent(product.id)}`);
+    const canonical = document.querySelector('link[rel="canonical"]') || document.createElement("link");
+    canonical.rel = "canonical";
+    canonical.href = `product.html?id=${encodeURIComponent(product.id)}`;
+    if(!canonical.parentNode) document.head.appendChild(canonical);
+    let jsonLd = document.getElementById("productJsonLd");
+    if(!jsonLd){
+      jsonLd = document.createElement("script");
+      jsonLd.type = "application/ld+json";
+      jsonLd.id = "productJsonLd";
+      document.head.appendChild(jsonLd);
+    }
+    jsonLd.textContent = JSON.stringify({
+      "@context":"https://schema.org",
+      "@type":"Product",
+      name: product.name || "",
+      image: image ? [image] : [],
+      description,
+      brand: { "@type":"Brand", name: product.brand || "Tecno Informatica" },
+      sku: product.sku || "",
+      offers: {
+        "@type":"Offer",
+        priceCurrency:"ARS",
+        price: Number(product.price || 0),
+        availability: Number(product.stock || 0) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        url: `product.html?id=${encodeURIComponent(product.id)}`
+      }
+    });
+  }
+  function renderProduct(product){
+    state.product = product;
+    setSeo(product);
+
+    const stock = Number(product.stock || 0);
+    const stockLabel = stock <= 0 ? "Sin stock" : stock <= 3 ? `Stock bajo: ${stock}` : `En stock: ${stock}`;
+    const stockClass = stock <= 0 ? "out" : stock <= 3 ? "low" : "ok";
+    const image = getProductImage(product);
+
+    document.getElementById("productName").textContent = product.name || "Producto";
+    document.getElementById("productSummary").textContent = product.specs || "Sin descripcion adicional.";
+    document.getElementById("productPrice").textContent = fmt(product.price);
+    document.getElementById("productSubtitle").textContent = product.sku ? `SKU ${product.sku}` : "Stock y envio en tiempo real";
+    document.getElementById("metaBrand").textContent = product.brand || "Sin marca";
+    document.getElementById("metaCategory").textContent = product.cat || "General";
+    document.getElementById("metaShipping").textContent = product.shipping || "A coordinar";
+    document.getElementById("metaAvailability").textContent = stockLabel;
+    document.getElementById("skuBadge").textContent = product.sku || "Sin SKU";
+    document.getElementById("stockBadge").textContent = stockLabel;
+    document.getElementById("stockBadge").className = `badge stock ${stockClass}`;
+    document.getElementById("crumbCategory").textContent = product.cat || "Producto";
+
+    const media = document.getElementById("productMedia");
+    media.innerHTML = `
+      <div class="gallery-badges">
+        <span class="badge">${safeText(product.sku || "Sin SKU")}</span>
+        <span class="badge stock ${stockClass}">${safeText(stockLabel)}</span>
+      </div>
+      ${image
+        ? `<img src="${safeText(image)}" alt="${safeText(product.name || "")}">`
+        : `<div class="gallery-fallback">${safeText(product.emoji || "📦")}</div>`
+      }
+    `;
+
+    const specs = [
+      ["Marca", product.brand || "Sin marca"],
+      ["Categoria", product.cat || "General"],
+      ["Precio", fmt(product.price)],
+      ["Stock", String(stock)],
+      ["Envio", product.shipping || "A coordinar"],
+      ["SKU", product.sku || "Sin SKU"]
+    ];
+    document.getElementById("specList").innerHTML = specs.map(([a, b]) => `
+      <div class="spec-row"><span>${safeText(a)}</span><span>${safeText(b)}</span></div>
+    `).join("");
+
+    document.getElementById("addToCartBtn").disabled = stock <= 0;
+    document.getElementById("addToCartBtn").textContent = stock <= 0 ? "Sin stock" : "Agregar al carrito";
+    document.getElementById("addToCartBtn").onclick = () => {
+      addToCart(product.id);
+    };
+    document.getElementById("whatsappBtn").onclick = () => {
+      const msg = `Hola! Me interesa este producto:\n\n${product.name}\nPrecio: ${fmt(product.price)}\nMarca: ${product.brand || "Sin marca"}\nCategoria: ${product.cat || "General"}\nEnvio: ${product.shipping || "A coordinar"}\nSKU: ${product.sku || "Sin SKU"}`;
+      window.open(`https://wa.me/${CONFIG.telefonoWhatsapp}?text=${encodeURIComponent(msg)}`, "_blank", "noreferrer");
+    };
+
+    renderRelated(product);
+  }
+  function renderRelated(product){
+    const related = state.products
+      .filter(p => p.id !== product.id)
+      .filter(p => (product.brand && p.brand === product.brand) || (product.cat && p.cat === product.cat))
+      .slice(0, 4);
+    const grid = document.getElementById("relatedGrid");
+    if(related.length === 0){
+      grid.innerHTML = `<div class="empty"><strong>No hay productos relacionados</strong>Cuando cargues mas catalogo, aparecera aqui.</div>`;
+      return;
+    }
+    grid.innerHTML = related.map(p => `
+      <a class="card" href="${getProductLink(p)}">
+        <div class="card-thumb">${getProductImage(p) ? `<img src="${safeText(getProductImage(p))}" alt="${safeText(p.name || "")}">` : safeText(p.emoji || "📦")}</div>
+        <h3>${safeText(p.name || "")}</h3>
+        <p>${safeText(p.brand || p.cat || "Producto relacionado")}</p>
+        <div class="price-small">${fmt(p.price)}</div>
+      </a>
+    `).join("");
+  }
+  function renderMissing(){
+    document.title = "Producto no encontrado | Tecno Informatica";
+    document.getElementById("productName").textContent = "Producto no encontrado";
+    document.getElementById("productSummary").textContent = "Volvamos al catalogo y probemos con otro articulo.";
+    document.getElementById("productPrice").textContent = "$0";
+    document.getElementById("productMedia").innerHTML = `<div class="empty"><strong>No encontramos esta ficha</strong><a class="btn secondary" href="index.html">Volver al catalogo</a></div>`;
+    document.getElementById("specList").innerHTML = "";
+    document.getElementById("relatedGrid").innerHTML = "";
+    document.getElementById("addToCartBtn").disabled = true;
+    document.getElementById("whatsappBtn").disabled = true;
+  }
+
+  db.collection("products").orderBy("name").onSnapshot(snapshot => {
+    state.products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const id = getIdFromUrl();
+    const product = state.products.find(p => p.id === id);
+    if(product){
+      renderProduct(product);
+    } else if(state.products.length > 0){
+      renderMissing();
+    } else {
+      document.getElementById("productName").textContent = "Cargando catalogo...";
+      document.getElementById("relatedGrid").innerHTML = `<div class="empty"><strong>Cargando productos</strong>Espera un momento mientras se sincroniza Firebase.</div>`;
+    }
+  }, error => {
+    console.error(error);
+    renderMissing();
+    document.getElementById("relatedGrid").innerHTML = `<div class="empty"><strong>No pudimos conectar</strong>Revisemos Firebase y la red antes de seguir.</div>`;
+  });
+
+  // Sync cart badge if the user comes from the home page.
+  if(cartCount() > 0){
+    showToast(`Carrito: ${cartCount()} item(s)`);
+  }
+  </script>
+</body>
+</html>
