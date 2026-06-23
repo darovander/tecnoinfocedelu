@@ -411,6 +411,19 @@ img{display:block;max-width:100%}
   background:rgba(255,255,255,.04);
   color:var(--text);
 }
+.form-grid select,
+.form-grid textarea{
+  width:100%;
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);
+  color:var(--text);
+}
+.form-grid textarea{
+  resize:vertical;
+  min-height:130px;
+}
 .form-actions{
   display:flex;
   gap:10px;
@@ -654,6 +667,42 @@ img{display:block;max-width:100%}
       </section>
 
       <section class="panel form-card">
+        <h3>Asistente IA para productos</h3>
+        <p class="sub">Pegá la clave de Groq una sola vez, guardala localmente y usala para generar fichas, mejorar textos y crear varios productos de una pasada.</p>
+        <div class="form-grid">
+          <div class="full">
+            <label>Clave Groq</label>
+            <input type="password" id="groqKeyInput" placeholder="gsk_...">
+          </div>
+          <div>
+            <label>Modelo</label>
+            <select id="groqModelInput" style="width:100%; padding:12px 14px; border-radius:14px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.04); color:var(--text);">
+              <option value="openai/gpt-oss-20b">openai/gpt-oss-20b</option>
+              <option value="openai/gpt-oss-120b">openai/gpt-oss-120b</option>
+            </select>
+          </div>
+          <div>
+            <label>Modo</label>
+            <select id="groqModeInput" style="width:100%; padding:12px 14px; border-radius:14px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.04); color:var(--text);">
+              <option value="single">Generar un producto</option>
+              <option value="bulk">Importar varios productos</option>
+              <option value="improve">Mejorar un producto</option>
+            </select>
+          </div>
+          <div class="full">
+            <label>Idea / texto fuente</label>
+            <textarea id="groqPromptInput" rows="7" placeholder="Ej: Notebook gamer usada, i7, 16GB, SSD 512GB, pantalla 15.6, color negro, precio competitivo."></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="save-btn" type="button" id="saveGroqKeyBtn">Guardar clave</button>
+          <button class="cancel-edit" type="button" id="aiGenerateBtn">Generar con IA</button>
+          <button class="cancel-edit" type="button" id="aiClearBtn">Limpiar</button>
+        </div>
+        <p class="sub" id="aiStatus" style="margin-top:12px;">La IA puede sugerir nombre, categoria, marca, envio, SEO y precio estimado.</p>
+      </section>
+
+      <section class="panel form-card">
         <h3 id="formCardTitle">Nuevo producto</h3>
         <p class="sub">Cada cambio se actualiza al instante en la tienda publica. Si agregas imagen, se guarda en base64 para no depender de otro servicio.</p>
         <input type="hidden" id="editingId" value="">
@@ -739,6 +788,11 @@ img{display:block;max-width:100%}
   let searchTerm = "";
   let sortMode = "name";
   let unsubscribeProducts = null;
+  let aiBusy = false;
+
+  const GROQ_STORAGE_KEY = "tecno_groq_key";
+  const GROQ_MODEL_KEY = "tecno_groq_model";
+  const GROQ_DEFAULT_MODEL = "openai/gpt-oss-20b";
 
   const fmt = n => "$" + Number(n || 0).toLocaleString("es-AR");
 
@@ -752,6 +806,77 @@ img{display:block;max-width:100%}
     t.classList.add("show");
     clearTimeout(showToast._timer);
     showToast._timer = setTimeout(() => t.classList.remove("show"), 1600);
+  }
+
+  function setAiStatus(msg){
+    document.getElementById("aiStatus").textContent = msg;
+  }
+
+  function getGroqConfig(){
+    return {
+      apiKey: document.getElementById("groqKeyInput").value.trim() || localStorage.getItem(GROQ_STORAGE_KEY) || "",
+      model: document.getElementById("groqModelInput").value || localStorage.getItem(GROQ_MODEL_KEY) || GROQ_DEFAULT_MODEL
+    };
+  }
+
+  function saveGroqConfig(){
+    const apiKey = document.getElementById("groqKeyInput").value.trim();
+    const model = document.getElementById("groqModelInput").value || GROQ_DEFAULT_MODEL;
+    if(apiKey) localStorage.setItem(GROQ_STORAGE_KEY, apiKey);
+    localStorage.setItem(GROQ_MODEL_KEY, model);
+    showToast("Configuracion IA guardada");
+    setAiStatus(apiKey ? "Clave guardada solo en este navegador." : "Modelo guardado. Pegá una clave para usar IA.");
+  }
+
+  async function callGroq(prompt, schema){
+    const { apiKey, model } = getGroqConfig();
+    if(!apiKey) throw new Error("Falta la clave de Groq");
+
+    const body = {
+      model,
+      messages: [
+        {
+          role: "system",
+          content: "Sos un asistente experto en ecommerce de tecnologia. Genera respuestas utiles, cortas y enfocadas en vender mejor. No inventes datos tecnicos sin base; si faltan detalles, proponelos como sugerencias."
+        },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.3,
+      max_completion_tokens: 1200
+    };
+
+    if(schema){
+      body.response_format = {
+        type: "json_schema",
+        json_schema: {
+          name: schema.name,
+          strict: true,
+          schema: schema.schema
+        }
+      };
+    }
+
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(body)
+    });
+
+    if(!res.ok){
+      const txt = await res.text();
+      throw new Error(`Groq error ${res.status}: ${txt.slice(0, 240)}`);
+    }
+
+    const data = await res.json();
+    const content = data?.choices?.[0]?.message?.content || "{}";
+    try{
+      return JSON.parse(content);
+    }catch{
+      return { raw: content };
+    }
   }
 
   function clearForm(){
@@ -871,6 +996,140 @@ img{display:block;max-width:100%}
     });
   }
 
+  function fillFormFromDraft(draft){
+    document.getElementById("f_name").value = draft.name || "";
+    document.getElementById("f_cat").value = draft.cat || "";
+    document.getElementById("f_brand").value = draft.brand || "";
+    document.getElementById("f_shipping").value = draft.shipping || "";
+    document.getElementById("f_specs").value = draft.specs || "";
+    document.getElementById("f_price").value = draft.price || "";
+    document.getElementById("f_stock").value = draft.stock ?? 1;
+    document.getElementById("f_emoji").value = draft.emoji || "📦";
+    document.getElementById("f_sku").value = draft.sku || "";
+    document.getElementById("f_imageUrl").value = draft.imageUrl || "";
+    if(draft.imageUrl){
+      document.getElementById("imagePreview").src = draft.imageUrl;
+      document.getElementById("imagePreviewWrap").style.display = "flex";
+    }
+  }
+
+  async function generateWithAi(){
+    if(aiBusy) return;
+    aiBusy = true;
+    const mode = document.getElementById("groqModeInput").value;
+    const source = document.getElementById("groqPromptInput").value.trim();
+    if(!source){
+      showToast("Pegá una idea o texto primero");
+      aiBusy = false;
+      return;
+    }
+
+    const schema = mode === "bulk"
+      ? {
+          name: "bulk_products",
+          schema: {
+            type: "object",
+            additionalProperties: false,
+            required: ["items", "notes"],
+            properties: {
+              items: {
+                type: "array",
+                minItems: 1,
+                items: {
+                  type: "object",
+                  additionalProperties: false,
+                  required: ["name","cat","brand","shipping","specs","price","stock","emoji","sku","imageUrl","seoTitle","seoDescription"],
+                  properties: {
+                    name: { type: "string" },
+                    cat: { type: "string" },
+                    brand: { type: "string" },
+                    shipping: { type: "string" },
+                    specs: { type: "string" },
+                    price: { type: "number" },
+                    stock: { type: "number" },
+                    emoji: { type: "string" },
+                    sku: { type: "string" },
+                    imageUrl: { type: "string" },
+                    seoTitle: { type: "string" },
+                    seoDescription: { type: "string" }
+                  }
+                }
+              },
+              notes: { type: "string" }
+            }
+          }
+        }
+      : {
+          name: "product_draft",
+          schema: {
+            type: "object",
+            additionalProperties: false,
+            required: ["name","cat","brand","shipping","specs","price","stock","emoji","sku","imageUrl","seoTitle","seoDescription","notes"],
+            properties: {
+              name: { type: "string" },
+              cat: { type: "string" },
+              brand: { type: "string" },
+              shipping: { type: "string" },
+              specs: { type: "string" },
+              price: { type: "number" },
+              stock: { type: "number" },
+              emoji: { type: "string" },
+              sku: { type: "string" },
+              imageUrl: { type: "string" },
+              seoTitle: { type: "string" },
+              seoDescription: { type: "string" },
+              notes: { type: "string" }
+            }
+          }
+        };
+
+    const prompt = mode === "bulk"
+      ? `Converti este texto en una lista de productos lista para cargar en el marketplace. Si faltan datos, inferilos de forma conservadora. Texto:\n\n${source}\n\nQuiero resultados realistas para tienda de tecnologia en Argentina.`
+      : mode === "improve"
+        ? `Mejorá y optimizá esta ficha de producto para ecommerce de tecnologia. Devolvé un borrador listo para pegar en el formulario. Si detectas datos pobres, corregilos. Texto:\n\n${source}`
+        : `Generá un producto de ecommerce listo para cargar en un marketplace de tecnologia en Argentina. Devolvé un draft completo y realista basado en este texto:\n\n${source}\n\nIncluí precio estimado en ARS, stock sugerido, marca, envio y SEO.`;
+
+    try{
+      setAiStatus("Pensando con Groq...");
+      const result = await callGroq(prompt, schema);
+      if(mode === "bulk"){
+        const items = result.items || [];
+        if(items.length === 0) throw new Error("No se generaron productos");
+        const created = [];
+        for(const item of items){
+          await db.collection("products").add({
+            name: item.name,
+            cat: item.cat,
+            brand: item.brand,
+            shipping: item.shipping,
+            specs: item.specs,
+            price: Number(item.price) || 0,
+            stock: Number(item.stock) || 0,
+            emoji: item.emoji || "📦",
+            sku: item.sku || "",
+            imageUrl: item.imageUrl || "",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          created.push(item.name);
+        }
+        setAiStatus(`Importados ${created.length} productos: ${created.join(", ")}.`);
+        showToast("Productos creados con IA");
+        renderProductsList();
+      } else {
+        fillFormFromDraft(result);
+        setAiStatus(`Borrador listo: ${result.name}. Revisalo y guardalo cuando quieras.`);
+        showToast("Formulario completado con IA");
+      }
+    } catch(err){
+      console.error(err);
+      setAiStatus(err.message || "No se pudo usar Groq en este momento.");
+      showToast("Error con la IA");
+    } finally {
+      aiBusy = false;
+    }
+  }
+
   function listenProducts(){
     if(unsubscribeProducts) unsubscribeProducts();
     unsubscribeProducts = db.collection("products").orderBy("name").onSnapshot(snapshot => {
@@ -878,6 +1137,13 @@ img{display:block;max-width:100%}
       renderProductsList();
     });
   }
+
+  document.getElementById("saveGroqKeyBtn").addEventListener("click", saveGroqConfig);
+  document.getElementById("aiGenerateBtn").addEventListener("click", generateWithAi);
+  document.getElementById("aiClearBtn").addEventListener("click", () => {
+    document.getElementById("groqPromptInput").value = "";
+    setAiStatus("Pegá un texto o idea para generar una ficha con IA.");
+  });
 
   auth.onAuthStateChanged(user => {
     if(user){
@@ -888,6 +1154,9 @@ img{display:block;max-width:100%}
         <button class="ghost-btn" id="logoutBtn">${safeText(user.email || "Salir")}</button>
       `;
       document.getElementById("logoutBtn").addEventListener("click", () => auth.signOut());
+      document.getElementById("groqKeyInput").value = localStorage.getItem(GROQ_STORAGE_KEY) || "";
+      document.getElementById("groqModelInput").value = localStorage.getItem(GROQ_MODEL_KEY) || GROQ_DEFAULT_MODEL;
+      setAiStatus(document.getElementById("groqKeyInput").value ? "Clave lista. Ya podes generar con IA." : "Pegá tu clave de Groq para activar el asistente.");
       listenProducts();
     } else {
       if(unsubscribeProducts) {

@@ -705,13 +705,18 @@ img{display:block;max-width:100%}
   gap:10px;
   margin:14px 0;
 }
-.checkout-fields input{
+.checkout-fields input,
+.checkout-fields textarea{
   width:100%;
   padding:12px 14px;
   border-radius:14px;
   background:rgba(255,255,255,.04);
   border:1px solid rgba(255,255,255,.08);
   color:var(--text);
+  resize:vertical;
+}
+.checkout-fields textarea{
+  min-height:110px;
 }
 .checkout-btn{
   width:100%;
@@ -871,6 +876,7 @@ img{display:block;max-width:100%}
       <div class="top-actions">
         <a class="nav-link" href="#catalogo">Catalogo</a>
         <a class="nav-link" href="#contacto">Contacto</a>
+        <button class="nav-link" id="openAiBtn" type="button">Asistente IA</button>
         <button class="cart-btn" id="openCartBtn">Carrito <span class="cart-count" id="cartCount">0</span></button>
       </div>
     </div>
@@ -1025,6 +1031,30 @@ img{display:block;max-width:100%}
   </div>
 </section>
 
+<div class="overlay" id="aiOverlay"></div>
+<aside class="drawer" id="aiDrawer" aria-label="asistente de compras">
+  <div class="drawer-head">
+    <div>
+      <h2>Asistente IA</h2>
+      <p>Pedile ayuda para elegir mejor con el catalogo actual.</p>
+    </div>
+    <button class="icon-btn" id="closeAiBtn">×</button>
+  </div>
+  <div class="drawer-body">
+    <div class="checkout-fields" style="margin-top:0;">
+      <input type="password" id="shopGroqKey" placeholder="Pegá tu clave de Groq si todavía no la guardaste">
+      <select id="shopGroqModel" style="width:100%; padding:12px 14px; border-radius:14px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); color:var(--text);">
+        <option value="openai/gpt-oss-20b">openai/gpt-oss-20b</option>
+        <option value="openai/gpt-oss-120b">openai/gpt-oss-120b</option>
+      </select>
+      <textarea id="shopAiPrompt" rows="6" placeholder="Busco una notebook para diseño, presupuesto medio, buena bateria y envio rapido."></textarea>
+    </div>
+    <button class="checkout-btn" id="askAiBtn">Buscar con IA</button>
+    <p class="checkout-note" id="shopAiStatus">La IA usa solo los productos cargados en este catalogo para recomendarte mejor.</p>
+    <div class="related-grid" id="aiResults" style="margin-top:16px;"></div>
+  </div>
+</aside>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1057,6 +1087,10 @@ let minPriceFilter = "";
 let maxPriceFilter = "";
 let selectedProduct = null;
 
+const GROQ_STORAGE_KEY = "tecno_groq_key";
+const GROQ_MODEL_KEY = "tecno_groq_model";
+const GROQ_DEFAULT_MODEL = "openai/gpt-oss-20b";
+
 const fmt = n => "$" + Number(n || 0).toLocaleString("es-AR");
 
 function safeText(v){
@@ -1081,6 +1115,58 @@ function getProductImage(product){
 
 function getProductLink(product){
   return `product.html?id=${encodeURIComponent(product.id)}`;
+}
+
+function getGroqConfig(){
+  return {
+    apiKey: localStorage.getItem(GROQ_STORAGE_KEY) || document.getElementById("shopGroqKey")?.value.trim() || "",
+    model: localStorage.getItem(GROQ_MODEL_KEY) || document.getElementById("shopGroqModel")?.value || GROQ_DEFAULT_MODEL
+  };
+}
+
+async function groqChat(prompt, schema){
+  const { apiKey, model } = getGroqConfig();
+  if(!apiKey) throw new Error("Falta la clave de Groq");
+
+  const body = {
+    model,
+    messages: [
+      { role: "system", content: "Sos un asistente de compras para un marketplace de tecnologia. Tus respuestas deben ser concretas, útiles y orientadas a ayudar a elegir productos reales del catalogo." },
+      { role: "user", content: prompt }
+    ],
+    temperature: 0.3,
+    max_completion_tokens: 1200
+  };
+  if(schema){
+    body.response_format = {
+      type: "json_schema",
+      json_schema: {
+        name: schema.name,
+        strict: true,
+        schema: schema.schema
+      }
+    };
+  }
+
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    },
+    body: JSON.stringify(body)
+  });
+  if(!res.ok){
+    const txt = await res.text();
+    throw new Error(`Groq error ${res.status}: ${txt.slice(0, 220)}`);
+  }
+  const data = await res.json();
+  const content = data?.choices?.[0]?.message?.content || "{}";
+  try{
+    return JSON.parse(content);
+  }catch{
+    return { raw: content };
+  }
 }
 
 function normalizeValue(value){
@@ -1150,6 +1236,20 @@ function renderFilters(){
   shippingSelect.innerHTML = `<option value="">Envio: todos</option>` + shipping.map(v => `<option value="${safeText(v)}" ${normalizeValue(v) === normalizeValue(shippingFilter) ? "selected" : ""}>${safeText(v)}</option>`).join("");
   document.getElementById("minPriceInput").value = minPriceFilter;
   document.getElementById("maxPriceInput").value = maxPriceFilter;
+}
+
+function compactCatalog(){
+  return PRODUCTS.slice(0, 20).map(p => ({
+    id: p.id,
+    name: p.name || "",
+    cat: p.cat || "",
+    brand: p.brand || "",
+    price: Number(p.price || 0),
+    stock: Number(p.stock || 0),
+    shipping: p.shipping || "",
+    specs: p.specs || "",
+    sku: p.sku || ""
+  }));
 }
 
 function showToast(msg){
@@ -1384,12 +1484,101 @@ function whatsappCheckout(){
   window.open(`https://wa.me/${CONFIG.telefonoWhatsapp}?text=${encodeURIComponent(msg)}`, "_blank", "noreferrer");
 }
 
+function openAiDrawer(){
+  document.getElementById("aiDrawer").classList.add("open");
+  document.getElementById("aiOverlay").classList.add("open");
+}
+
+function closeAiDrawer(){
+  document.getElementById("aiDrawer").classList.remove("open");
+  document.getElementById("aiOverlay").classList.remove("open");
+}
+
+function renderAiResults(payload){
+  const wrap = document.getElementById("aiResults");
+  const recs = payload.recommendations || [];
+  if(recs.length === 0){
+    wrap.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><strong>Sin resultados</strong>Probemos con otra consulta.</div>`;
+    return;
+  }
+  wrap.innerHTML = recs.map(rec => {
+    const product = PRODUCTS.find(p => p.id === rec.id);
+    if(!product) return "";
+    return `
+      <a class="card" href="${getProductLink(product)}">
+        <div class="card-thumb">${getProductImage(product) ? `<img src="${safeText(getProductImage(product))}" alt="">` : safeText(product.emoji || "📦")}</div>
+        <h3>${safeText(product.name || "")}</h3>
+        <p>${safeText(rec.reason || product.specs || "")}</p>
+        <div class="price-small">${fmt(product.price)}</div>
+      </a>
+    `;
+  }).join("");
+}
+
+async function askShoppingAi(){
+  const status = document.getElementById("shopAiStatus");
+  const prompt = document.getElementById("shopAiPrompt").value.trim();
+  const key = document.getElementById("shopGroqKey").value.trim();
+  const model = document.getElementById("shopGroqModel").value || GROQ_DEFAULT_MODEL;
+  if(key) localStorage.setItem(GROQ_STORAGE_KEY, key);
+  localStorage.setItem(GROQ_MODEL_KEY, model);
+  if(!prompt){
+    status.textContent = "Escribí qué estás buscando primero.";
+    return;
+  }
+  const catalog = compactCatalog();
+  if(catalog.length === 0){
+    status.textContent = "No hay productos cargados para recomendar.";
+    return;
+  }
+  try{
+    status.textContent = "Buscando con Groq...";
+    const result = await groqChat(
+      `Ayudame a responder esta consulta de compra con productos reales del catalogo. Consulta del cliente: "${prompt}". Catalogo disponible: ${JSON.stringify(catalog)}. Elegí hasta 4 productos con razones concretas y una recomendacion breve de compra. Respondé en JSON.`,
+      {
+        name: "shopping_assistant",
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          required: ["summary", "recommendations"],
+          properties: {
+            summary: { type: "string" },
+            recommendations: {
+              type: "array",
+              minItems: 1,
+              maxItems: 4,
+              items: {
+                type: "object",
+                additionalProperties: false,
+                required: ["id", "reason"],
+                properties: {
+                  id: { type: "string" },
+                  reason: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    );
+    status.textContent = result.summary || "Te armé estas opciones.";
+    renderAiResults(result);
+  }catch(err){
+    console.error(err);
+    status.textContent = err.message || "No se pudo consultar la IA.";
+  }
+}
+
 document.getElementById("openCartBtn").addEventListener("click", openCart);
 document.getElementById("closeCartBtn").addEventListener("click", closeCart);
 document.getElementById("cartOverlay").addEventListener("click", closeCart);
 document.getElementById("detailOverlay").addEventListener("click", closeDetail);
 document.getElementById("closeDetailBtn").addEventListener("click", closeDetail);
 document.getElementById("sendWhatsappBtn").addEventListener("click", whatsappCheckout);
+document.getElementById("openAiBtn").addEventListener("click", openAiDrawer);
+document.getElementById("closeAiBtn").addEventListener("click", closeAiDrawer);
+document.getElementById("aiOverlay").addEventListener("click", closeAiDrawer);
+document.getElementById("askAiBtn").addEventListener("click", askShoppingAi);
 document.getElementById("searchInput").addEventListener("input", e => {
   searchTerm = e.target.value;
   renderGrid();
@@ -1417,6 +1606,8 @@ document.getElementById("sortSelect").addEventListener("change", e => {
 
 const ticketNum = String(Math.floor(Math.random() * 9000) + 1000).padStart(4, "0");
 document.getElementById("ticketNumber").textContent = `Orden #${ticketNum}`;
+document.getElementById("shopGroqKey").value = localStorage.getItem(GROQ_STORAGE_KEY) || "";
+document.getElementById("shopGroqModel").value = localStorage.getItem(GROQ_MODEL_KEY) || GROQ_DEFAULT_MODEL;
 
 db.collection("products").orderBy("name").onSnapshot(
   snapshot => {
