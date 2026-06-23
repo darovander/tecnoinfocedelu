@@ -3,15 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tecno Informatica | Producto</title>
-<meta name="description" content="Ficha de producto de Tecno Informatica.">
+<title>TecnoInformática | Producto</title>
+<meta name="description" content="Ficha de producto de TecnoInformática.">
 <meta name="theme-color" content="#070B12">
 <meta property="og:type" content="product">
-<meta property="og:title" content="Tecno Informatica | Producto">
+<meta property="og:title" content="TecnoInformática | Producto">
 <meta property="og:description" content="Detalle de producto con stock, imagen real y pedido por WhatsApp.">
 <meta property="og:image" content="https://dummyimage.com/1200x630/0b0f14/4de1ff&text=Tecno+Informatica">
 <meta property="og:url" content="product.html">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070B12'/%3E%3Ctext x='32' y='44' font-family='Arial,sans-serif' font-size='34' font-weight='900' fill='%234DE1FF' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
 <style>
 :root{
   --bg:#070B12;
@@ -384,7 +385,7 @@ img{display:block; max-width:100%}
       <a class="brand" href="index.html">
         <div class="brand-mark">T</div>
         <div class="brand-copy">
-          <strong>Tecno Informatica</strong>
+          <strong>TecnoInformática</strong>
           <span>ficha de producto</span>
         </div>
       </a>
@@ -507,7 +508,7 @@ img{display:block; max-width:100%}
     return new URLSearchParams(window.location.search).get("id");
   }
   function setSeo(product){
-    const title = `${product.name} | Tecno Informatica`;
+    const title = `${product.name} | TecnoInformática`;
     const description = `${product.name}. ${product.brand || ""}. ${product.specs || ""}. ${product.shipping || "Envio a coordinar"}.`;
     const image = getProductImage(product) || "https://dummyimage.com/1200x630/0b0f14/4de1ff&text=Tecno+Informatica";
     document.title = title;
@@ -515,10 +516,10 @@ img{display:block; max-width:100%}
     document.querySelector('meta[property="og:title"]').setAttribute("content", title);
     document.querySelector('meta[property="og:description"]').setAttribute("content", description.slice(0, 200));
     document.querySelector('meta[property="og:image"]').setAttribute("content", image);
-    document.querySelector('meta[property="og:url"]').setAttribute("content", `product.html?id=${encodeURIComponent(product.id)}`);
+    document.querySelector('meta[property="og:url"]').setAttribute("content", `${window.location.origin}${window.location.pathname}?id=${encodeURIComponent(product.id)}`);
     const canonical = document.querySelector('link[rel="canonical"]') || document.createElement("link");
     canonical.rel = "canonical";
-    canonical.href = `product.html?id=${encodeURIComponent(product.id)}`;
+    canonical.href = `${window.location.origin}${window.location.pathname}?id=${encodeURIComponent(product.id)}`;
     if(!canonical.parentNode) document.head.appendChild(canonical);
     let jsonLd = document.getElementById("productJsonLd");
     if(!jsonLd){
@@ -533,14 +534,14 @@ img{display:block; max-width:100%}
       name: product.name || "",
       image: image ? [image] : [],
       description,
-      brand: { "@type":"Brand", name: product.brand || "Tecno Informatica" },
+      brand: { "@type":"Brand", name: product.brand || "TecnoInformática" },
       sku: product.sku || "",
       offers: {
         "@type":"Offer",
         priceCurrency:"ARS",
         price: Number(product.price || 0),
         availability: Number(product.stock || 0) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-        url: `product.html?id=${encodeURIComponent(product.id)}`
+        url: `${window.location.origin}${window.location.pathname}?id=${encodeURIComponent(product.id)}`
       }
     });
   }
@@ -622,7 +623,7 @@ img{display:block; max-width:100%}
     `).join("");
   }
   function renderMissing(){
-    document.title = "Producto no encontrado | Tecno Informatica";
+    document.title = "Producto no encontrado | TecnoInformática";
     document.getElementById("productName").textContent = "Producto no encontrado";
     document.getElementById("productSummary").textContent = "Volvamos al catalogo y probemos con otro articulo.";
     document.getElementById("productPrice").textContent = "$0";

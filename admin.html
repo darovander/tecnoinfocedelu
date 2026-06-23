@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tecno Informatica Admin</title>
+<title>TecnoInformática Admin</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070B12'/%3E%3Ctext x='32' y='44' font-family='Arial,sans-serif' font-size='34' font-weight='900' fill='%234DE1FF' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
 <style>
 :root{
   --bg:#070B12;
@@ -595,7 +596,7 @@ img{display:block;max-width:100%}
       <a class="brand" href="index.html">
         <div class="brand-mark">T</div>
         <div class="brand-copy">
-          <strong>Tecno Informatica</strong>
+          <strong>TecnoInformática</strong>
           <span>admin marketplace</span>
         </div>
       </a>
@@ -613,11 +614,11 @@ img{display:block;max-width:100%}
         <p>Ingresar con el usuario de Firebase Authentication para cargar, editar y borrar productos.</p>
         <div class="field">
           <label>Email</label>
-          <input type="email" id="loginEmail" placeholder="tu@email.com">
+          <input type="email" id="loginEmail" placeholder="tu@email.com" autocomplete="email">
         </div>
         <div class="field">
           <label>Contrasena</label>
-          <input type="password" id="loginPass" placeholder="********">
+          <input type="password" id="loginPass" placeholder="********" autocomplete="current-password">
         </div>
         <button class="login-btn" id="loginBtn">Ingresar</button>
         <div class="login-error" id="loginError"></div>
@@ -1169,7 +1170,7 @@ img{display:block;max-width:100%}
     }
   });
 
-  document.getElementById("loginBtn").addEventListener("click", () => {
+  function attemptLogin(){
     const email = document.getElementById("loginEmail").value.trim();
     const pass = document.getElementById("loginPass").value;
     loginError.style.display = "none";
@@ -1177,6 +1178,10 @@ img{display:block;max-width:100%}
       loginError.textContent = "No se pudo ingresar. Revisar email y contrasena.";
       loginError.style.display = "block";
     });
+  }
+  document.getElementById("loginBtn").addEventListener("click", attemptLogin);
+  document.getElementById("loginPass").addEventListener("keydown", e => {
+    if(e.key === "Enter") attemptLogin();
   });
 
   document.getElementById("f_imageFile").addEventListener("change", e => {
