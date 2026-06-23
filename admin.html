@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TecnoInformática — Admin</title>
+<style>
+:root{
+  --bg:#0B0F14; --surface:#121821; --surface-2:#1A222D; --line:#233040;
+  --text:#E6EDF3; --text-dim:#8FA1B3; --cyan:#22D3EE; --cyan-dim:#0E7490;
+  --amber:#F5A623; --danger:#EF4444; --radius:10px;
+  --mono:'JetBrains Mono','Fira Code',Consolas,monospace;
+  --sans:'Space Grotesk','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--text); font-family:var(--body); -webkit-font-smoothing:antialiased; min-height:100vh;}
+button{font-family:inherit; cursor:pointer; border:none;}
+input{font-family:inherit;}
+a{color:var(--cyan); text-decoration:none;}
+:focus-visible{outline:2px solid var(--cyan); outline-offset:2px;}
+
+.topbar{position:sticky; top:0; z-index:10; background:rgba(11,15,20,0.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--line);}
+.topbar-inner{max-width:1000px; margin:0 auto; padding:14px 20px; display:flex; align-items:center; justify-content:space-between;}
+.brand{font-family:var(--sans); font-weight:700; font-size:1.1rem; display:flex; align-items:center; gap:8px;}
+.brand .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan); box-shadow:0 0 8px var(--cyan);}
+.brand .tag{font-family:var(--mono); font-size:0.7rem; color:var(--cyan); border:1px solid var(--cyan-dim); padding:2px 8px; border-radius:20px; margin-left:6px;}
+.logout-btn, .back-link{font-family:var(--mono); font-size:0.78rem; color:var(--text-dim); background:var(--surface); border:1px solid var(--line); padding:7px 13px; border-radius:7px;}
+.logout-btn:hover{color:var(--text); border-color:var(--cyan-dim);}
+
+/* ---- login ---- */
+.login-wrap{min-height:90vh; display:flex; align-items:center; justify-content:center; padding:20px;}
+.login-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:32px; width:100%; max-width:360px;}
+.login-card h1{font-family:var(--sans); font-size:1.2rem; margin:0 0 4px;}
+.login-card p{color:var(--text-dim); font-size:0.85rem; margin:0 0 22px;}
+.field{margin-bottom:14px;}
+.field label{display:block; font-family:var(--mono); font-size:0.72rem; color:var(--text-dim); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;}
+.field input{width:100%; padding:10px 12px; background:var(--surface-2); border:1px solid var(--line); border-radius:7px; color:var(--text); font-size:0.9rem;}
+.login-btn{width:100%; background:var(--cyan); color:#04141A; padding:11px; border-radius:8px; font-weight:700; font-size:0.9rem; margin-top:6px;}
+.login-btn:hover{background:#5EEAFD;}
+.login-error{color:var(--danger); font-family:var(--mono); font-size:0.78rem; margin-top:12px; display:none;}
+
+/* ---- panel ---- */
+.panel{display:none; max-width:1000px; margin:0 auto; padding:30px 20px 80px;}
+.panel.show{display:block;}
+.panel h2{font-family:var(--sans); font-size:1.2rem; margin:0 0 4px;}
+.panel .sub{color:var(--text-dim); font-size:0.85rem; margin:0 0 24px;}
+
+.form-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:28px;}
+.form-card h3{font-family:var(--sans); font-size:0.95rem; margin:0 0 16px;}
+.form-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
+.form-grid .full{grid-column:1/-1;}
+.form-grid label{display:block; font-family:var(--mono); font-size:0.68rem; color:var(--text-dim); margin-bottom:5px; text-transform:uppercase;}
+.form-grid input{width:100%; padding:9px 11px; background:var(--surface-2); border:1px solid var(--line); border-radius:6px; color:var(--text); font-size:0.86rem;}
+.save-btn{background:var(--cyan); color:#04141A; padding:10px 20px; border-radius:7px; font-weight:700; font-size:0.85rem; margin-top:14px;}
+.save-btn:hover{background:#5EEAFD;}
+.cancel-edit{background:var(--surface-2); color:var(--text-dim); padding:10px 16px; border-radius:7px; font-size:0.85rem; margin-top:14px; margin-left:8px; border:1px solid var(--line);}
+
+.product-list{display:flex; flex-direction:column; gap:8px;}
+.product-row{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; display:flex; align-items:center; gap:14px;}
+.pr-emoji{font-size:1.5rem; width:34px; text-align:center;}
+.pr-info{flex:1; min-width:0;}
+.pr-name{font-weight:600; font-size:0.92rem; margin:0 0 2px;}
+.pr-meta{font-family:var(--mono); font-size:0.72rem; color:var(--text-dim); display:flex; gap:10px; flex-wrap:wrap;}
+.pr-stock-low{color:var(--amber);}
+.pr-stock-out{color:var(--danger);}
+.pr-actions{display:flex; gap:6px; flex-shrink:0;}
+.pr-actions button{font-family:var(--mono); font-size:0.74rem; padding:6px 12px; border-radius:6px; border:1px solid var(--line); background:var(--surface-2); color:var(--text);}
+.pr-actions button:hover{border-color:var(--cyan-dim);}
+.pr-actions .del:hover{border-color:var(--danger); color:var(--danger);}
+.list-empty{text-align:center; padding:40px; color:var(--text-dim); font-family:var(--mono); font-size:0.85rem; border:1px dashed var(--line); border-radius:var(--radius);}
+
+.toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--surface); border:1px solid var(--cyan-dim); color:var(--text); padding:10px 18px; border-radius:8px; font-size:0.85rem; z-index:80; opacity:0; pointer-events:none; transition:.25s; font-family:var(--mono);}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+@media (max-width:600px){
+  .form-grid{grid-template-columns:1fr;}
+  .product-row{flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="dot"></span> TecnoInformática <span class="tag">ADMIN</span></div>
+    <div id="topbarRight"><a class="back-link" href="index.html">← ver catálogo</a></div>
+  </div>
+</header>
+
+<!-- ---- LOGIN ---- -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-card">
+    <h1>Acceso administrador</h1>
+    <p>Ingresá con el usuario que creaste en Firebase Authentication.</p>
+    <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="tu@email.com"></div>
+    <div class="field"><label>Contraseña</label><input type="password" id="loginPass" placeholder="••••••••"></div>
+    <button class="login-btn" id="loginBtn">Ingresar</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ---- PANEL ---- -->
+<main class="panel" id="panel">
+  <h2 id="formTitle">Agregar producto</h2>
+  <p class="sub">Los cambios se ven al instante en el catálogo público, sin tocar ningún archivo.</p>
+
+  <div class="form-card">
+    <h3 id="formCardTitle">Nuevo producto</h3>
+    <input type="hidden" id="editingId" value="">
+    <div class="form-grid">
+      <div><label>Nombre</label><input type="text" id="f_name" placeholder="Notebook Lenovo IdeaPad 3"></div>
+      <div><label>Categoría</label><input type="text" id="f_cat" placeholder="Notebooks"></div>
+      <div class="full"><label>Especificaciones</label><input type="text" id="f_specs" placeholder="i5 11th · 8GB RAM · 256GB SSD"></div>
+      <div><label>Precio (ARS)</label><input type="number" id="f_price" placeholder="520000"></div>
+      <div><label>Stock</label><input type="number" id="f_stock" placeholder="2"></div>
+      <div><label>Emoji</label><input type="text" id="f_emoji" placeholder="💻" maxlength="4"></div>
+      <div><label>SKU (opcional)</label><input type="text" id="f_sku" placeholder="NB-001"></div>
+    </div>
+    <button class="save-btn" id="saveBtn">Guardar producto</button>
+    <button class="cancel-edit" id="cancelEditBtn" style="display:none;">Cancelar edición</button>
+  </div>
+
+  <h2>Productos cargados <span id="prodCount" style="font-family:var(--mono); font-size:0.85rem; color:var(--text-dim);"></span></h2>
+  <div class="product-list" id="productList"></div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN — el MISMO objeto que pegaste en index.html
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyAbkxHZ2SHmuj-tMuI9FOZTAY99SKwL05E",
+  authDomain: "tecnoinformatica-9a6e6.firebaseapp.com",
+  projectId: "tecnoinformatica-9a6e6",
+  storageBucket: "tecnoinformatica-9a6e6.firebasestorage.app",
+  messagingSenderId: "197033759829",
+  appId: "1:197033759829:web:1f1277af9cb7b6056270dc"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const loginWrap = document.getElementById("loginWrap");
+const panel = document.getElementById("panel");
+const loginError = document.getElementById("loginError");
+
+document.getElementById("loginBtn").addEventListener("click", ()=>{
+  const email = document.getElementById("loginEmail").value.trim();
+  const pass = document.getElementById("loginPass").value;
+  loginError.style.display = "none";
+  auth.signInWithEmailAndPassword(email, pass).catch(err=>{
+    loginError.textContent = "no se pudo ingresar — revisá email y contraseña";
+    loginError.style.display = "block";
+  });
+});
+
+auth.onAuthStateChanged(user=>{
+  if(user){
+    loginWrap.style.display = "none";
+    panel.classList.add("show");
+    document.getElementById("topbarRight").innerHTML =
+      `<a class="back-link" href="index.html" style="margin-right:8px;">← ver catálogo</a>
+       <button class="logout-btn" id="logoutBtn">Salir (${user.email})</button>`;
+    document.getElementById("logoutBtn").addEventListener("click", ()=> auth.signOut());
+    listenProducts();
+  } else {
+    loginWrap.style.display = "flex";
+    panel.classList.remove("show");
+  }
+});
+
+/* ============================================================
+   CRUD de productos
+   ============================================================ */
+let editingId = null;
+
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=> t.classList.remove("show"), 1700);
+}
+
+function clearForm(){
+  ["f_name","f_cat","f_specs","f_price","f_stock","f_emoji","f_sku"].forEach(id=>document.getElementById(id).value="");
+  editingId = null;
+  document.getElementById("formCardTitle").textContent = "Nuevo producto";
+  document.getElementById("saveBtn").textContent = "Guardar producto";
+  document.getElementById("cancelEditBtn").style.display = "none";
+}
+
+document.getElementById("cancelEditBtn").addEventListener("click", clearForm);
+
+document.getElementById("saveBtn").addEventListener("click", ()=>{
+  const data = {
+    name: document.getElementById("f_name").value.trim(),
+    cat: document.getElementById("f_cat").value.trim(),
+    specs: document.getElementById("f_specs").value.trim(),
+    price: Number(document.getElementById("f_price").value) || 0,
+    stock: Number(document.getElementById("f_stock").value) || 0,
+    emoji: document.getElementById("f_emoji").value.trim() || "📦",
+    sku: document.getElementById("f_sku").value.trim() || ""
+  };
+  if(!data.name){ showToast("Falta el nombre del producto"); return; }
+
+  if(editingId){
+    db.collection("products").doc(editingId).update(data)
+      .then(()=>{ showToast("Producto actualizado"); clearForm(); })
+      .catch(()=> showToast("Error al actualizar"));
+  } else {
+    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    db.collection("products").add(data)
+      .then(()=>{ showToast("Producto agregado"); clearForm(); })
+      .catch(()=> showToast("Error al guardar"));
+  }
+});
+
+function editProduct(p){
+  editingId = p.id;
+  document.getElementById("f_name").value = p.name||"";
+  document.getElementById("f_cat").value = p.cat||"";
+  document.getElementById("f_specs").value = p.specs||"";
+  document.getElementById("f_price").value = p.price||"";
+  document.getElementById("f_stock").value = p.stock||"";
+  document.getElementById("f_emoji").value = p.emoji||"";
+  document.getElementById("f_sku").value = p.sku||"";
+  document.getElementById("formCardTitle").textContent = `Editando: ${p.name}`;
+  document.getElementById("saveBtn").textContent = "Guardar cambios";
+  document.getElementById("cancelEditBtn").style.display = "inline-block";
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function deleteProduct(id, name){
+  if(!confirm(`¿Borrar "${name}"? Esta acción no se puede deshacer.`)) return;
+  db.collection("products").doc(id).delete()
+    .then(()=> showToast("Producto eliminado"))
+    .catch(()=> showToast("Error al eliminar"));
+}
+
+function listenProducts(){
+  db.collection("products").orderBy("name").onSnapshot(snapshot=>{
+    const products = snapshot.docs.map(doc=>({ id:doc.id, ...doc.data() }));
+    document.getElementById("prodCount").textContent = `(${products.length})`;
+    const list = document.getElementById("productList");
+
+    if(products.length===0){
+      list.innerHTML = `<div class="list-empty">todavía no agregaste productos — usá el formulario de arriba</div>`;
+      return;
+    }
+
+    list.innerHTML = products.map(p=>{
+      const stock = Number(p.stock||0);
+      const stockClass = stock<=0 ? "pr-stock-out" : stock<=3 ? "pr-stock-low" : "";
+      return `
+      <div class="product-row">
+        <div class="pr-emoji">${p.emoji||"📦"}</div>
+        <div class="pr-info">
+          <p class="pr-name">${p.name}</p>
+          <div class="pr-meta">
+            <span>${p.cat||"sin categoría"}</span>
+            <span>$${Number(p.price||0).toLocaleString("es-AR")}</span>
+            <span class="${stockClass}">stock: ${stock}</span>
+          </div>
+        </div>
+        <div class="pr-actions">
+          <button class="edit" data-id="${p.id}">Editar</button>
+          <button class="del" data-id="${p.id}">Borrar</button>
+        </div>
+      </div>`;
+    }).join("");
+
+    list.querySelectorAll(".edit").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const p = products.find(x=>x.id===btn.dataset.id);
+        if(p) editProduct(p);
+      });
+    });
+    list.querySelectorAll(".del").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const p = products.find(x=>x.id===btn.dataset.id);
+        if(p) deleteProduct(p.id, p.name);
+      });
+    });
+  });
+}
+</script>
+</body>
+</html>
