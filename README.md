@@ -1,2 +1,0 @@
-# tecnoinfocedelu
-pagina ventas
