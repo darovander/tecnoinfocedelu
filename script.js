@@ -56,8 +56,15 @@
     item.addEventListener('click', () => {
       const title = item.dataset.title || '';
       const desc = item.dataset.desc || '';
+      const realImg = item.querySelector('img');
       const emoji = item.querySelector('.gallery-placeholder span')?.textContent || '🔧';
-      lightboxImg.textContent = emoji;
+
+      if (realImg && realImg.src) {
+        lightboxImg.innerHTML = '<img src="' + realImg.src + '" alt="' + (realImg.alt || title) + '" style="width:100%;border-radius:12px;object-fit:cover;">';
+      } else {
+        lightboxImg.textContent = emoji;
+      }
+
       lightboxTitle.textContent = title;
       lightboxDesc.textContent = desc;
       lightbox.hidden = false;
