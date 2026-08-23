@@ -47,7 +47,7 @@
         <a href="#presupuesto">Presupuesto</a>
         <a href="#contacto">Contacto</a>
       </nav>
-      <a class="btn btn-wa" href="https://wa.me/543442419123?text=Hola%2C%20quiero%20consultar%20sobre%20una%20reparaci%C3%B3n" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="btn btn-wa" data-wa-link href="#" target="_blank" rel="noopener">WhatsApp</a>
       <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú"><span></span><span></span><span></span></button>
     </div>
   </header>
@@ -56,10 +56,10 @@
     <section class="hero" id="inicio">
       <div class="container">
         <div class="badge">Taller especializado · Concepción del Uruguay</div>
-        <h1>Reparamos lo que <span>otros no pueden</span></h1>
-        <p class="hero-sub">Servicio técnico de notebooks y PCs a nivel de placa en Concepción del Uruguay. Componentes SMD, no enciende, no da imagen y más. Experiencia real en Lenovo, HP, Dell, Asus y Acer.</p>
+        <h1><span data-hero-title-normal></span><span data-hero-title-accent></span></h1>
+        <p class="hero-sub"></p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href="https://wa.me/543442419123?text=Hola%2C%20quiero%20consultar%20sobre%20una%20reparaci%C3%B3n" target="_blank" rel="noopener">Consultar por WhatsApp</a>
+          <a class="btn btn-primary" data-wa-link href="#" target="_blank" rel="noopener">Consultar por WhatsApp</a>
           <a class="btn btn-outline" href="#presupuesto">Pedir presupuesto</a>
         </div>
         <div class="hero-stats">
@@ -161,11 +161,11 @@
         <div>
           <h2>Contacto</h2>
           <p>Estamos en Concepción del Uruguay. Escribinos o pasá por el taller.</p>
-          <p><strong>Dirección</strong><br>12 de Octubre 1180<br>Concepción del Uruguay, Entre Ríos</p>
-          <p><strong>WhatsApp</strong><br><a href="https://wa.me/543442419123" target="_blank" rel="noopener">3442 419123</a></p>
-          <p><strong>Instagram</strong><br><a href="https://www.instagram.com/tecnoinformatica_/" target="_blank" rel="noopener">@tecnoinformatica_</a></p>
-          <p><strong>Horarios</strong><br>Consultá por WhatsApp para coordinar turno.</p>
-          <iframe title="Ubicación TecnoInformática" src="https://www.google.com/maps?q=12+de+Octubre+1180,+Concepci%C3%B3n+del+Uruguay,+Entre+R%C3%ADos&output=embed" width="100%" height="260" style="border:0;border-radius:12px" loading="lazy"></iframe>
+          <p><strong>Dirección</strong><br><span data-contacto-direccion>12 de Octubre 1180</span><br><span data-contacto-localidad>Concepción del Uruguay, Entre Ríos</span></p>
+          <p><strong>WhatsApp</strong><br><a data-wa-link data-wa-msg="" href="#" target="_blank" rel="noopener"><span data-wa-text>3442 419123</span></a></p>
+          <p><strong>Instagram</strong><br><a data-instagram-link href="https://www.instagram.com/tecnoinformatica_/" target="_blank" rel="noopener">@tecnoinformatica_</a></p>
+          <p><strong>Horarios</strong><br><span data-contacto-horarios>Consultá por WhatsApp para coordinar turno.</span></p>
+          <iframe data-map title="Ubicación TecnoInformática" src="https://www.google.com/maps?q=12+de+Octubre+1180,+Concepci%C3%B3n+del+Uruguay,+Entre+R%C3%ADos&output=embed" width="100%" height="260" style="border:0;border-radius:12px" loading="lazy"></iframe>
         </div>
         <form class="form" id="contactForm">
           <h3>Mensaje general</h3>
@@ -192,14 +192,15 @@
         <a href="#contacto">Contacto</a>
       </div>
       <div>
-        <a href="https://www.instagram.com/tecnoinformatica_/" target="_blank" rel="noopener">Instagram</a>
-        <a href="https://wa.me/543442419123" target="_blank" rel="noopener">WhatsApp</a>
+        <a data-instagram-link href="https://www.instagram.com/tecnoinformatica_/" target="_blank" rel="noopener">Instagram</a>
+        <a data-wa-link data-wa-msg="" href="#" target="_blank" rel="noopener">WhatsApp</a>
       </div>
     </div>
     <p class="copy">© 2026 TecnoInformática. Todos los derechos reservados.</p>
   </footer>
 
-  <a class="wa-float" href="https://wa.me/543442419123?text=Hola%2C%20quiero%20consultar%20sobre%20una%20reparaci%C3%B3n" target="_blank" rel="noopener" aria-label="WhatsApp">WA</a>
+  <a class="wa-float" data-wa-link href="#" target="_blank" rel="noopener" aria-label="WhatsApp">WA</a>
+  <script src="content-loader.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

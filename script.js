@@ -1,4 +1,3 @@
-const WA = "543442419123";
 const menuBtn = document.getElementById("menuToggle");
 const nav = document.getElementById("nav");
 if (menuBtn && nav) {
@@ -7,7 +6,8 @@ if (menuBtn && nav) {
 }
 
 function openWA(text) {
-  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+  const numero = window.WA_NUMBER || "543442419123"; // fallback si content.json no cargó
+  window.open(`https://wa.me/${numero}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
 }
 
 const budget = document.getElementById("budgetForm");
