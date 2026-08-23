@@ -1,48 +1,49 @@
-# TecnoInformática — Sitio web oficial
+# TecnoInformática — Sitio web
 
-**Dominio:** https://tecnoinformatica-cdu.com.ar
-
-## SEO incluido
-
-- Title y meta description optimizados para búsquedas locales
-- Schema.org LocalBusiness (JSON-LD) con dirección, teléfono y geo
-- Open Graph + Twitter Cards
-- robots.txt + sitemap.xml
-- Canonical URL
-- Jerarquía de encabezados limpia
-- Contenido orientado a: “reparación notebooks Concepción del Uruguay”
+Sitio estático listo para subir a cualquier hosting (Netlify, Vercel, GitHub Pages, cPanel, etc.).
 
 ## Archivos
 
-| Archivo | Uso |
-|---------|-----|
-| `index.html` | Contenido + SEO |
-| `styles.css` | Diseño |
-| `script.js` | Funcionalidad |
-| `logo.png` / `logo-icon.png` | Logos |
-| `robots.txt` | Instrucciones para buscadores |
-| `sitemap.xml` | Mapa del sitio |
-
-## Cómo publicar
-
-1. Subí **toda la carpeta** a tu hosting.
-2. Conectá el dominio `tecnoinformatica-cdu.com.ar`.
-
-### Recomendado: Netlify (gratis)
-1. netlify.com → arrastrá la carpeta
-2. Domain settings → Add custom domain → `tecnoinformatica-cdu.com.ar`
-3. Configurá los DNS que te indique Netlify en el registrador del dominio
-
-## Después de publicar (importante para SEO)
-
-1. Entrá a [Google Search Console](https://search.google.com/search-console)
-2. Agregá la propiedad `https://tecnoinformatica-cdu.com.ar`
-3. Enviá el sitemap: `https://tecnoinformatica-cdu.com.ar/sitemap.xml`
-4. (Opcional) Creá o reclamá el perfil de Google Business Profile con la misma dirección y teléfono
+- `index.html` — página principal (todas las secciones)
+- `styles.css` — estilos
+- `script.js` — menú, formularios a WhatsApp, lightbox de galería
 
 ## WhatsApp
-+54 3442 419123
 
-## Contacto
-- 12 de Octubre 1180, Concepción del Uruguay, Entre Ríos
-- Instagram: @tecnoinformatica_
+Número configurado: **+54 3442 419123**
+
+Los formularios de presupuesto y contacto abren WhatsApp con el mensaje armado automáticamente.
+
+## Cómo agregar fotos a la galería
+
+1. Creá una carpeta `img/` junto a `index.html`.
+2. Subí tus fotos (ej: `img/caso1.jpg`).
+3. En `index.html`, reemplazá cada `.gallery-placeholder` por algo así:
+
+```html
+<img src="img/caso1.jpg" alt="Descripción del trabajo" loading="lazy">
+```
+
+Y actualizá los atributos `data-title` y `data-desc` del `.gallery-item`.
+
+## SEO básico
+
+Ya incluye:
+- Título y meta description orientados a “reparación notebooks Concepción del Uruguay”
+- Open Graph
+- Estructura semántica
+- Texto alternativo preparado (al poner imágenes reales)
+
+## Dominio
+
+Podés conectar cualquier dominio. Si usás Netlify o Vercel es solo arrastrar la carpeta o conectar un repo.
+
+## Personalización rápida
+
+- Colores: editá las variables en `:root` de `styles.css`
+- Textos: todo está en `index.html`
+- Horarios: agregalos en la sección Contacto cuando los tengas definidos
+
+---
+
+Hecho para Darío · TecnoInformática · Concepción del Uruguay
