@@ -8,6 +8,7 @@
   --azul: #29a9ff;
   --azul-hondo: #0b2c46;
   --naranja: #fe9536;
+  --verde-wa: #25d366;
   --linea: #1b2531;
   --linea-fina: #131b25;
 
@@ -148,6 +149,8 @@ p { margin: 0 0 1rem; }
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 .boton:hover { background: #ffab5c; border-color: #ffab5c; }
+.boton.wa { background: var(--verde-wa); border-color: var(--verde-wa); }
+.boton.wa:hover { background: #3ee07c; border-color: #3ee07c; }
 .boton.hueco { background: transparent; color: var(--azul); border-color: var(--azul); }
 .boton.hueco:hover { background: var(--azul); color: #05080d; }
 .boton.chico { padding: 9px 16px; font-size: 0.88rem; }
@@ -182,20 +185,17 @@ p { margin: 0 0 1rem; }
   border: var(--borde);
   margin-top: 34px;
   padding: 58px 46px 0;
-  background-image:
-    linear-gradient(var(--linea-fina) 1px, transparent 1px),
-    linear-gradient(90deg, var(--linea-fina) 1px, transparent 1px);
-  background-size: 26px 26px;
+  background-image: linear-gradient(152deg, #121d2b 0%, #0b1119 46%, #05080d 100%);
   overflow: hidden;
 }
 .hoja::before {
   content: "";
   position: absolute;
-  top: -150px;
-  right: -120px;
-  width: 470px;
-  height: 470px;
-  background: radial-gradient(circle, rgba(41, 169, 255, 0.18), transparent 66%);
+  top: -190px;
+  right: -160px;
+  width: 620px;
+  height: 620px;
+  background: radial-gradient(circle, rgba(41, 169, 255, 0.22), transparent 68%);
   pointer-events: none;
 }
 .hoja::after {
@@ -391,6 +391,9 @@ p { margin: 0 0 1rem; }
 }
 .dato a, .dato strong { font-size: 1.05rem; font-weight: 500; color: var(--texto); text-decoration: none; }
 .dato a:hover { color: var(--naranja); }
+.dato.wa span { color: var(--verde-wa); }
+.dato.wa a { color: var(--verde-wa); }
+.dato.wa a:hover { color: #3ee07c; }
 .dato p { color: var(--texto-medio); margin: 4px 0 0; font-size: 0.94rem; }
 
 .faq { border-top: var(--borde); }
@@ -466,6 +469,8 @@ p { margin: 0 0 1rem; }
 }
 .pie a { color: var(--texto); text-decoration: none; display: block; padding: 4px 0; }
 .pie a:hover { color: var(--naranja); }
+.pie a.wa { color: var(--verde-wa); }
+.pie a.wa:hover { color: #3ee07c; }
 .pie .marca { margin-bottom: 14px; }
 .pie p { color: var(--texto-medio); }
 .pie-legal {
@@ -487,7 +492,7 @@ p { margin: 0 0 1rem; }
   right: 20px;
   bottom: 20px;
   z-index: 50;
-  background: var(--naranja);
+  background: var(--verde-wa);
   border-radius: 50%;
   width: 56px;
   height: 56px;
@@ -496,7 +501,7 @@ p { margin: 0 0 1rem; }
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
 }
 .wa-flotante svg { width: 28px; height: 28px; fill: #05080d; }
-.wa-flotante:hover { background: #ffab5c; }
+.wa-flotante:hover { background: #3ee07c; }
 
 .aviso {
   border-left: 3px solid var(--naranja);

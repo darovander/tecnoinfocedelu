@@ -90,7 +90,7 @@
       if (p.id === pagina) link.setAttribute("aria-current", "page");
       menu.appendChild(link);
     });
-    var cta = el("a", "boton verde chico", "WhatsApp");
+    var cta = el("a", "boton wa chico", "WhatsApp");
     cta.href = linkWa("Hola, te consulto por una reparación.");
     cta.target = "_blank";
     cta.rel = "noopener";
@@ -122,7 +122,7 @@
 
     var col2 = el("div");
     col2.appendChild(el("h4", null, "Contacto"));
-    var wa = el("a", null, "WhatsApp " + neg.whatsapp);
+    var wa = el("a", "wa", "WhatsApp " + neg.whatsapp);
     wa.href = linkWa("Hola, te consulto por una reparación.");
     wa.target = "_blank";
     wa.rel = "noopener";
@@ -185,7 +185,7 @@
     cont.appendChild(el("div", "etiqueta", "Consultas"));
     cont.appendChild(el("h2", null, datos.titulo));
     cont.appendChild(el("p", null, datos.texto));
-    var boton = el("a", "boton", datos.boton || "Escribir por WhatsApp");
+    var boton = el("a", "boton wa", datos.boton || "Escribir por WhatsApp");
     boton.href = linkWa("Hola, te consulto por una reparación.");
     boton.target = "_blank";
     boton.rel = "noopener";
@@ -207,7 +207,7 @@
     interno.appendChild(el("p", "hoja-texto", d.hero.texto));
 
     var acciones = el("div", "hoja-acciones");
-    var b1 = el("a", "boton verde", d.hero.botonPrimario);
+    var b1 = el("a", "boton wa", d.hero.botonPrimario);
     b1.href = linkWa("Hola, te consulto por una reparación.");
     b1.target = "_blank";
     b1.rel = "noopener";
@@ -412,7 +412,7 @@
       cuerpo.appendChild(el("h3", null, p.nombre));
       if (p.texto) cuerpo.appendChild(el("p", null, p.texto));
       if (p.precio) cuerpo.appendChild(el("div", "precio", (d.moneda || "$") + " " + p.precio));
-      var pedir = el("a", "boton chico verde", "Consultar");
+      var pedir = el("a", "boton wa chico", "Consultar");
       pedir.href = linkWa("Hola, me interesa: " + p.nombre);
       pedir.target = "_blank";
       pedir.rel = "noopener";
@@ -495,7 +495,7 @@
 
     var datos = el("div", "datos");
 
-    var dWa = el("div", "dato");
+    var dWa = el("div", "dato wa");
     dWa.appendChild(el("span", null, "WhatsApp"));
     var aWa = el("a", null, neg.whatsapp);
     aWa.href = linkWa("Hola, te consulto por una reparación.");
