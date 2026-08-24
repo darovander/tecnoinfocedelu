@@ -1,0 +1,15 @@
+logo.png e isotipo.png son la marca. Si los cambias, mantene los mismos nombres
+o actualiza las rutas desde admin.html, pestana Negocio.
+
+Fotos del sitio.
+
+Dos formas de usarlas:
+
+1. Subirlas desde admin.html. Quedan guardadas dentro de js/contenido.js.
+   Cómodo, pero engorda el archivo. Sirve para pocas fotos.
+
+2. Copiar los archivos en esta carpeta y escribir la ruta en admin.html,
+   por ejemplo: img/banco-de-trabajo.jpg
+   Es lo recomendado si vas a cargar muchas fotos o si son pesadas.
+
+Nombres sin espacios ni acentos. Formato jpg o webp, ancho maximo 1600 px.

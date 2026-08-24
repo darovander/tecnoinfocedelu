@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Editor de contenido | TecnoInformática</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --fondo: #05080d; --panel: #0c1219; --panel-alto: #111924;
+  --texto: #eaf1f8; --texto-medio: #9daebf; --texto-suave: #6a7a8c;
+  --azul: #29a9ff; --naranja: #fe9536; --linea: #1b2531;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--fondo); color: var(--texto);
+  font-family: "IBM Plex Sans", system-ui, sans-serif; font-size: 15px;
+}
+header {
+  background: var(--panel); color: var(--texto); padding: 14px 22px; border-bottom: 1px solid var(--linea);
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  flex-wrap: wrap; position: sticky; top: 0; z-index: 10;
+}
+header h1 { font-family: "IBM Plex Sans Condensed", sans-serif; font-size: 1.3rem; margin: 0; }
+header small { display: block; font-family: "IBM Plex Mono", monospace; font-size: .66rem;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--texto-suave); }
+.acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+button, .btn {
+  font-family: inherit; font-size: .88rem; font-weight: 600; padding: 9px 16px;
+  border: 1.5px solid var(--azul); background: transparent; color: var(--azul);
+  cursor: pointer; text-decoration: none; display: inline-block;
+}
+button:hover, .btn:hover { background: var(--azul); color: #05080d; }
+button.verde { background: var(--naranja); border-color: var(--naranja); color: #05080d; }
+button.verde:hover { background: #ffab5c; border-color: #ffab5c; }
+button.mini { padding: 5px 10px; font-size: .78rem; font-weight: 400; color: var(--texto-medio);
+  border-color: var(--linea); }
+button.mini:hover { border-color: var(--naranja); color: var(--naranja); background: transparent; }
+main { max-width: 1000px; margin: 0 auto; padding: 26px 22px 90px; }
+.pestanas { display: flex; gap: 2px; flex-wrap: wrap; margin-bottom: 22px; }
+.pestanas button {
+  background: var(--panel); color: var(--texto-medio); border: 1px solid var(--linea);
+  font-size: .88rem; padding: 10px 16px; font-weight: 400;
+}
+.pestanas button:hover { background: var(--panel-alto); color: var(--texto); }
+.pestanas button.activa { background: var(--naranja); color: #05080d; border-color: var(--naranja); font-weight: 600; }
+.pestanas button.activa:hover { background: #ffab5c; color: #05080d; }
+fieldset { border: 1px solid var(--linea); background: var(--panel); padding: 20px; margin: 0 0 18px; }
+legend { font-family: "IBM Plex Mono", monospace; font-size: .68rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--azul); padding: 0 8px; }
+label { display: block; margin-bottom: 14px; }
+label > span { display: block; font-size: .78rem; color: var(--texto-suave); margin-bottom: 5px;
+  font-family: "IBM Plex Mono", monospace; letter-spacing: .06em; text-transform: uppercase; }
+input[type=text], textarea, select {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--linea); background: var(--fondo);
+  font-family: inherit; font-size: .95rem; color: var(--texto);
+}
+textarea { min-height: 92px; resize: vertical; line-height: 1.55; }
+input:focus, textarea:focus, select:focus { outline: 2px solid var(--naranja); outline-offset: 1px; }
+.fila { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+.item { border: 1px solid var(--linea); padding: 16px; margin-bottom: 14px; background: var(--panel-alto); }
+.item-cabeza { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.item-cabeza strong { font-family: "IBM Plex Mono", monospace; font-size: .76rem; color: var(--azul);
+  letter-spacing: .1em; text-transform: uppercase; }
+.foto { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+.foto img { width: 130px; height: 92px; object-fit: cover; border: 1px solid var(--linea); }
+.foto .vacio { width: 130px; height: 92px; border: 1px dashed var(--linea); display: grid;
+  place-items: center; font-size: .7rem; color: var(--texto-suave); font-family: "IBM Plex Mono", monospace; }
+.foto-controles { flex: 1 1 240px; }
+.interruptor { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--linea); }
+.interruptor:last-child { border-bottom: 0; }
+.interruptor input { width: 20px; height: 20px; accent-color: var(--naranja); }
+.interruptor div { flex: 1; }
+.interruptor p { margin: 2px 0 0; font-size: .82rem; color: var(--texto-suave); }
+.ayuda { font-size: .82rem; color: var(--texto-medio); background: var(--panel); border-left: 3px solid var(--naranja);
+  padding: 14px 16px; margin-bottom: 20px; }
+.ayuda strong { color: var(--texto); }
+.ayuda code { font-family: "IBM Plex Mono", monospace; background: var(--fondo); color: var(--azul); padding: 1px 5px; }
+.aviso-guardado {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+  background: var(--naranja); color: #05080d; padding: 12px 22px; font-size: .88rem; font-weight: 600;
+  opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 20;
+}
+.aviso-guardado.visible { opacity: 1; }
+@media (max-width: 700px) { .fila { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;gap:14px">
+    <img src="img/logo.png" alt="TecnoInformática" style="height:30px;width:auto">
+    <div>
+      <h1>Editor de contenido</h1>
+      <small>Cambiá el sitio sin tocar código</small>
+    </div>
+  </div>
+  <div class="acciones">
+    <a class="btn claro" href="index.html?borrador=1" target="_blank">Ver vista previa</a>
+    <button type="button" class="claro" id="importar">Importar archivo</button>
+    <button type="button" class="verde" id="descargar">Descargar contenido.js</button>
+  </div>
+</header>
+
+<main>
+  <div class="ayuda">
+    Editá lo que necesites, mirá la vista previa y después tocá <strong>Descargar contenido.js</strong>.
+    Ese archivo va en la carpeta <code>js/</code> del repositorio, reemplazando al anterior. Cuando lo subís a
+    GitHub, Vercel publica los cambios solo. Lo que escribís acá se guarda en este navegador hasta que descargues.
+  </div>
+
+  <div class="pestanas" id="pestanas"></div>
+  <form id="editor" autocomplete="off"></form>
+</main>
+
+<input type="file" id="archivo-importado" accept=".js,.json" hidden>
+<div class="aviso-guardado" id="aviso">Guardado en el navegador</div>
+
+<script src="js/contenido.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
