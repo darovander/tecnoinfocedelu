@@ -514,6 +514,11 @@ p { margin: 0 0 1rem; }
 .aviso h3 { margin-bottom: 6px; }
 .aviso p { margin: 0; color: var(--texto-medio); }
 
+/* solo lo ven los buscadores y quien tenga el JS apagado */
+.respaldo { max-width: 62ch; margin: 0 auto; padding: 60px 24px; }
+.respaldo p { color: var(--texto-medio); }
+.js .respaldo { display: none; }
+
 .aparece { opacity: 0; transform: translateY(14px); transition: opacity 0.5s ease, transform 0.5s ease; }
 .aparece.visible { opacity: 1; transform: none; }
 
