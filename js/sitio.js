@@ -585,7 +585,11 @@
   };
 
   pintarCabecera();
-  if (pintores[pagina]) pintores[pagina]();
+  if (pintores[pagina]) {
+    // el HTML trae un titulo y un parrafo fijos para los buscadores; se descartan al pintar
+    document.getElementById("contenido").innerHTML = "";
+    pintores[pagina]();
+  }
   pintarPie();
   revelar();
 })();
