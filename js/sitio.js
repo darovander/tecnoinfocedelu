@@ -40,6 +40,40 @@
     return el("div", "sin-foto", placeholder);
   }
 
+  // ---- Accesos directos (índice de la página) ----
+  var indice = [];
+  var puntoAccesos = null;
+
+  function anclar(nodo, id, texto) {
+    if (!nodo) return nodo;
+    nodo.id = id;
+    if (nodo.classList) nodo.classList.add("destino");
+    if (texto) indice.push({ id: id, texto: texto });
+    return nodo;
+  }
+
+  function pintarAccesos() {
+    if (indice.length < 2) return;
+    var raiz = html("contenido");
+    if (!raiz) return;
+    var seccion = el("section", "accesos");
+    var cont = el("div", "contenedor");
+    var barra = el("nav", "accesos-grilla");
+    barra.setAttribute("aria-label", "Accesos directos de la página");
+    indice.forEach(function (it) {
+      var a = el("a", "acceso", it.texto);
+      a.href = "#" + it.id;
+      barra.appendChild(a);
+    });
+    cont.appendChild(barra);
+    seccion.appendChild(cont);
+    if (puntoAccesos && puntoAccesos.parentNode === raiz) {
+      raiz.insertBefore(seccion, puntoAccesos.nextSibling);
+    } else {
+      raiz.insertBefore(seccion, raiz.firstChild);
+    }
+  }
+
   var paginas = [
     { id: "inicio", texto: "Inicio", url: "index.html" },
     { id: "servicios", texto: "Servicios", url: "servicios.html" },
@@ -235,6 +269,7 @@
       cabecera.appendChild(figura);
     }
     raiz.appendChild(cabecera);
+    puntoAccesos = cabecera;
 
     var sDif = el("section", "seccion");
     var cDif = el("div", "contenedor");
@@ -252,6 +287,7 @@
     });
     cDif.appendChild(grilla);
     sDif.appendChild(cDif);
+    anclar(sDif, "diferencia", "Cómo trabajamos");
     raiz.appendChild(sDif);
 
     var sProc = el("section", "seccion ajustada");
@@ -280,12 +316,17 @@
       cProc.appendChild(marcas);
     }
     sProc.appendChild(cProc);
+    anclar(sProc, "proceso", "Paso a paso");
     raiz.appendChild(sProc);
 
-    if (mod.seguimiento) raiz.appendChild(seccionSeguimiento());
+    if (mod.seguimiento) {
+      var sSeg = seccionSeguimiento();
+      anclar(sSeg, "seguimiento", "Seguimiento");
+      raiz.appendChild(sSeg);
+    }
 
     var fin = cierre(d.cierre);
-    if (fin) raiz.appendChild(fin);
+    if (fin) { anclar(fin, "consultas", "Consultas"); raiz.appendChild(fin); }
   }
 
   function pintarServicios() {
@@ -302,7 +343,7 @@
     cont.appendChild(cab);
 
     var lista = el("div", "servicios");
-    d.items.forEach(function (item) {
+    d.items.forEach(function (item, i) {
       var fila = el("article", "servicio aparece");
       var izq = el("div");
       izq.appendChild(el("div", "etiqueta", item.etiqueta));
@@ -314,6 +355,7 @@
       fila.appendChild(izq);
       fila.appendChild(medio);
       fila.appendChild(der);
+      anclar(fila, "servicio-" + (i + 1), item.titulo);
       lista.appendChild(fila);
     });
     cont.appendChild(lista);
@@ -328,7 +370,9 @@
 
     seccion.appendChild(cont);
     raiz.appendChild(seccion);
-    raiz.appendChild(cierre(C.inicio.cierre));
+    var finS = cierre(C.inicio.cierre);
+    anclar(finS, "consultas", "Consultas");
+    raiz.appendChild(finS);
   }
 
   function pintarTaller() {
@@ -353,6 +397,7 @@
     });
     cont.appendChild(bloques);
     seccion.appendChild(cont);
+    anclar(seccion, "taller", "El taller");
     raiz.appendChild(seccion);
 
     if (mod.galeria && d.galeria && d.galeria.length) {
@@ -371,10 +416,13 @@
       });
       cg.appendChild(gal);
       sg.appendChild(cg);
+      anclar(sg, "galeria", "Galería");
       raiz.appendChild(sg);
     }
 
-    raiz.appendChild(cierre(C.inicio.cierre));
+    var finT = cierre(C.inicio.cierre);
+    anclar(finT, "consultas", "Consultas");
+    raiz.appendChild(finT);
   }
 
   function pintarTienda() {
@@ -532,9 +580,14 @@
 
     cont.appendChild(datos);
     seccion.appendChild(cont);
+    anclar(seccion, "datos", "Datos");
     raiz.appendChild(seccion);
 
-    if (mod.seguimiento) raiz.appendChild(seccionSeguimiento());
+    if (mod.seguimiento) {
+      var sSegC = seccionSeguimiento();
+      anclar(sSegC, "seguimiento", "Seguimiento");
+      raiz.appendChild(sSegC);
+    }
 
     if (d.preguntas && d.preguntas.length) {
       var sf = el("section", "seccion ajustada");
@@ -553,10 +606,13 @@
       });
       cf.appendChild(faq);
       sf.appendChild(cf);
+      anclar(sf, "preguntas", "Preguntas");
       raiz.appendChild(sf);
     }
 
-    raiz.appendChild(cierre(C.inicio.cierre));
+    var finC = cierre(C.inicio.cierre);
+    anclar(finC, "consultas", "Consultas");
+    raiz.appendChild(finC);
   }
 
   function revelar() {
@@ -588,7 +644,10 @@
   if (pintores[pagina]) {
     // el HTML trae un titulo y un parrafo fijos para los buscadores; se descartan al pintar
     document.getElementById("contenido").innerHTML = "";
+    indice = [];
+    puntoAccesos = null;
     pintores[pagina]();
+    pintarAccesos();
   }
   pintarPie();
   revelar();
