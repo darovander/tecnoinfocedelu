@@ -40,40 +40,6 @@
     return el("div", "sin-foto", placeholder);
   }
 
-  // ---- Accesos directos (índice de la página) ----
-  var indice = [];
-  var puntoAccesos = null;
-
-  function anclar(nodo, id, texto) {
-    if (!nodo) return nodo;
-    nodo.id = id;
-    if (nodo.classList) nodo.classList.add("destino");
-    if (texto) indice.push({ id: id, texto: texto });
-    return nodo;
-  }
-
-  function pintarAccesos() {
-    if (indice.length < 2) return;
-    var raiz = html("contenido");
-    if (!raiz) return;
-    var seccion = el("section", "accesos");
-    var cont = el("div", "contenedor");
-    var barra = el("nav", "accesos-grilla");
-    barra.setAttribute("aria-label", "Accesos directos de la página");
-    indice.forEach(function (it) {
-      var a = el("a", "acceso", it.texto);
-      a.href = "#" + it.id;
-      barra.appendChild(a);
-    });
-    cont.appendChild(barra);
-    seccion.appendChild(cont);
-    if (puntoAccesos && puntoAccesos.parentNode === raiz) {
-      raiz.insertBefore(seccion, puntoAccesos.nextSibling);
-    } else {
-      raiz.insertBefore(seccion, raiz.firstChild);
-    }
-  }
-
   var paginas = [
     { id: "inicio", texto: "Inicio", url: "index.html" },
     { id: "servicios", texto: "Servicios", url: "servicios.html" },
@@ -269,7 +235,6 @@
       cabecera.appendChild(figura);
     }
     raiz.appendChild(cabecera);
-    puntoAccesos = cabecera;
 
     var sDif = el("section", "seccion");
     var cDif = el("div", "contenedor");
@@ -277,17 +242,22 @@
     cabDif.appendChild(el("div", "etiqueta", "Cómo trabajamos"));
     cabDif.appendChild(el("h2", null, "La diferencia está en el diagnóstico"));
     cDif.appendChild(cabDif);
-    var grilla = el("div", "grilla");
+    var grilla = el("div", "desplegables");
     d.diferenciales.forEach(function (item) {
-      var tarjeta = el("article", "tarjeta aparece");
-      tarjeta.appendChild(el("div", "etiqueta", item.etiqueta));
-      tarjeta.appendChild(el("h3", null, item.titulo));
-      tarjeta.appendChild(el("p", null, item.texto));
-      grilla.appendChild(tarjeta);
+      var det = el("details", "desplegable");
+      var sum = el("summary");
+      var titulo = el("div", "desplegable-titulo");
+      if (item.etiqueta) titulo.appendChild(el("span", "desplegable-tag", item.etiqueta));
+      titulo.appendChild(el("span", "desplegable-nombre", item.titulo));
+      sum.appendChild(titulo);
+      det.appendChild(sum);
+      var cuerpo = el("div", "desplegable-cuerpo");
+      if (item.texto) cuerpo.appendChild(el("p", null, item.texto));
+      det.appendChild(cuerpo);
+      grilla.appendChild(det);
     });
     cDif.appendChild(grilla);
     sDif.appendChild(cDif);
-    anclar(sDif, "diferencia", "Cómo trabajamos");
     raiz.appendChild(sDif);
 
     var sProc = el("section", "seccion ajustada");
@@ -296,17 +266,19 @@
     cabProc.appendChild(el("div", "etiqueta", "Paso a paso"));
     cabProc.appendChild(el("h2", null, "Qué pasa con tu equipo desde que entra"));
     cProc.appendChild(cabProc);
-    var lista = el("div", "proceso");
-    var ol = el("ol");
+    var lista = el("div", "desplegables");
     d.proceso.forEach(function (paso) {
-      var li = el("li");
-      var caja = el("div");
-      caja.appendChild(el("h3", null, paso.titulo));
-      caja.appendChild(el("p", null, paso.texto));
-      li.appendChild(caja);
-      ol.appendChild(li);
+      var det = el("details", "desplegable");
+      var sum = el("summary");
+      var titulo = el("div", "desplegable-titulo");
+      titulo.appendChild(el("span", "desplegable-nombre", paso.titulo));
+      sum.appendChild(titulo);
+      det.appendChild(sum);
+      var cuerpo = el("div", "desplegable-cuerpo");
+      cuerpo.appendChild(el("p", null, paso.texto));
+      det.appendChild(cuerpo);
+      lista.appendChild(det);
     });
-    lista.appendChild(ol);
     cProc.appendChild(lista);
 
     if (d.marcas && d.marcas.length) {
@@ -316,17 +288,12 @@
       cProc.appendChild(marcas);
     }
     sProc.appendChild(cProc);
-    anclar(sProc, "proceso", "Paso a paso");
     raiz.appendChild(sProc);
 
-    if (mod.seguimiento) {
-      var sSeg = seccionSeguimiento();
-      anclar(sSeg, "seguimiento", "Seguimiento");
-      raiz.appendChild(sSeg);
-    }
+    if (mod.seguimiento) raiz.appendChild(seccionSeguimiento());
 
     var fin = cierre(d.cierre);
-    if (fin) { anclar(fin, "consultas", "Consultas"); raiz.appendChild(fin); }
+    if (fin) raiz.appendChild(fin);
   }
 
   function pintarServicios() {
@@ -342,21 +309,24 @@
     cab.appendChild(el("p", null, d.intro));
     cont.appendChild(cab);
 
-    var lista = el("div", "servicios");
-    d.items.forEach(function (item, i) {
-      var fila = el("article", "servicio aparece");
-      var izq = el("div");
-      izq.appendChild(el("div", "etiqueta", item.etiqueta));
-      var medio = el("div");
-      medio.appendChild(el("h3", null, item.titulo));
-      medio.appendChild(el("p", null, item.texto));
-      var der = el("ul");
-      (item.detalle || []).forEach(function (t) { der.appendChild(el("li", null, t)); });
-      fila.appendChild(izq);
-      fila.appendChild(medio);
-      fila.appendChild(der);
-      anclar(fila, "servicio-" + (i + 1), item.titulo);
-      lista.appendChild(fila);
+    var lista = el("div", "desplegables");
+    d.items.forEach(function (item) {
+      var det = el("details", "desplegable");
+      var sum = el("summary");
+      var titulo = el("div", "desplegable-titulo");
+      if (item.etiqueta) titulo.appendChild(el("span", "desplegable-tag", item.etiqueta));
+      titulo.appendChild(el("span", "desplegable-nombre", item.titulo));
+      sum.appendChild(titulo);
+      det.appendChild(sum);
+      var cuerpo = el("div", "desplegable-cuerpo");
+      if (item.texto) cuerpo.appendChild(el("p", null, item.texto));
+      if (item.detalle && item.detalle.length) {
+        var ul = el("ul", "desplegable-lista");
+        item.detalle.forEach(function (t) { ul.appendChild(el("li", null, t)); });
+        cuerpo.appendChild(ul);
+      }
+      det.appendChild(cuerpo);
+      lista.appendChild(det);
     });
     cont.appendChild(lista);
 
@@ -370,9 +340,7 @@
 
     seccion.appendChild(cont);
     raiz.appendChild(seccion);
-    var finS = cierre(C.inicio.cierre);
-    anclar(finS, "consultas", "Consultas");
-    raiz.appendChild(finS);
+    raiz.appendChild(cierre(C.inicio.cierre));
   }
 
   function pintarTaller() {
@@ -388,16 +356,21 @@
     cab.appendChild(el("p", null, d.intro));
     cont.appendChild(cab);
 
-    var bloques = el("div", "bloques");
+    var bloques = el("div", "desplegables");
     d.bloques.forEach(function (b) {
-      var caja = el("article", "bloque aparece");
-      caja.appendChild(el("h3", null, b.titulo));
-      caja.appendChild(el("p", null, b.texto));
-      bloques.appendChild(caja);
+      var det = el("details", "desplegable");
+      var sum = el("summary");
+      var titulo = el("div", "desplegable-titulo");
+      titulo.appendChild(el("span", "desplegable-nombre", b.titulo));
+      sum.appendChild(titulo);
+      det.appendChild(sum);
+      var cuerpo = el("div", "desplegable-cuerpo");
+      cuerpo.appendChild(el("p", null, b.texto));
+      det.appendChild(cuerpo);
+      bloques.appendChild(det);
     });
     cont.appendChild(bloques);
     seccion.appendChild(cont);
-    anclar(seccion, "taller", "El taller");
     raiz.appendChild(seccion);
 
     if (mod.galeria && d.galeria && d.galeria.length) {
@@ -416,13 +389,10 @@
       });
       cg.appendChild(gal);
       sg.appendChild(cg);
-      anclar(sg, "galeria", "Galería");
       raiz.appendChild(sg);
     }
 
-    var finT = cierre(C.inicio.cierre);
-    anclar(finT, "consultas", "Consultas");
-    raiz.appendChild(finT);
+    raiz.appendChild(cierre(C.inicio.cierre));
   }
 
   function pintarTienda() {
@@ -580,14 +550,9 @@
 
     cont.appendChild(datos);
     seccion.appendChild(cont);
-    anclar(seccion, "datos", "Datos");
     raiz.appendChild(seccion);
 
-    if (mod.seguimiento) {
-      var sSegC = seccionSeguimiento();
-      anclar(sSegC, "seguimiento", "Seguimiento");
-      raiz.appendChild(sSegC);
-    }
+    if (mod.seguimiento) raiz.appendChild(seccionSeguimiento());
 
     if (d.preguntas && d.preguntas.length) {
       var sf = el("section", "seccion ajustada");
@@ -606,13 +571,10 @@
       });
       cf.appendChild(faq);
       sf.appendChild(cf);
-      anclar(sf, "preguntas", "Preguntas");
       raiz.appendChild(sf);
     }
 
-    var finC = cierre(C.inicio.cierre);
-    anclar(finC, "consultas", "Consultas");
-    raiz.appendChild(finC);
+    raiz.appendChild(cierre(C.inicio.cierre));
   }
 
   function revelar() {
@@ -644,10 +606,7 @@
   if (pintores[pagina]) {
     // el HTML trae un titulo y un parrafo fijos para los buscadores; se descartan al pintar
     document.getElementById("contenido").innerHTML = "";
-    indice = [];
-    puntoAccesos = null;
     pintores[pagina]();
-    pintarAccesos();
   }
   pintarPie();
   revelar();
