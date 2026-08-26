@@ -242,19 +242,13 @@
     cabDif.appendChild(el("div", "etiqueta", "Cómo trabajamos"));
     cabDif.appendChild(el("h2", null, "La diferencia está en el diagnóstico"));
     cDif.appendChild(cabDif);
-    var grilla = el("div", "desplegables");
+    var grilla = el("div", "grilla");
     d.diferenciales.forEach(function (item) {
-      var det = el("details", "desplegable");
-      var sum = el("summary");
-      var titulo = el("div", "desplegable-titulo");
-      if (item.etiqueta) titulo.appendChild(el("span", "desplegable-tag", item.etiqueta));
-      titulo.appendChild(el("span", "desplegable-nombre", item.titulo));
-      sum.appendChild(titulo);
-      det.appendChild(sum);
-      var cuerpo = el("div", "desplegable-cuerpo");
-      if (item.texto) cuerpo.appendChild(el("p", null, item.texto));
-      det.appendChild(cuerpo);
-      grilla.appendChild(det);
+      var tarjeta = el("article", "tarjeta aparece");
+      tarjeta.appendChild(el("div", "etiqueta", item.etiqueta));
+      tarjeta.appendChild(el("h3", null, item.titulo));
+      tarjeta.appendChild(el("p", null, item.texto));
+      grilla.appendChild(tarjeta);
     });
     cDif.appendChild(grilla);
     sDif.appendChild(cDif);
@@ -266,19 +260,17 @@
     cabProc.appendChild(el("div", "etiqueta", "Paso a paso"));
     cabProc.appendChild(el("h2", null, "Qué pasa con tu equipo desde que entra"));
     cProc.appendChild(cabProc);
-    var lista = el("div", "desplegables");
+    var lista = el("div", "proceso");
+    var ol = el("ol");
     d.proceso.forEach(function (paso) {
-      var det = el("details", "desplegable");
-      var sum = el("summary");
-      var titulo = el("div", "desplegable-titulo");
-      titulo.appendChild(el("span", "desplegable-nombre", paso.titulo));
-      sum.appendChild(titulo);
-      det.appendChild(sum);
-      var cuerpo = el("div", "desplegable-cuerpo");
-      cuerpo.appendChild(el("p", null, paso.texto));
-      det.appendChild(cuerpo);
-      lista.appendChild(det);
+      var li = el("li");
+      var caja = el("div");
+      caja.appendChild(el("h3", null, paso.titulo));
+      caja.appendChild(el("p", null, paso.texto));
+      li.appendChild(caja);
+      ol.appendChild(li);
     });
+    lista.appendChild(ol);
     cProc.appendChild(lista);
 
     if (d.marcas && d.marcas.length) {
@@ -309,24 +301,20 @@
     cab.appendChild(el("p", null, d.intro));
     cont.appendChild(cab);
 
-    var lista = el("div", "desplegables");
+    var lista = el("div", "servicios");
     d.items.forEach(function (item) {
-      var det = el("details", "desplegable");
-      var sum = el("summary");
-      var titulo = el("div", "desplegable-titulo");
-      if (item.etiqueta) titulo.appendChild(el("span", "desplegable-tag", item.etiqueta));
-      titulo.appendChild(el("span", "desplegable-nombre", item.titulo));
-      sum.appendChild(titulo);
-      det.appendChild(sum);
-      var cuerpo = el("div", "desplegable-cuerpo");
-      if (item.texto) cuerpo.appendChild(el("p", null, item.texto));
-      if (item.detalle && item.detalle.length) {
-        var ul = el("ul", "desplegable-lista");
-        item.detalle.forEach(function (t) { ul.appendChild(el("li", null, t)); });
-        cuerpo.appendChild(ul);
-      }
-      det.appendChild(cuerpo);
-      lista.appendChild(det);
+      var fila = el("article", "servicio aparece");
+      var izq = el("div");
+      izq.appendChild(el("div", "etiqueta", item.etiqueta));
+      var medio = el("div");
+      medio.appendChild(el("h3", null, item.titulo));
+      medio.appendChild(el("p", null, item.texto));
+      var der = el("ul");
+      (item.detalle || []).forEach(function (t) { der.appendChild(el("li", null, t)); });
+      fila.appendChild(izq);
+      fila.appendChild(medio);
+      fila.appendChild(der);
+      lista.appendChild(fila);
     });
     cont.appendChild(lista);
 
@@ -356,18 +344,12 @@
     cab.appendChild(el("p", null, d.intro));
     cont.appendChild(cab);
 
-    var bloques = el("div", "desplegables");
+    var bloques = el("div", "bloques");
     d.bloques.forEach(function (b) {
-      var det = el("details", "desplegable");
-      var sum = el("summary");
-      var titulo = el("div", "desplegable-titulo");
-      titulo.appendChild(el("span", "desplegable-nombre", b.titulo));
-      sum.appendChild(titulo);
-      det.appendChild(sum);
-      var cuerpo = el("div", "desplegable-cuerpo");
-      cuerpo.appendChild(el("p", null, b.texto));
-      det.appendChild(cuerpo);
-      bloques.appendChild(det);
+      var caja = el("article", "bloque aparece");
+      caja.appendChild(el("h3", null, b.titulo));
+      caja.appendChild(el("p", null, b.texto));
+      bloques.appendChild(caja);
     });
     cont.appendChild(bloques);
     seccion.appendChild(cont);
