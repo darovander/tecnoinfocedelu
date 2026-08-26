@@ -10,16 +10,6 @@
   var C = borrador || window.CONTENIDO;
   if (!C) return;
 
-  // Aplica la paleta de colores (si el admin la definió) antes de pintar nada.
-  (function aplicarColores() {
-    var colores = C.colores;
-    if (!colores) return;
-    var raiz = document.documentElement;
-    Object.keys(colores).forEach(function (clave) {
-      if (colores[clave]) raiz.style.setProperty(clave, colores[clave]);
-    });
-  })();
-
   var neg = C.negocio;
   var mod = C.modulos || {};
   var pagina = document.body.dataset.pagina;
@@ -83,38 +73,97 @@
     var destino = html("cabecera");
     if (!destino) return;
 
+    var util = el("div", "util");
+    var utilFila = el("div", "contenedor util-fila");
+    var utilIzq = el("div", "util-izq");
+    var dir = el("a", null, neg.direccion + " · " + (neg.ciudad || ""));
+    dir.href = neg.mapa || "contacto.html";
+    dir.target = "_blank";
+    dir.rel = "noopener";
+    utilIzq.appendChild(dir);
+    if (neg.horarios) utilIzq.appendChild(el("span", null, neg.horarios));
+    utilFila.appendChild(utilIzq);
+    var utilWa = el("a", "util-wa", "WhatsApp " + (neg.whatsapp || ""));
+    utilWa.href = linkWa("Hola, te consulto por una reparación.");
+    utilWa.target = "_blank";
+    utilWa.rel = "noopener";
+    utilFila.appendChild(utilWa);
+    util.appendChild(utilFila);
+    destino.appendChild(util);
+
     var barra = el("header", "barra");
     var fila = el("div", "contenedor barra-fila");
     fila.appendChild(bloqueMarca());
 
+    var lado = el("div", "nav-lado");
+
     var boton = el("button", "hamburguesa");
+    boton.type = "button";
     boton.setAttribute("aria-label", "Abrir menú");
     boton.setAttribute("aria-expanded", "false");
+    boton.setAttribute("aria-controls", "menu-principal");
     boton.appendChild(el("span"));
 
     var menu = el("nav", "menu");
     menu.id = "menu-principal";
+    menu.setAttribute("aria-label", "Principal");
     navegables().forEach(function (p) {
       var link = el("a", p.id === pagina ? "activo" : "", p.texto);
       link.href = p.url;
       if (p.id === pagina) link.setAttribute("aria-current", "page");
       menu.appendChild(link);
     });
-    var cta = el("a", "boton wa chico", "WhatsApp");
-    cta.href = linkWa("Hola, te consulto por una reparación.");
-    cta.target = "_blank";
-    cta.rel = "noopener";
-    menu.appendChild(cta);
+    var ctaMenu = el("a", "boton wa chico", "WhatsApp");
+    ctaMenu.href = linkWa("Hola, te consulto por una reparación.");
+    ctaMenu.target = "_blank";
+    ctaMenu.rel = "noopener";
+    menu.appendChild(ctaMenu);
+
+    var ctaFijo = el("a", "boton wa chico cta-fijo", "WhatsApp");
+    ctaFijo.href = linkWa("Hola, te consulto por una reparación.");
+    ctaFijo.target = "_blank";
+    ctaFijo.rel = "noopener";
+
+    var velo = el("div", "velo");
+    velo.setAttribute("hidden", "");
+
+    function cerrarMenu() {
+      menu.classList.remove("abierto");
+      boton.classList.remove("abierto");
+      velo.classList.remove("visible");
+      document.body.classList.remove("menu-abierto");
+      boton.setAttribute("aria-expanded", "false");
+      boton.setAttribute("aria-label", "Abrir menú");
+    }
+
+    function abrirMenu() {
+      menu.classList.add("abierto");
+      boton.classList.add("abierto");
+      velo.classList.add("visible");
+      document.body.classList.add("menu-abierto");
+      boton.setAttribute("aria-expanded", "true");
+      boton.setAttribute("aria-label", "Cerrar menú");
+    }
 
     boton.addEventListener("click", function () {
-      var abierto = menu.classList.toggle("abierto");
-      boton.setAttribute("aria-expanded", abierto ? "true" : "false");
+      if (menu.classList.contains("abierto")) cerrarMenu();
+      else abrirMenu();
+    });
+    velo.addEventListener("click", cerrarMenu);
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key === "Escape") cerrarMenu();
+    });
+    menu.querySelectorAll("a").forEach(function (a) {
+      a.addEventListener("click", cerrarMenu);
     });
 
-    fila.appendChild(menu);
-    fila.appendChild(boton);
+    lado.appendChild(menu);
+    lado.appendChild(ctaFijo);
+    lado.appendChild(boton);
+    fila.appendChild(lado);
     barra.appendChild(fila);
     destino.appendChild(barra);
+    destino.appendChild(velo);
   }
 
   function pintarPie() {
@@ -161,6 +210,15 @@
     col3.appendChild(el("p", null, neg.ciudad));
     col3.appendChild(el("p", null, neg.horarios));
     grilla.appendChild(col3);
+
+    var col4 = el("div");
+    col4.appendChild(el("h4", null, "Sitio"));
+    navegables().forEach(function (p) {
+      var a = el("a", null, p.texto);
+      a.href = p.url;
+      col4.appendChild(a);
+    });
+    grilla.appendChild(col4);
 
     cont.appendChild(grilla);
 
@@ -210,8 +268,9 @@
     var raiz = html("contenido");
 
     var cabecera = el("section", "contenedor");
-    var hoja = el("div", "hoja");
-    var interno = el("div", "hoja-contenido");
+    var portada = el("div", "portada");
+
+    var interno = el("div", "portada-texto");
     interno.appendChild(el("div", "etiqueta", d.hero.etiqueta));
     interno.appendChild(el("h1", null, d.hero.titulo));
     interno.appendChild(el("p", "hoja-texto", d.hero.texto));
@@ -226,25 +285,25 @@
     acciones.appendChild(b1);
     acciones.appendChild(b2);
     interno.appendChild(acciones);
-    hoja.appendChild(interno);
-
-    var rotulo = el("div", "rotulo");
-    [["Especialidad", d.rotulo.linea1], ["Experiencia", d.rotulo.linea2], ["Marcas", d.rotulo.linea3]].forEach(function (par) {
-      var caja = el("div");
-      caja.appendChild(el("span", null, par[0]));
-      caja.appendChild(document.createTextNode(par[1]));
-      rotulo.appendChild(caja);
-    });
-    hoja.appendChild(rotulo);
-    cabecera.appendChild(hoja);
+    portada.appendChild(interno);
 
     if (d.hero.imagen) {
       var figura = el("figure", "hero-foto");
       figura.appendChild(imagenO("Foto del taller", d.hero.imagen, d.hero.epigrafeImagen));
       if (d.hero.epigrafeImagen) figura.appendChild(el("figcaption", null, d.hero.epigrafeImagen));
-      cabecera.appendChild(figura);
+      portada.appendChild(figura);
     }
+    cabecera.appendChild(portada);
     raiz.appendChild(cabecera);
+
+    var rotulo = el("div", "rotulo");
+    [["Especialidad", d.rotulo.linea1], ["Desde", d.rotulo.linea2], ["Marcas", d.rotulo.linea3]].forEach(function (par) {
+      var caja = el("div");
+      caja.appendChild(el("span", null, par[0]));
+      caja.appendChild(document.createTextNode(par[1]));
+      rotulo.appendChild(caja);
+    });
+    raiz.appendChild(rotulo);
 
     var sDif = el("section", "seccion");
     var cDif = el("div", "contenedor");
@@ -317,15 +376,6 @@
       var izq = el("div");
       izq.appendChild(el("div", "etiqueta", item.etiqueta));
       var medio = el("div");
-      if (item.imagen) {
-        var foto = el("div", "servicio-foto");
-        var img = el("img");
-        img.src = item.imagen;
-        img.alt = item.titulo;
-        img.loading = "lazy";
-        foto.appendChild(img);
-        medio.appendChild(foto);
-      }
       medio.appendChild(el("h3", null, item.titulo));
       medio.appendChild(el("p", null, item.texto));
       var der = el("ul");

@@ -72,29 +72,6 @@
       ]
     },
     {
-      id: "colores",
-      titulo: "Colores",
-      bloques: [
-        {
-          legend: "Paleta del sitio",
-          campos: [
-            ["colores.--fondo", "Fondo general", "color"],
-            ["colores.--panel", "Panel", "color"],
-            ["colores.--panel-alto", "Panel (hover / destacado)", "color"],
-            ["colores.--texto", "Texto principal", "color"],
-            ["colores.--texto-medio", "Texto medio", "color"],
-            ["colores.--texto-suave", "Texto suave", "color"],
-            ["colores.--azul", "Azul (links, acentos)", "color"],
-            ["colores.--azul-hondo", "Azul profundo (fondos)", "color"],
-            ["colores.--naranja", "Naranja (botones, foco)", "color"],
-            ["colores.--verde-wa", "Verde WhatsApp", "color"],
-            ["colores.--linea", "Líneas / bordes", "color"],
-            ["colores.--linea-fina", "Líneas finas", "color"]
-          ]
-        }
-      ]
-    },
-    {
       id: "inicio",
       titulo: "Inicio",
       bloques: [
@@ -173,13 +150,12 @@
           tipo: "lista",
           ruta: "servicios.items",
           rotulo: "Servicio",
-          nuevo: { etiqueta: "", titulo: "", texto: "", detalle: [], imagen: "" },
+          nuevo: { etiqueta: "", titulo: "", texto: "", detalle: [] },
           campos: [
             ["etiqueta", "Categoría", "texto"],
             ["titulo", "Título", "texto"],
             ["texto", "Descripción", "area"],
-            ["detalle", "Detalle (uno por línea)", "texto-lista"],
-            ["imagen", "Foto del servicio (opcional)", "foto"]
+            ["detalle", "Detalle (uno por línea)", "texto-lista"]
           ]
         },
         {
@@ -438,37 +414,6 @@
     lector.readAsDataURL(archivo);
   }
 
-  function campoColor(etiqueta, valor, alCambiar) {
-    var lab = el("label");
-    lab.appendChild(el("span", null, etiqueta));
-    var fila = el("div");
-    fila.style.cssText = "display:flex;gap:8px;align-items:center";
-
-    var color = el("input");
-    color.type = "color";
-    color.value = /^#[0-9a-fA-F]{6}$/.test(valor) ? valor : "#000000";
-    color.style.cssText = "width:44px;height:38px;padding:2px;border:1px solid var(--linea);background:var(--fondo);cursor:pointer;flex:none";
-
-    var texto = el("input");
-    texto.type = "text";
-    texto.value = valor || "";
-    texto.style.marginBottom = "0";
-
-    color.addEventListener("input", function () {
-      texto.value = color.value;
-      alCambiar(color.value);
-    });
-    texto.addEventListener("input", function () {
-      if (/^#[0-9a-fA-F]{6}$/.test(texto.value)) color.value = texto.value;
-      alCambiar(texto.value);
-    });
-
-    fila.appendChild(color);
-    fila.appendChild(texto);
-    lab.appendChild(fila);
-    return lab;
-  }
-
   function bloqueLista(bloque) {
     var fs = el("fieldset");
     fs.appendChild(el("legend", null, bloque.legend));
@@ -606,8 +551,6 @@
         if (tipo === "foto") {
           nodo = campoFoto(etiqueta, leer(ruta), function (v) { escribir(ruta, v); });
           nodo.style.gridColumn = "1 / -1";
-        } else if (tipo === "color") {
-          nodo = campoColor(etiqueta, leer(ruta), function (v) { escribir(ruta, v); });
         } else if (tipo === "texto-lista") {
           nodo = campoLineas(etiqueta, leer(ruta), function (v) { escribir(ruta, v); });
         } else {
