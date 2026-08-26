@@ -1,126 +1,432 @@
 <!DOCTYPE html>
 <html lang="es-AR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<title>Editor de contenido | TecnoInformática</title>
-<link rel="icon" href="favicon.png" type="image/png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de edición — TecnoInformática</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-:root {
-  --fondo: #05080d; --panel: #0c1219; --panel-alto: #111924;
-  --texto: #eaf1f8; --texto-medio: #9daebf; --texto-suave: #6a7a8c;
-  --azul: #29a9ff; --naranja: #fe9536; --linea: #1b2531;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0; background: var(--fondo); color: var(--texto);
-  font-family: "IBM Plex Sans", system-ui, sans-serif; font-size: 15px;
-}
-header {
-  background: var(--panel); color: var(--texto); padding: 14px 22px; border-bottom: 1px solid var(--linea);
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  flex-wrap: wrap; position: sticky; top: 0; z-index: 10;
-}
-header h1 { font-family: "IBM Plex Sans Condensed", sans-serif; font-size: 1.3rem; margin: 0; }
-header small { display: block; font-family: "IBM Plex Mono", monospace; font-size: .66rem;
-  letter-spacing: .14em; text-transform: uppercase; color: var(--texto-suave); }
-.acciones { display: flex; gap: 8px; flex-wrap: wrap; }
-button, .btn {
-  font-family: inherit; font-size: .88rem; font-weight: 600; padding: 9px 16px;
-  border: 1.5px solid var(--azul); background: transparent; color: var(--azul);
-  cursor: pointer; text-decoration: none; display: inline-block;
-}
-button:hover, .btn:hover { background: var(--azul); color: #05080d; }
-button.verde { background: var(--naranja); border-color: var(--naranja); color: #05080d; }
-button.verde:hover { background: #ffab5c; border-color: #ffab5c; }
-button.mini { padding: 5px 10px; font-size: .78rem; font-weight: 400; color: var(--texto-medio);
-  border-color: var(--linea); }
-button.mini:hover { border-color: var(--naranja); color: var(--naranja); background: transparent; }
-main { max-width: 1000px; margin: 0 auto; padding: 26px 22px 90px; }
-.pestanas { display: flex; gap: 2px; flex-wrap: wrap; margin-bottom: 22px; }
-.pestanas button {
-  background: var(--panel); color: var(--texto-medio); border: 1px solid var(--linea);
-  font-size: .88rem; padding: 10px 16px; font-weight: 400;
-}
-.pestanas button:hover { background: var(--panel-alto); color: var(--texto); }
-.pestanas button.activa { background: var(--naranja); color: #05080d; border-color: var(--naranja); font-weight: 600; }
-.pestanas button.activa:hover { background: #ffab5c; color: #05080d; }
-fieldset { border: 1px solid var(--linea); background: var(--panel); padding: 20px; margin: 0 0 18px; }
-legend { font-family: "IBM Plex Mono", monospace; font-size: .68rem; letter-spacing: .16em;
-  text-transform: uppercase; color: var(--azul); padding: 0 8px; }
-label { display: block; margin-bottom: 14px; }
-label > span { display: block; font-size: .78rem; color: var(--texto-suave); margin-bottom: 5px;
-  font-family: "IBM Plex Mono", monospace; letter-spacing: .06em; text-transform: uppercase; }
-input[type=text], textarea, select {
-  width: 100%; padding: 10px 12px; border: 1px solid var(--linea); background: var(--fondo);
-  font-family: inherit; font-size: .95rem; color: var(--texto);
-}
-textarea { min-height: 92px; resize: vertical; line-height: 1.55; }
-input:focus, textarea:focus, select:focus { outline: 2px solid var(--naranja); outline-offset: 1px; }
-.fila { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
-.item { border: 1px solid var(--linea); padding: 16px; margin-bottom: 14px; background: var(--panel-alto); }
-.item-cabeza { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
-.item-cabeza strong { font-family: "IBM Plex Mono", monospace; font-size: .76rem; color: var(--azul);
-  letter-spacing: .1em; text-transform: uppercase; }
-.foto { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
-.foto img { width: 130px; height: 92px; object-fit: cover; border: 1px solid var(--linea); }
-.foto .vacio { width: 130px; height: 92px; border: 1px dashed var(--linea); display: grid;
-  place-items: center; font-size: .7rem; color: var(--texto-suave); font-family: "IBM Plex Mono", monospace; }
-.foto-controles { flex: 1 1 240px; }
-.interruptor { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--linea); }
-.interruptor:last-child { border-bottom: 0; }
-.interruptor input { width: 20px; height: 20px; accent-color: var(--naranja); }
-.interruptor div { flex: 1; }
-.interruptor p { margin: 2px 0 0; font-size: .82rem; color: var(--texto-suave); }
-.ayuda { font-size: .82rem; color: var(--texto-medio); background: var(--panel); border-left: 3px solid var(--naranja);
-  padding: 14px 16px; margin-bottom: 20px; }
-.ayuda strong { color: var(--texto); }
-.ayuda code { font-family: "IBM Plex Mono", monospace; background: var(--fondo); color: var(--azul); padding: 1px 5px; }
-.aviso-guardado {
-  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
-  background: var(--naranja); color: #05080d; padding: 12px 22px; font-size: .88rem; font-weight: 600;
-  opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 20;
-}
-.aviso-guardado.visible { opacity: 1; }
-@media (max-width: 700px) { .fila { grid-template-columns: 1fr; } }
+  :root { --bg:#0c0e12; --surface:#161a21; --elevated:#1c212b; --text:#e8eaed; --muted:#9aa3b2; --border:#2a3140; --accent:#3b9eff; --wa:#25d366; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:"Segoe UI", system-ui, sans-serif; background:var(--bg); color:var(--text); padding:24px 16px 80px; }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  .sub { color: var(--muted); margin-bottom: 20px; font-size: 14px; }
+  .aviso { background: rgba(59,158,255,.12); border: 1px solid var(--accent); border-radius: 10px; padding: 14px 16px; font-size: 14px; margin-bottom: 24px; line-height:1.6; }
+  .aviso b { color: var(--accent); }
+  section.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 18px; }
+  section.panel h2 { font-size: 1.05rem; margin: 0 0 14px; color: var(--accent); }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+  input[type=text], input[type=tel], textarea, input[type=file] {
+    width: 100%; background: var(--elevated); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 9px 10px; font: inherit; font-size: 14px;
+  }
+  textarea { resize: vertical; min-height: 60px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 140px; }
+  .colores-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 12px; }
+  .color-item { display:flex; align-items:center; gap:8px; background:var(--elevated); border:1px solid var(--border); border-radius:8px; padding:8px 10px; }
+  .color-item input[type=color] { width: 36px; height: 36px; border: none; background: none; padding: 0; cursor:pointer; }
+  .color-item span { font-size: 13px; }
+  .item-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; background: var(--elevated); position: relative; }
+  .item-card .num { position:absolute; top:10px; right:14px; font-size:12px; color:var(--muted); }
+  .thumb { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-top: 8px; background: var(--surface); display:none; }
+  .thumb.show { display:block; }
+  .btn { display:inline-flex; align-items:center; justify-content:center; height: 38px; padding: 0 16px; border-radius: 8px; font-weight:600; font-size: 13px; border:0; cursor:pointer; }
+  .btn-primary { background: var(--accent); color:#0a0c10; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-danger { background: transparent; border: 1px solid #a33; color: #ff8a8a; }
+  .btn-wa { background: var(--wa); color:#fff; }
+  .acciones { display:flex; gap:10px; flex-wrap:wrap; margin-top: 10px; }
+  .top-actions { position: sticky; top: 0; background: var(--bg); padding: 12px 0; z-index: 10; display:flex; gap:10px; flex-wrap:wrap; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+  .lista-simple li { margin-bottom: 6px; }
+  .lista-simple input { margin-bottom: 6px; }
+  small.help { display:block; color: var(--muted); font-size:12px; margin-top:4px; }
 </style>
 </head>
 <body>
-<header>
-  <div style="display:flex;align-items:center;gap:14px">
-    <img src="img/logo.png" alt="TecnoInformática" style="height:30px;width:auto">
-    <div>
-      <h1>Editor de contenido</h1>
-      <small>Cambiá el sitio sin tocar código</small>
+<div class="wrap">
+  <h1>Panel de edición — TecnoInformática</h1>
+  <p class="sub">Editá textos, colores e imágenes del sitio. Al terminar, exportá el ZIP y subilo a GitHub.</p>
+
+  <div class="aviso">
+    <b>Cómo se usa:</b> 1) Si ya tenías un <code>content.json</code> subido, cargalo abajo para seguir editando desde ahí.
+    2) Editá lo que quieras (colores, textos, imágenes de servicios y trabajos).
+    3) Tocá <b>"Descargar ZIP"</b>. 4) Subí a GitHub el <code>content.json</code> (reemplaza el de la raíz) y las carpetas
+    <code>servicios/</code> y <code>trabajos/</code> que vengan con imágenes nuevas (van también en la raíz del repo).
+    5) Esperá el deploy de Vercel y hacé <code>Ctrl+Shift+R</code> en el sitio.
+  </div>
+
+  <div class="top-actions">
+    <label style="margin:0;">
+      <span class="btn btn-outline" style="display:inline-flex;">Cargar content.json existente</span>
+      <input type="file" id="cargarJson" accept="application/json" style="display:none;">
+    </label>
+    <button class="btn btn-primary" id="btnExportar">⬇ Descargar ZIP</button>
+  </div>
+
+  <section class="panel">
+    <h2>Colores del sitio</h2>
+    <div class="colores-grid" id="coloresGrid"></div>
+  </section>
+
+  <section class="panel">
+    <h2>WhatsApp</h2>
+    <label>Número (con código de país, sin espacios ni +) <small class="help">Ej: 543442419123</small></label>
+    <input type="tel" id="waNumero">
+  </section>
+
+  <section class="panel">
+    <h2>Inicio (hero)</h2>
+    <label>Badge superior</label>
+    <input type="text" id="heroBadge">
+    <div class="row">
+      <div><label>Título (parte normal)</label><input type="text" id="heroTituloPre"></div>
+      <div><label>Título (parte resaltada, color de acento)</label><input type="text" id="heroTituloDestacado"></div>
     </div>
-  </div>
+    <label>Subtítulo</label>
+    <textarea id="heroSub"></textarea>
+    <label>Estadísticas (3 bloques)</label>
+    <div id="heroStatsWrap"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Servicios</h2>
+    <div id="serviciosWrap"></div>
+    <div class="acciones"><button class="btn btn-outline" id="btnAgregarServicio">+ Agregar servicio</button></div>
+  </section>
+
+  <section class="panel">
+    <h2>Nosotros</h2>
+    <label>Texto destacado (lead)</label>
+    <textarea id="nosotrosLead"></textarea>
+    <label>Párrafo 1</label>
+    <textarea id="nosotrosParrafo1"></textarea>
+    <label>Párrafo 2</label>
+    <textarea id="nosotrosParrafo2"></textarea>
+    <label>Lista de puntos</label>
+    <ul class="lista-simple" id="nosotrosListaWrap" style="list-style:none; padding:0;"></ul>
+    <div class="acciones"><button class="btn btn-outline" id="btnAgregarItem">+ Agregar punto</button></div>
+    <div class="row" style="margin-top:10px;">
+      <div><label>Título del recuadro "¿Por qué confiar?"</label><input type="text" id="nosotrosHighlightTitulo"></div>
+    </div>
+    <label>Texto del recuadro</label>
+    <textarea id="nosotrosHighlightTexto"></textarea>
+  </section>
+
+  <section class="panel">
+    <h2>Trabajos realizados</h2>
+    <div id="trabajosWrap"></div>
+    <div class="acciones"><button class="btn btn-outline" id="btnAgregarTrabajo">+ Agregar trabajo</button></div>
+  </section>
+
+  <section class="panel">
+    <h2>Contacto</h2>
+    <div class="row">
+      <div><label>Dirección</label><input type="text" id="contactoDireccion"></div>
+      <div><label>Localidad</label><input type="text" id="contactoLocalidad"></div>
+    </div>
+    <div class="row">
+      <div><label>Instagram (texto mostrado)</label><input type="text" id="contactoInstagram"></div>
+      <div><label>Horarios</label><input type="text" id="contactoHorarios"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Pie de página</h2>
+    <label>Descripción</label>
+    <textarea id="footerDescripcion"></textarea>
+    <label>Texto de copyright</label>
+    <input type="text" id="footerCopy">
+  </section>
+
   <div class="acciones">
-    <a class="btn claro" href="index.html?borrador=1" target="_blank">Ver vista previa</a>
-    <button type="button" class="claro" id="importar">Importar archivo</button>
-    <button type="button" class="verde" id="descargar">Descargar contenido.js</button>
+    <button class="btn btn-primary" id="btnExportar2">⬇ Descargar ZIP</button>
   </div>
-</header>
+</div>
 
-<main>
-  <div class="ayuda">
-    Editá lo que necesites, mirá la vista previa y después tocá <strong>Descargar contenido.js</strong>.
-    Ese archivo va en la carpeta <code>js/</code> del repositorio, reemplazando al anterior. Cuando lo subís a
-    GitHub, Vercel publica los cambios solo. Lo que escribís acá se guarda en este navegador hasta que descargues.
-  </div>
+<script>
+const DEFAULTS = {
+  "colores": {
+    "bg": "#0c0e12",
+    "surface": "#161a21",
+    "elevated": "#1c212b",
+    "text": "#e8eaed",
+    "muted": "#9aa3b2",
+    "border": "#2a3140",
+    "accent": "#3b9eff",
+    "wa": "#25d366"
+  },
+  "whatsapp": "543442419123",
+  "hero": {
+    "badge": "Taller especializado · Concepción del Uruguay",
+    "tituloPre": "Reparamos lo que",
+    "tituloDestacado": "otros no pueden",
+    "subtitulo": "Servicio técnico de notebooks y PCs a nivel de placa en Concepción del Uruguay. Componentes SMD, no enciende, no da imagen y más. Experiencia real en Lenovo, HP, Dell, Asus y Acer.",
+    "stats": [
+      { "titulo": "Nivel placa", "detalle": "Diagnóstico real" },
+      { "titulo": "Marcas", "detalle": "Lenovo · HP · Dell · Asus · Acer" },
+      { "titulo": "Local", "detalle": "12 de Octubre 1180" }
+    ]
+  },
+  "servicios": [
+    { "titulo": "Reparación de notebooks", "descripcion": "No enciende, no da imagen, problemas de carga, sobrecalentamiento, fallas de teclado o pantalla. Diagnóstico a nivel placa incluido.", "imagen": "" },
+    { "titulo": "Reparación de PC de escritorio", "descripcion": "Fuentes, motherboards, componentes SMD, armado y actualización de hardware.", "imagen": "" },
+    { "titulo": "Diagnóstico a nivel placa", "descripcion": "Análisis real de fallas en componentes. Búsqueda de cortos, reemplazo de SMD y diagnóstico preciso.", "imagen": "" },
+    { "titulo": "Cambio de pantallas", "descripcion": "Pantallas rotas, con manchas o fallas de imagen. Instalación profesional y prueba completa.", "imagen": "" },
+    { "titulo": "Actualización de hardware", "descripcion": "SSD, memoria RAM, cambio de pasta térmica, limpieza interna y optimización de rendimiento.", "imagen": "" },
+    { "titulo": "Formateo e instalación", "descripcion": "Sistemas operativos, drivers, software esencial y mantenimiento preventivo.", "imagen": "" },
+    { "titulo": "Venta de repuestos", "descripcion": "Pantallas, teclados, cargadores, baterías, conectores y componentes electrónicos.", "imagen": "" },
+    { "titulo": "Mantenimiento preventivo", "descripcion": "Limpieza profunda, cambio de pasta térmica y revisión general para evitar fallas mayores.", "imagen": "" }
+  ],
+  "nosotros": {
+    "lead": "Somos un taller de Concepción del Uruguay especializado en reparación a nivel de componente. No nos quedamos en “cambiar la pieza y ver qué pasa”.",
+    "parrafo1": "Acá se diagnostica de verdad: se buscan cortos, se identifican componentes defectuosos y se repara lo que se puede reparar. Con años de experiencia en notebooks de las marcas más comunes del mercado.",
+    "parrafo2": "Trabajamos con seriedad, te explicamos qué tiene el equipo y te damos un presupuesto claro. Si se puede arreglar, te lo decimos. Si no conviene, también.",
+    "items": [
+      "Diagnóstico real, no prueba y error",
+      "Experiencia en Lenovo, HP, Dell, Asus, Acer",
+      "Trato directo y transparente",
+      "Taller local en 12 de Octubre 1180"
+    ],
+    "highlightTitulo": "¿Por qué confiar?",
+    "highlightTexto": "Porque el diferencial está en el diagnóstico. Muchos equipos llegan “sin solución” de otros lugares y acá se recuperan. Eso es lo que hacemos todos los días."
+  },
+  "trabajos": [
+    { "caption": "No encendido · Lenovo", "imagen": "" },
+    { "caption": "PS4 · HDMI + conector", "imagen": "" },
+    { "caption": "Samsung · DC Jack", "imagen": "" },
+    { "caption": "Sony · recuperación", "imagen": "" },
+    { "caption": "Diagnóstico avanzado", "imagen": "" },
+    { "caption": "Mantenimiento preventivo", "imagen": "" }
+  ],
+  "contacto": {
+    "direccion": "12 de Octubre 1180",
+    "localidad": "Concepción del Uruguay, Entre Ríos",
+    "instagram": "@tecnoinformatica_",
+    "horarios": "Consultá por WhatsApp para coordinar turno."
+  },
+  "footer": {
+    "descripcion": "Reparación de PCs y notebooks a nivel placa.<br>Concepción del Uruguay, Entre Ríos.",
+    "copyright": "© 2026 TecnoInformática. Todos los derechos reservados."
+  }
+};
 
-  <div class="pestanas" id="pestanas"></div>
-  <form id="editor" autocomplete="off"></form>
-</main>
+let contenido = JSON.parse(JSON.stringify(DEFAULTS));
+let imagenesNuevas = {}; // ruta -> File
 
-<input type="file" id="archivo-importado" accept=".js,.json" hidden>
-<div class="aviso-guardado" id="aviso">Guardado en el navegador</div>
+function slug(s) {
+  return (s || "img").toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 30) || "img";
+}
 
-<script src="js/contenido.js"></script>
-<script src="js/admin.js"></script>
+function render() {
+  // Colores
+  const coloresGrid = document.getElementById("coloresGrid");
+  coloresGrid.innerHTML = "";
+  Object.keys(contenido.colores).forEach((clave) => {
+    const div = document.createElement("div");
+    div.className = "color-item";
+    div.innerHTML = `<input type="color" value="${contenido.colores[clave]}" data-clave="${clave}"><span>${clave}</span>`;
+    div.querySelector("input").addEventListener("input", (e) => {
+      contenido.colores[clave] = e.target.value;
+    });
+    coloresGrid.appendChild(div);
+  });
+
+  document.getElementById("waNumero").value = contenido.whatsapp || "";
+  document.getElementById("heroBadge").value = contenido.hero.badge || "";
+  document.getElementById("heroTituloPre").value = contenido.hero.tituloPre || "";
+  document.getElementById("heroTituloDestacado").value = contenido.hero.tituloDestacado || "";
+  document.getElementById("heroSub").value = contenido.hero.subtitulo || "";
+
+  const statsWrap = document.getElementById("heroStatsWrap");
+  statsWrap.innerHTML = "";
+  contenido.hero.stats.forEach((s, i) => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `<div><input type="text" placeholder="Título" value="${s.titulo || ""}" data-i="${i}" class="stat-titulo"></div>
+                      <div><input type="text" placeholder="Detalle" value="${s.detalle || ""}" data-i="${i}" class="stat-detalle"></div>`;
+    statsWrap.appendChild(row);
+  });
+  statsWrap.querySelectorAll(".stat-titulo").forEach((el) => el.addEventListener("input", (e) => contenido.hero.stats[e.target.dataset.i].titulo = e.target.value));
+  statsWrap.querySelectorAll(".stat-detalle").forEach((el) => el.addEventListener("input", (e) => contenido.hero.stats[e.target.dataset.i].detalle = e.target.value));
+
+  // Servicios
+  const serviciosWrap = document.getElementById("serviciosWrap");
+  serviciosWrap.innerHTML = "";
+  contenido.servicios.forEach((serv, i) => {
+    const card = document.createElement("div");
+    card.className = "item-card";
+    card.innerHTML = `
+      <span class="num">#${i + 1}</span>
+      <label>Título</label>
+      <input type="text" class="serv-titulo" data-i="${i}" value="${serv.titulo || ""}">
+      <label>Descripción</label>
+      <textarea class="serv-desc" data-i="${i}">${serv.descripcion || ""}</textarea>
+      <label>Imagen</label>
+      <input type="file" accept="image/*" class="serv-img" data-i="${i}">
+      <img class="thumb ${serv.imagen ? "show" : ""}" src="${serv.imagen || ""}" data-i="${i}">
+      <div class="acciones">
+        <button class="btn btn-danger btn-quitar-servicio" data-i="${i}">Quitar servicio</button>
+      </div>`;
+    serviciosWrap.appendChild(card);
+  });
+  serviciosWrap.querySelectorAll(".serv-titulo").forEach((el) => el.addEventListener("input", (e) => contenido.servicios[e.target.dataset.i].titulo = e.target.value));
+  serviciosWrap.querySelectorAll(".serv-desc").forEach((el) => el.addEventListener("input", (e) => contenido.servicios[e.target.dataset.i].descripcion = e.target.value));
+  serviciosWrap.querySelectorAll(".serv-img").forEach((el) => el.addEventListener("change", (e) => {
+    const i = e.target.dataset.i;
+    const file = e.target.files[0];
+    if (!file) return;
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const ruta = `servicios/${slug(contenido.servicios[i].titulo)}-${i}.${ext}`;
+    imagenesNuevas[ruta] = file;
+    contenido.servicios[i].imagen = ruta;
+    const img = serviciosWrap.querySelector(`.thumb[data-i="${i}"]`);
+    img.src = URL.createObjectURL(file);
+    img.classList.add("show");
+  }));
+  serviciosWrap.querySelectorAll(".btn-quitar-servicio").forEach((el) => el.addEventListener("click", (e) => {
+    contenido.servicios.splice(e.target.dataset.i, 1);
+    render();
+  }));
+
+  // Nosotros
+  document.getElementById("nosotrosLead").value = contenido.nosotros.lead || "";
+  document.getElementById("nosotrosParrafo1").value = contenido.nosotros.parrafo1 || "";
+  document.getElementById("nosotrosParrafo2").value = contenido.nosotros.parrafo2 || "";
+  document.getElementById("nosotrosHighlightTitulo").value = contenido.nosotros.highlightTitulo || "";
+  document.getElementById("nosotrosHighlightTexto").value = contenido.nosotros.highlightTexto || "";
+
+  const listaWrap = document.getElementById("nosotrosListaWrap");
+  listaWrap.innerHTML = "";
+  contenido.nosotros.items.forEach((it, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<div class="row"><div><input type="text" class="item-texto" data-i="${i}" value="${it}"></div>
+                     <button class="btn btn-danger btn-quitar-item" data-i="${i}">✕</button></div>`;
+    listaWrap.appendChild(li);
+  });
+  listaWrap.querySelectorAll(".item-texto").forEach((el) => el.addEventListener("input", (e) => contenido.nosotros.items[e.target.dataset.i] = e.target.value));
+  listaWrap.querySelectorAll(".btn-quitar-item").forEach((el) => el.addEventListener("click", (e) => {
+    contenido.nosotros.items.splice(e.target.dataset.i, 1);
+    render();
+  }));
+
+  // Trabajos
+  const trabajosWrap = document.getElementById("trabajosWrap");
+  trabajosWrap.innerHTML = "";
+  contenido.trabajos.forEach((t, i) => {
+    const card = document.createElement("div");
+    card.className = "item-card";
+    card.innerHTML = `
+      <span class="num">#${i + 1}</span>
+      <label>Descripción corta (ej: "No encendido · Lenovo")</label>
+      <input type="text" class="trab-cap" data-i="${i}" value="${t.caption || ""}">
+      <label>Imagen</label>
+      <input type="file" accept="image/*" class="trab-img" data-i="${i}">
+      <img class="thumb ${t.imagen ? "show" : ""}" src="${t.imagen || ""}" data-i="${i}">
+      <div class="acciones">
+        <button class="btn btn-danger btn-quitar-trabajo" data-i="${i}">Quitar</button>
+      </div>`;
+    trabajosWrap.appendChild(card);
+  });
+  trabajosWrap.querySelectorAll(".trab-cap").forEach((el) => el.addEventListener("input", (e) => contenido.trabajos[e.target.dataset.i].caption = e.target.value));
+  trabajosWrap.querySelectorAll(".trab-img").forEach((el) => el.addEventListener("change", (e) => {
+    const i = e.target.dataset.i;
+    const file = e.target.files[0];
+    if (!file) return;
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const ruta = `trabajos/${slug(contenido.trabajos[i].caption)}-${i}.${ext}`;
+    imagenesNuevas[ruta] = file;
+    contenido.trabajos[i].imagen = ruta;
+    const img = trabajosWrap.querySelector(`.thumb[data-i="${i}"]`);
+    img.src = URL.createObjectURL(file);
+    img.classList.add("show");
+  }));
+  trabajosWrap.querySelectorAll(".btn-quitar-trabajo").forEach((el) => el.addEventListener("click", (e) => {
+    contenido.trabajos.splice(e.target.dataset.i, 1);
+    render();
+  }));
+
+  // Contacto
+  document.getElementById("contactoDireccion").value = contenido.contacto.direccion || "";
+  document.getElementById("contactoLocalidad").value = contenido.contacto.localidad || "";
+  document.getElementById("contactoInstagram").value = contenido.contacto.instagram || "";
+  document.getElementById("contactoHorarios").value = contenido.contacto.horarios || "";
+
+  // Footer
+  document.getElementById("footerDescripcion").value = (contenido.footer.descripcion || "").replace(/<br>/g, "\n");
+  document.getElementById("footerCopy").value = contenido.footer.copyright || "";
+}
+
+// listeners de campos simples (se agregan una sola vez)
+document.getElementById("waNumero").addEventListener("input", (e) => contenido.whatsapp = e.target.value.trim());
+document.getElementById("heroBadge").addEventListener("input", (e) => contenido.hero.badge = e.target.value);
+document.getElementById("heroTituloPre").addEventListener("input", (e) => contenido.hero.tituloPre = e.target.value);
+document.getElementById("heroTituloDestacado").addEventListener("input", (e) => contenido.hero.tituloDestacado = e.target.value);
+document.getElementById("heroSub").addEventListener("input", (e) => contenido.hero.subtitulo = e.target.value);
+document.getElementById("nosotrosLead").addEventListener("input", (e) => contenido.nosotros.lead = e.target.value);
+document.getElementById("nosotrosParrafo1").addEventListener("input", (e) => contenido.nosotros.parrafo1 = e.target.value);
+document.getElementById("nosotrosParrafo2").addEventListener("input", (e) => contenido.nosotros.parrafo2 = e.target.value);
+document.getElementById("nosotrosHighlightTitulo").addEventListener("input", (e) => contenido.nosotros.highlightTitulo = e.target.value);
+document.getElementById("nosotrosHighlightTexto").addEventListener("input", (e) => contenido.nosotros.highlightTexto = e.target.value);
+document.getElementById("contactoDireccion").addEventListener("input", (e) => contenido.contacto.direccion = e.target.value);
+document.getElementById("contactoLocalidad").addEventListener("input", (e) => contenido.contacto.localidad = e.target.value);
+document.getElementById("contactoInstagram").addEventListener("input", (e) => contenido.contacto.instagram = e.target.value);
+document.getElementById("contactoHorarios").addEventListener("input", (e) => contenido.contacto.horarios = e.target.value);
+document.getElementById("footerDescripcion").addEventListener("input", (e) => contenido.footer.descripcion = e.target.value.replace(/\n/g, "<br>"));
+document.getElementById("footerCopy").addEventListener("input", (e) => contenido.footer.copyright = e.target.value);
+
+document.getElementById("btnAgregarServicio").addEventListener("click", () => {
+  contenido.servicios.push({ titulo: "Nuevo servicio", descripcion: "", imagen: "" });
+  render();
+});
+document.getElementById("btnAgregarTrabajo").addEventListener("click", () => {
+  contenido.trabajos.push({ caption: "Nuevo trabajo", imagen: "" });
+  render();
+});
+document.getElementById("btnAgregarItem").addEventListener("click", () => {
+  contenido.nosotros.items.push("Nuevo punto");
+  render();
+});
+
+document.getElementById("cargarJson").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const cargado = JSON.parse(reader.result);
+      contenido = Object.assign(JSON.parse(JSON.stringify(DEFAULTS)), cargado);
+      imagenesNuevas = {};
+      render();
+      alert("content.json cargado correctamente.");
+    } catch (err) {
+      alert("Ese archivo no es un content.json válido.");
+    }
+  };
+  reader.readAsText(file);
+});
+
+async function exportarZip() {
+  const zip = new JSZip();
+  zip.file("content.json", JSON.stringify(contenido, null, 2));
+  for (const ruta in imagenesNuevas) {
+    zip.file(ruta, imagenesNuevas[ruta]);
+  }
+  const blob = await zip.generateAsync({ type: "blob" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "tecnoinformatica-contenido.zip";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+document.getElementById("btnExportar").addEventListener("click", exportarZip);
+document.getElementById("btnExportar2").addEventListener("click", exportarZip);
+
+render();
+</script>
 </body>
 </html>

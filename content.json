@@ -1,0 +1,65 @@
+{
+  "colores": {
+    "bg": "#0c0e12",
+    "surface": "#161a21",
+    "elevated": "#1c212b",
+    "text": "#e8eaed",
+    "muted": "#9aa3b2",
+    "border": "#2a3140",
+    "accent": "#3b9eff",
+    "wa": "#25d366"
+  },
+  "whatsapp": "543442419123",
+  "hero": {
+    "badge": "Taller especializado · Concepción del Uruguay",
+    "tituloPre": "Reparamos lo que",
+    "tituloDestacado": "otros no pueden",
+    "subtitulo": "Servicio técnico de notebooks y PCs a nivel de placa en Concepción del Uruguay. Componentes SMD, no enciende, no da imagen y más. Experiencia real en Lenovo, HP, Dell, Asus y Acer.",
+    "stats": [
+      { "titulo": "Nivel placa", "detalle": "Diagnóstico real" },
+      { "titulo": "Marcas", "detalle": "Lenovo · HP · Dell · Asus · Acer" },
+      { "titulo": "Local", "detalle": "12 de Octubre 1180" }
+    ]
+  },
+  "servicios": [
+    { "titulo": "Reparación de notebooks", "descripcion": "No enciende, no da imagen, problemas de carga, sobrecalentamiento, fallas de teclado o pantalla. Diagnóstico a nivel placa incluido.", "imagen": "" },
+    { "titulo": "Reparación de PC de escritorio", "descripcion": "Fuentes, motherboards, componentes SMD, armado y actualización de hardware.", "imagen": "" },
+    { "titulo": "Diagnóstico a nivel placa", "descripcion": "Análisis real de fallas en componentes. Búsqueda de cortos, reemplazo de SMD y diagnóstico preciso.", "imagen": "" },
+    { "titulo": "Cambio de pantallas", "descripcion": "Pantallas rotas, con manchas o fallas de imagen. Instalación profesional y prueba completa.", "imagen": "" },
+    { "titulo": "Actualización de hardware", "descripcion": "SSD, memoria RAM, cambio de pasta térmica, limpieza interna y optimización de rendimiento.", "imagen": "" },
+    { "titulo": "Formateo e instalación", "descripcion": "Sistemas operativos, drivers, software esencial y mantenimiento preventivo.", "imagen": "" },
+    { "titulo": "Venta de repuestos", "descripcion": "Pantallas, teclados, cargadores, baterías, conectores y componentes electrónicos.", "imagen": "" },
+    { "titulo": "Mantenimiento preventivo", "descripcion": "Limpieza profunda, cambio de pasta térmica y revisión general para evitar fallas mayores.", "imagen": "" }
+  ],
+  "nosotros": {
+    "lead": "Somos un taller de Concepción del Uruguay especializado en reparación a nivel de componente. No nos quedamos en “cambiar la pieza y ver qué pasa”.",
+    "parrafo1": "Acá se diagnostica de verdad: se buscan cortos, se identifican componentes defectuosos y se repara lo que se puede reparar. Con años de experiencia en notebooks de las marcas más comunes del mercado.",
+    "parrafo2": "Trabajamos con seriedad, te explicamos qué tiene el equipo y te damos un presupuesto claro. Si se puede arreglar, te lo decimos. Si no conviene, también.",
+    "items": [
+      "Diagnóstico real, no prueba y error",
+      "Experiencia en Lenovo, HP, Dell, Asus, Acer",
+      "Trato directo y transparente",
+      "Taller local en 12 de Octubre 1180"
+    ],
+    "highlightTitulo": "¿Por qué confiar?",
+    "highlightTexto": "Porque el diferencial está en el diagnóstico. Muchos equipos llegan “sin solución” de otros lugares y acá se recuperan. Eso es lo que hacemos todos los días."
+  },
+  "trabajos": [
+    { "caption": "No encendido · Lenovo", "imagen": "" },
+    { "caption": "PS4 · HDMI + conector", "imagen": "" },
+    { "caption": "Samsung · DC Jack", "imagen": "" },
+    { "caption": "Sony · recuperación", "imagen": "" },
+    { "caption": "Diagnóstico avanzado", "imagen": "" },
+    { "caption": "Mantenimiento preventivo", "imagen": "" }
+  ],
+  "contacto": {
+    "direccion": "12 de Octubre 1180",
+    "localidad": "Concepción del Uruguay, Entre Ríos",
+    "instagram": "@tecnoinformatica_",
+    "horarios": "Consultá por WhatsApp para coordinar turno."
+  },
+  "footer": {
+    "descripcion": "Reparación de PCs y notebooks a nivel placa.<br>Concepción del Uruguay, Entre Ríos.",
+    "copyright": "© 2026 TecnoInformática. Todos los derechos reservados."
+  }
+}
