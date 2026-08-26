@@ -1,8 +1,8 @@
-// Generado desde admin.html el 24/8/2026, 09:57:34
+// Generado/actualizado el 26/08/2026, 22:51:59
 // Reemplazá este archivo en js/contenido.js y subilo al repositorio.
 
 window.CONTENIDO = {
-  "version": 3,
+  "version": 4,
   "negocio": {
     "nombre": "TecnoInformática",
     "lema": "Reparación de PCs y notebooks a nivel electronico",
@@ -119,7 +119,8 @@ window.CONTENIDO = {
           "No carga o no reconoce el cargador",
           "Apagados aleatorios",
           "Cortocircuitos y consumo elevado"
-        ]
+        ],
+        "imagen": ""
       },
       {
         "etiqueta": "Placa",
@@ -129,7 +130,8 @@ window.CONTENIDO = {
           "Fuentes ATX",
           "Sección de carga de notebook",
           "Daño por sobretensión"
-        ]
+        ],
+        "imagen": ""
       },
       {
         "etiqueta": "Pantalla",
@@ -139,7 +141,8 @@ window.CONTENIDO = {
           "Paneles LED y IPS",
           "Cable flex y bisagras",
           "Táctiles"
-        ]
+        ],
+        "imagen": ""
       },
       {
         "etiqueta": "Mantenimiento",
@@ -149,7 +152,8 @@ window.CONTENIDO = {
           "Limpieza de disipador y ventilador",
           "Cambio de pasta térmica",
           "Control de temperaturas"
-        ]
+        ],
+        "imagen": ""
       },
       {
         "etiqueta": "Hardware",
@@ -159,7 +163,8 @@ window.CONTENIDO = {
           "Memoria RAM",
           "Discos SSD y NVMe",
           "Armado de PC a medida"
-        ]
+        ],
+        "imagen": ""
       },
       {
         "etiqueta": "Software",
@@ -169,7 +174,8 @@ window.CONTENIDO = {
           "Windows y Linux",
           "Respaldo de datos",
           "Drivers y programas de trabajo"
-        ]
+        ],
+        "imagen": ""
       },
       {
         "etiqueta": "Repuestos",
@@ -179,7 +185,8 @@ window.CONTENIDO = {
           "Cargadores y baterías",
           "Teclados y bisagras",
           "Discos y memorias"
-        ]
+        ],
+        "imagen": ""
       }
     ],
     "aviso": {
@@ -257,5 +264,19 @@ window.CONTENIDO = {
         "respuesta": "Sí, recibimos equipos de la zona. Coordinamos el envío o la entrega por WhatsApp."
       }
     ]
+  },
+  "colores": {
+    "--fondo": "#05080d",
+    "--panel": "#0c1219",
+    "--panel-alto": "#111924",
+    "--texto": "#eaf1f8",
+    "--texto-medio": "#9daebf",
+    "--texto-suave": "#6a7a8c",
+    "--azul": "#29a9ff",
+    "--azul-hondo": "#0b2c46",
+    "--naranja": "#fe9536",
+    "--verde-wa": "#25d366",
+    "--linea": "#1b2531",
+    "--linea-fina": "#131b25"
   }
 };
