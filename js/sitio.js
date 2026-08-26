@@ -10,6 +10,16 @@
   var C = borrador || window.CONTENIDO;
   if (!C) return;
 
+  // Aplica la paleta de colores (si el admin la definió) antes de pintar nada.
+  (function aplicarColores() {
+    var colores = C.colores;
+    if (!colores) return;
+    var raiz = document.documentElement;
+    Object.keys(colores).forEach(function (clave) {
+      if (colores[clave]) raiz.style.setProperty(clave, colores[clave]);
+    });
+  })();
+
   var neg = C.negocio;
   var mod = C.modulos || {};
   var pagina = document.body.dataset.pagina;
@@ -307,6 +317,15 @@
       var izq = el("div");
       izq.appendChild(el("div", "etiqueta", item.etiqueta));
       var medio = el("div");
+      if (item.imagen) {
+        var foto = el("div", "servicio-foto");
+        var img = el("img");
+        img.src = item.imagen;
+        img.alt = item.titulo;
+        img.loading = "lazy";
+        foto.appendChild(img);
+        medio.appendChild(foto);
+      }
       medio.appendChild(el("h3", null, item.titulo));
       medio.appendChild(el("p", null, item.texto));
       var der = el("ul");

@@ -327,6 +327,8 @@ p { margin: 0 0 1rem; }
   border-bottom: 1px solid var(--linea-fina);
 }
 .servicio li:last-child { border-bottom: 0; }
+.servicio-foto { margin-bottom: 14px; }
+.servicio-foto img { width: 100%; max-width: 260px; height: 140px; object-fit: cover; border: var(--borde); }
 
 .bloques { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 34px; }
 .bloque { border-top: 2px solid var(--azul); padding-top: 18px; }
