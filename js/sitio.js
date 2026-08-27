@@ -329,9 +329,13 @@
     d.items.forEach(function (item, i) {
       var fila = el("article", "servicio aparece");
       fila.style.setProperty("--i", i);
+
       var izq = el("div");
       izq.appendChild(el("div", "etiqueta", item.etiqueta));
-      var medio = el("div");
+      fila.appendChild(izq);
+
+      var det = el("details", "servicio-detalle");
+      var sum = el("summary");
       if (item.imagen) {
         var foto = el("div", "servicio-foto");
         var img = el("img");
@@ -339,15 +343,21 @@
         img.alt = item.titulo;
         img.loading = "lazy";
         foto.appendChild(img);
-        medio.appendChild(foto);
+        sum.appendChild(foto);
       }
-      medio.appendChild(el("h3", null, item.titulo));
-      medio.appendChild(el("p", null, item.texto));
-      var der = el("ul");
-      (item.detalle || []).forEach(function (t) { der.appendChild(el("li", null, t)); });
-      fila.appendChild(izq);
-      fila.appendChild(medio);
-      fila.appendChild(der);
+      sum.appendChild(el("h3", null, item.titulo));
+      det.appendChild(sum);
+
+      var cuerpo = el("div", "servicio-cuerpo");
+      cuerpo.appendChild(el("p", null, item.texto));
+      if (item.detalle && item.detalle.length) {
+        var der = el("ul");
+        item.detalle.forEach(function (t) { der.appendChild(el("li", null, t)); });
+        cuerpo.appendChild(der);
+      }
+      det.appendChild(cuerpo);
+
+      fila.appendChild(det);
       lista.appendChild(fila);
     });
     cont.appendChild(lista);
