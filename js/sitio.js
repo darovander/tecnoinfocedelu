@@ -54,6 +54,7 @@
     { id: "inicio", texto: "Inicio", url: "index.html" },
     { id: "servicios", texto: "Servicios", url: "servicios.html" },
     { id: "taller", texto: "El taller", url: "taller.html" },
+    { id: "tecnicos", texto: "Para técnicos", url: "tecnicos.html" },
     { id: "tienda", texto: "Tienda", url: "tienda.html", modulo: "tienda" },
     { id: "contacto", texto: "Contacto", url: "contacto.html" }
   ];
@@ -208,7 +209,7 @@
     cont.appendChild(el("h2", null, datos.titulo));
     cont.appendChild(el("p", null, datos.texto));
     var boton = el("a", "boton wa", datos.boton || "Escribir por WhatsApp");
-    boton.href = linkWa("Hola, te consulto por una reparación.");
+    boton.href = linkWa(datos.mensaje || "Hola, te consulto por una reparación.");
     boton.target = "_blank";
     boton.rel = "noopener";
     cont.appendChild(boton);
@@ -422,6 +423,77 @@
     raiz.appendChild(cierre(C.inicio.cierre));
   }
 
+  function pintarTecnicos() {
+    var d = C.tecnicos;
+    pintarMeta(d);
+    var raiz = html("contenido");
+
+    var seccion = el("section", "seccion");
+    var cont = el("div", "contenedor");
+    var cab = el("div", "seccion-cabeza");
+    cab.appendChild(el("div", "etiqueta", "Derivaciones"));
+    cab.appendChild(el("h1", null, d.titulo));
+    cab.appendChild(el("p", null, d.intro));
+    cont.appendChild(cab);
+
+    var bloques = el("div", "bloques");
+    d.bloques.forEach(function (b) {
+      var caja = el("article", "bloque aparece");
+      caja.appendChild(el("h3", null, b.titulo));
+      caja.appendChild(el("p", null, b.texto));
+      bloques.appendChild(caja);
+    });
+    cont.appendChild(bloques);
+    seccion.appendChild(cont);
+    raiz.appendChild(seccion);
+
+    if (d.proceso && d.proceso.length) {
+      var sProc = el("section", "seccion ajustada");
+      var cProc = el("div", "contenedor");
+      var cabProc = el("div", "seccion-cabeza");
+      cabProc.appendChild(el("div", "etiqueta", "Cómo trabajamos"));
+      cabProc.appendChild(el("h2", null, "Del contacto a la devolución"));
+      cProc.appendChild(cabProc);
+      var lista = el("div", "proceso");
+      var ol = el("ol");
+      d.proceso.forEach(function (paso, i) {
+        var li = el("li", "aparece");
+        li.style.setProperty("--i", i);
+        var caja = el("div");
+        caja.appendChild(el("h3", null, paso.titulo));
+        caja.appendChild(el("p", null, paso.texto));
+        li.appendChild(caja);
+        ol.appendChild(li);
+      });
+      lista.appendChild(ol);
+      cProc.appendChild(lista);
+      sProc.appendChild(cProc);
+      raiz.appendChild(sProc);
+    }
+
+    if (d.preguntas && d.preguntas.length) {
+      var sf = el("section", "seccion ajustada");
+      var cf = el("div", "contenedor");
+      var cabf = el("div", "seccion-cabeza");
+      cabf.appendChild(el("div", "etiqueta", "Preguntas frecuentes"));
+      cabf.appendChild(el("h2", null, "Antes de escribirme"));
+      cf.appendChild(cabf);
+      var faq = el("div", "faq");
+      d.preguntas.forEach(function (p) {
+        var det = el("details");
+        var sum = el("summary", null, p.pregunta);
+        det.appendChild(sum);
+        det.appendChild(el("p", null, p.respuesta));
+        faq.appendChild(det);
+      });
+      cf.appendChild(faq);
+      sf.appendChild(cf);
+      raiz.appendChild(sf);
+    }
+
+    raiz.appendChild(cierre(d.cierre));
+  }
+
   function pintarTienda() {
     var d = C.tienda;
     pintarMeta(d);
@@ -626,6 +698,7 @@
     inicio: pintarInicio,
     servicios: pintarServicios,
     taller: pintarTaller,
+    tecnicos: pintarTecnicos,
     tienda: pintarTienda,
     contacto: pintarContacto
   };
