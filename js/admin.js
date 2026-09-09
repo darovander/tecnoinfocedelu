@@ -2,7 +2,6 @@
   "use strict";
 
   var CLAVE = "tecno_borrador";
-  var datos = cargarBorrador() || clonar(window.CONTENIDO);
 
   function clonar(obj) { return JSON.parse(JSON.stringify(obj)); }
 
@@ -14,6 +13,27 @@
       return null;
     }
   }
+
+  // Completa en el borrador guardado cualquier campo que exista en el archivo
+  // real (window.CONTENIDO) pero no en el borrador — típicamente porque se
+  // agregó una sección nueva al sitio después de que se guardó el borrador.
+  // Nunca pisa un valor que el borrador ya tenga, aunque esté vacío.
+  function completarFaltantes(base, fresco) {
+    if (fresco == null) return base;
+    if (Array.isArray(fresco)) {
+      return base === undefined ? clonar(fresco) : base;
+    }
+    if (typeof fresco === "object") {
+      var resultado = (base && typeof base === "object" && !Array.isArray(base)) ? base : {};
+      Object.keys(fresco).forEach(function (clave) {
+        resultado[clave] = completarFaltantes(resultado[clave], fresco[clave]);
+      });
+      return resultado;
+    }
+    return base === undefined ? fresco : base;
+  }
+
+  var datos = completarFaltantes(cargarBorrador() || {}, window.CONTENIDO);
 
   function leer(ruta) {
     return ruta.split(".").reduce(function (nodo, k) { return nodo == null ? nodo : nodo[k]; }, datos);
