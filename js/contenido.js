@@ -1,11 +1,11 @@
-// Generado/actualizado el 26/08/2026, 22:51:59
+// Generado desde admin.html el 9/9/2026, 08:42:25
 // Reemplazá este archivo en js/contenido.js y subilo al repositorio.
 
 window.CONTENIDO = {
   "version": 4,
   "negocio": {
     "nombre": "TecnoInformática",
-    "lema": "Reparación de PCs y notebooks a nivel electronico",
+    "lema": "Reparación de PCs y Notebooks a nivel electronico",
     "descripcion": "Diagnóstico y reparación electrónica de computadoras en Concepción del Uruguay, Entre Ríos.",
     "direccion": "12 de Octubre 1180",
     "ciudad": "Concepción del Uruguay, Entre Ríos",
@@ -46,7 +46,7 @@ window.CONTENIDO = {
     "rotulo": {
       "linea1": "Reparación a nivel componente",
       "linea2": "Desde 2008",
-      "linea3": "Lenovo · HP · Dell · Asus · Acer · Bangho · "
+      "linea3": "Lenovo · HP · Dell · Asus · Acer · Bangho ·"
     },
     "diferenciales": [
       {
@@ -119,8 +119,7 @@ window.CONTENIDO = {
           "No carga o no reconoce el cargador",
           "Apagados aleatorios",
           "Cortocircuitos y consumo elevado"
-        ],
-        "imagen": ""
+        ]
       },
       {
         "etiqueta": "Placa",
@@ -130,8 +129,7 @@ window.CONTENIDO = {
           "Fuentes ATX",
           "Sección de carga de notebook",
           "Daño por sobretensión"
-        ],
-        "imagen": ""
+        ]
       },
       {
         "etiqueta": "Pantalla",
@@ -141,8 +139,7 @@ window.CONTENIDO = {
           "Paneles LED y IPS",
           "Cable flex y bisagras",
           "Táctiles"
-        ],
-        "imagen": ""
+        ]
       },
       {
         "etiqueta": "Mantenimiento",
@@ -152,8 +149,7 @@ window.CONTENIDO = {
           "Limpieza de disipador y ventilador",
           "Cambio de pasta térmica",
           "Control de temperaturas"
-        ],
-        "imagen": ""
+        ]
       },
       {
         "etiqueta": "Hardware",
@@ -163,8 +159,7 @@ window.CONTENIDO = {
           "Memoria RAM",
           "Discos SSD y NVMe",
           "Armado de PC a medida"
-        ],
-        "imagen": ""
+        ]
       },
       {
         "etiqueta": "Software",
@@ -174,8 +169,7 @@ window.CONTENIDO = {
           "Windows y Linux",
           "Respaldo de datos",
           "Drivers y programas de trabajo"
-        ],
-        "imagen": ""
+        ]
       },
       {
         "etiqueta": "Repuestos",
@@ -185,8 +179,7 @@ window.CONTENIDO = {
           "Cargadores y baterías",
           "Teclados y bisagras",
           "Discos y memorias"
-        ],
-        "imagen": ""
+        ]
       }
     ],
     "aviso": {
@@ -223,68 +216,6 @@ window.CONTENIDO = {
         "epigrafe": "Trabajo de soldadura SMD"
       }
     ]
-  },
-  "tecnicos": {
-    "tituloPestana": "Para técnicos y talleres | TecnoInformática",
-    "metaDescripcion": "Servicio de diagnóstico y reparación a nivel componente para técnicos y talleres que derivan casos complejos: no enciende, sin video, cortocircuitos. Trabajo discreto, tu cliente no se entera.",
-    "titulo": "Para técnicos y talleres",
-    "intro": "¿Te quedaste sin diagnóstico en un equipo? Me ocupo de la parte de placa y vos seguís siendo el contacto de tu cliente.",
-    "bloques": [
-      {
-        "titulo": "Qué recibo",
-        "texto": "Equipos que no encienden sin causa clara, que no dan video, que no cargan después de haber probado lo obvio, o con cortocircuitos que no se ven a simple vista. También fuentes y secciones de alimentación dañadas."
-      },
-      {
-        "titulo": "Con qué trabajo",
-        "texto": "Multímetro, fuente de banco, esquemático y boardview cuando están disponibles. Si tenés esa documentación del equipo, avisame antes: acelera todo el diagnóstico."
-      },
-      {
-        "titulo": "Discreción",
-        "texto": "El equipo vuelve a tu taller, no al mío. No hablo con tu cliente ni queda ningún dato que indique que pasó por acá. Vos administrás la relación con quien te lo dejó."
-      }
-    ],
-    "proceso": [
-      {
-        "titulo": "Contame el caso",
-        "texto": "Por WhatsApp: marca, modelo, qué le pasa y qué ya probaste. Si tenés esquemático o boardview, mandalo también."
-      },
-      {
-        "titulo": "Me llega el equipo",
-        "texto": "Lo traés vos o lo mandás por correo o encomienda. Coordinamos el envío y el embalaje por WhatsApp."
-      },
-      {
-        "titulo": "Diagnóstico y presupuesto",
-        "texto": "El diagnóstico tiene costo fijo, se repare o no después. Te aviso el valor antes de arrancar y no toco nada sin que me confirmes."
-      },
-      {
-        "titulo": "Reparo y coordinamos la vuelta",
-        "texto": "Con el ok, reparo y te aviso cuando esté. Vos se lo entregás a tu cliente como siempre."
-      }
-    ],
-    "preguntas": [
-      {
-        "pregunta": "¿Mi cliente se entera de que el equipo pasó por otro taller?",
-        "respuesta": "No. El trato es directo con vos. Vos seguís siendo la cara visible ante tu cliente."
-      },
-      {
-        "pregunta": "¿Cobrás el diagnóstico aunque no se pueda reparar?",
-        "respuesta": "Sí, tiene costo fijo independiente del resultado. Te lo digo antes de arrancar, sin sorpresas."
-      },
-      {
-        "pregunta": "¿Reciben equipos de otras localidades?",
-        "respuesta": "Sí, por correo o encomienda. Coordinamos el envío y el embalaje por WhatsApp."
-      },
-      {
-        "pregunta": "¿Con qué marcas tienen más experiencia?",
-        "respuesta": "Lenovo, HP, Dell, Asus y Acer son las que más pasan por el banco, con sus fallas típicas ya conocidas."
-      }
-    ],
-    "cierre": {
-      "titulo": "¿Tenés un equipo trabado?",
-      "texto": "Contame marca, modelo y qué ya probaste. Te confirmo si lo puedo tomar y en cuánto tiempo te doy el diagnóstico.",
-      "boton": "Escribir por WhatsApp",
-      "mensaje": "Hola, soy técnico/taller y quiero consultarte por la derivación de un equipo."
-    }
   },
   "tienda": {
     "tituloPestana": "Tienda | TecnoInformática",
@@ -328,7 +259,8 @@ window.CONTENIDO = {
     ]
   },
   "colores": {
-    "--fondo": "#05080d",
+    "--verde-wa": "#00ff40",
+    "--fondo": "#070707",
     "--panel": "#0c1219",
     "--panel-alto": "#111924",
     "--texto": "#eaf1f8",
@@ -337,8 +269,69 @@ window.CONTENIDO = {
     "--azul": "#29a9ff",
     "--azul-hondo": "#0b2c46",
     "--naranja": "#fe9536",
-    "--verde-wa": "#25d366",
     "--linea": "#1b2531",
     "--linea-fina": "#131b25"
+  },
+  "tecnicos": {
+    "tituloPestana": "Para técnicos y talleres | TecnoInformática",
+    "metaDescripcion": "Servicio de diagnóstico y reparación a nivel componente para técnicos y talleres que derivan casos complejos: no enciende, sin video, cortocircuitos. Trabajo discreto, tu cliente no se entera.",
+    "titulo": "Para técnicos y talleres",
+    "intro": "¿Te quedaste sin diagnóstico en un equipo? Me ocupo de la parte de placa(electrónica) y vos seguís siendo el contacto de tu cliente.",
+    "bloques": [
+      {
+        "titulo": "Qué recibo",
+        "texto": "Equipos que no encienden sin causa clara, que no dan video, que no cargan después de haber probado lo obvio, o con cortocircuitos que no se ven a simple vista. También fuentes y secciones de alimentación dañadas."
+      },
+      {
+        "titulo": "Con qué trabajo",
+        "texto": "Multímetro, fuente de Laboratorio,Osciloscopio,microscopio...y mas."
+      },
+      {
+        "titulo": "Discreción",
+        "texto": "El equipo vuelve a tu taller, no al mío. No hablo con tu cliente ni queda ningún dato que indique que pasó por acá. Vos administrás la relación con quien te lo dejó."
+      }
+    ],
+    "proceso": [
+      {
+        "titulo": "Contame el caso",
+        "texto": "Por WhatsApp: marca, modelo, qué le pasa y qué ya probaste. Si tenés esquemático o boardview, mandalo también."
+      },
+      {
+        "titulo": "Me llega el equipo",
+        "texto": "Lo traés vos o lo mandás por correo o encomienda. Coordinamos el envío y el embalaje por WhatsApp."
+      },
+      {
+        "titulo": "Diagnóstico y presupuesto",
+        "texto": "El diagnóstico tiene costo fijo, se repare o no después. Te aviso el valor antes de arrancar y no toco nada sin que me confirmes."
+      },
+      {
+        "titulo": "Reparo y coordinamos la vuelta",
+        "texto": "Con el ok, reparo y te aviso cuando esté. Vos se lo entregás a tu cliente como siempre."
+      }
+    ],
+    "preguntas": [
+      {
+        "pregunta": "¿Mi cliente se entera de que el equipo pasó por otro taller?",
+        "respuesta": "No. El trato es directo con vos. Vos seguís siendo la cara visible ante tu cliente."
+      },
+      {
+        "pregunta": "¿Cobrás el diagnóstico aunque no se pueda reparar?",
+        "respuesta": "Sí, tiene costo fijo independiente del resultado. Te lo digo antes de arrancar, sin sorpresas."
+      },
+      {
+        "pregunta": "¿Reciben equipos de otras localidades?",
+        "respuesta": "Sí, por correo o encomienda. Coordinamos el envío y el embalaje por WhatsApp."
+      },
+      {
+        "pregunta": "¿Con qué marcas tienen más experiencia?",
+        "respuesta": "Lenovo, HP, Dell, Asus y Acer, Bangho, son las que más pasan por el banco, con sus fallas típicas ya conocidas."
+      }
+    ],
+    "cierre": {
+      "titulo": "¿Tenés un equipo trabado o que no podes resolver?",
+      "texto": "Contame marca, modelo y qué ya probaste. Te confirmo si lo puedo tomar y en cuánto tiempo te doy el diagnóstico.",
+      "boton": "Escribir por WhatsApp",
+      "mensaje": "Hola, soy técnico/taller y quiero consultarte por la derivación de un equipo."
+    }
   }
 };
