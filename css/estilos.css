@@ -649,3 +649,30 @@ p { margin: 0 0 1rem; }
 @media (max-width: 760px) {
   .servicio { grid-template-columns: 1fr; }
 }
+
+/* --- Carrito en la barra (lo usa la tienda) --- */
+.menu-carrito { position: relative; display: inline-flex; align-items: center; color: var(--texto-medio); margin-left: -6px; }
+.menu-carrito svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; }
+.menu-carrito:hover, .menu-carrito.activo { color: var(--texto); }
+.menu-carrito-n {
+  position: absolute;
+  top: -4px;
+  right: -10px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--naranja);
+  color: #05080d;
+  font-family: var(--fuente-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  line-height: 18px;
+  text-align: center;
+}
+.menu-carrito-n.salta { animation: t-salta 0.4s ease; }
+@keyframes t-salta { 40% { transform: scale(1.35); } }
+@media (max-width: 760px) {
+  .menu-carrito { margin-left: auto; margin-right: 6px; padding: 8px; }
+  .menu-carrito-n { top: 2px; right: -2px; }
+}

@@ -59,6 +59,16 @@
     { id: "contacto", texto: "Contacto", url: "contacto.html" }
   ];
 
+  // producto.html y carrito.html cuentan como "Tienda" en el menú
+  var paginaMenu = (pagina === "producto" || pagina === "carrito") ? "tienda" : pagina;
+
+  function itemsCarrito() {
+    try {
+      var c = JSON.parse(localStorage.getItem("tecno_carrito")) || [];
+      return c.reduce(function (t, l) { return t + (parseInt(l.cantidad, 10) || 0); }, 0);
+    } catch (e) { return 0; }
+  }
+
   function navegables() {
     return paginas.filter(function (p) { return !p.modulo || mod[p.modulo]; });
   }
@@ -96,11 +106,24 @@
     var menu = el("nav", "menu");
     menu.id = "menu-principal";
     navegables().forEach(function (p) {
-      var link = el("a", p.id === pagina ? "activo" : "", p.texto);
+      var link = el("a", p.id === paginaMenu ? "activo" : "", p.texto);
       link.href = p.url;
-      if (p.id === pagina) link.setAttribute("aria-current", "page");
+      if (p.id === paginaMenu) link.setAttribute("aria-current", "page");
       menu.appendChild(link);
     });
+    var carro = null;
+    if (mod.tienda) {
+      carro = el("a", "menu-carrito" + (pagina === "carrito" ? " activo" : ""));
+      carro.href = "carrito.html";
+      carro.setAttribute("aria-label", "Carrito");
+      carro.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 10.2a1.5 1.5 0 0 0 1.5 1.1h8.6a1.5 1.5 0 0 0 1.4-1l2.1-6.3H6.2"/><circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/></svg>';
+      var cuenta = el("span", "menu-carrito-n");
+      cuenta.id = "carrito-cuenta";
+      var n = itemsCarrito();
+      cuenta.textContent = n;
+      if (!n) cuenta.hidden = true;
+      carro.appendChild(cuenta);
+    }
     var cta = el("a", "boton wa chico", "WhatsApp");
     cta.href = linkWa("Hola, te consulto por una reparación.");
     cta.target = "_blank";
@@ -125,6 +148,7 @@
     });
 
     fila.appendChild(menu);
+    if (carro) fila.appendChild(carro);
     fila.appendChild(boton);
     barra.appendChild(fila);
     destino.appendChild(barra);
@@ -694,12 +718,25 @@
     objetivos.forEach(function (n) { obs.observe(n); });
   }
 
+  // La tienda completa vive en js/tienda.js. Si ese archivo no está, queda la grilla simple de antes.
+  function pintarConTienda() {
+    if (!mod.tienda) return pintarTienda();
+    if (window.TiendaApp) {
+      return window.TiendaApp.pintar(pagina, {
+        C: C, el: el, linkWa: linkWa, pintarMeta: pintarMeta, revelar: revelar, raiz: html("contenido")
+      });
+    }
+    pintarTienda();
+  }
+
   var pintores = {
     inicio: pintarInicio,
     servicios: pintarServicios,
     taller: pintarTaller,
     tecnicos: pintarTecnicos,
-    tienda: pintarTienda,
+    tienda: pintarConTienda,
+    producto: pintarConTienda,
+    carrito: pintarConTienda,
     contacto: pintarContacto
   };
 
