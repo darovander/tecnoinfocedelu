@@ -36,7 +36,7 @@ window.CONTENIDO = {
     "metaDescripcion": "Taller de reparación electrónica de notebooks y PCs en Concepción del Uruguay. Diagnóstico a nivel componente, no encendido, sin video, fallas de carga, soldadura SMD.",
     "hero": {
       "etiqueta": "Taller de reparaciones electrónicas",
-      "titulo": "Cuando el equipo no enciende, el problema está en la placa.",
+      "titulo": "Cuando el equipo no enciende, nosotros lo solucionamos.",
       "texto": "Reparamos la falla en el circuito: no encendido, sin video, no carga, fuentes y componentes SMD. Diagnóstico con multímetro, fuente de banco, esquemático y boardview antes de tocar nada.",
       "botonPrimario": "Consultar por WhatsApp",
       "botonSecundario": "Ver servicios",
