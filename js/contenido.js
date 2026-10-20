@@ -259,7 +259,7 @@ window.CONTENIDO = {
     ]
   },
   "colores": {
-    "--verde-wa": "#00ff40",
+    "--verde-wa": "#25d366",
     "--fondo": "#070707",
     "--panel": "#0c1219",
     "--panel-alto": "#111924",
