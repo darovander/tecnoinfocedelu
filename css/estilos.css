@@ -430,6 +430,9 @@ p { margin: 0 0 1rem; }
 .dato.wa a { color: var(--verde-wa); }
 .dato.wa a:hover { color: #3ee07c; }
 .dato p { color: var(--texto-medio); margin: 4px 0 0; font-size: 0.94rem; }
+.dato.ancho { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+.dato p a { font-size: 0.94rem; color: var(--texto-medio); text-decoration: underline; text-underline-offset: 3px; }
+.dato a.boton, .dato a.boton:hover { font-size: 0.95rem; font-weight: 600; color: #05080d; }
 
 .faq { border-top: var(--borde); }
 .faq details { border-bottom: var(--borde); }

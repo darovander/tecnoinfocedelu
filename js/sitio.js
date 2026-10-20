@@ -181,6 +181,13 @@
       ig.rel = "noopener";
       col2.appendChild(ig);
     }
+    if (neg.resenaLink) {
+      var res = el("a", null, "Dejanos tu reseña en Google");
+      res.href = neg.resenaLink;
+      res.target = "_blank";
+      res.rel = "noopener";
+      col2.appendChild(res);
+    }
     if (neg.email) {
       var mail = el("a", null, neg.email);
       mail.href = "mailto:" + neg.email;
@@ -670,6 +677,29 @@
       aIg.rel = "noopener";
       dIg.appendChild(aIg);
       datos.appendChild(dIg);
+    }
+
+    if (neg.resenaLink) {
+      var dRes = el("div", "dato ancho");
+      var tRes = el("div");
+      tRes.appendChild(el("span", null, "Opiniones en Google"));
+      tRes.appendChild(el("strong", null, "¿Ya te atendimos? Contanos cómo te fue."));
+      if (neg.opinionesLink) {
+        var pRes = el("p");
+        var aOp = el("a", null, "Leer lo que dicen nuestros clientes");
+        aOp.href = neg.opinionesLink;
+        aOp.target = "_blank";
+        aOp.rel = "noopener";
+        pRes.appendChild(aOp);
+        tRes.appendChild(pRes);
+      }
+      dRes.appendChild(tRes);
+      var aRes = el("a", "boton", "Dejanos tu reseña");
+      aRes.href = neg.resenaLink;
+      aRes.target = "_blank";
+      aRes.rel = "noopener";
+      dRes.appendChild(aRes);
+      datos.appendChild(dRes);
     }
 
     cont.appendChild(datos);

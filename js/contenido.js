@@ -19,6 +19,9 @@ window.CONTENIDO = {
     "logo": "img/logo.png",
     "isotipo": "img/isotipo.png",
     "mapa": "https://www.google.com/maps/search/?api=1&query=12+de+Octubre+1180+Concepci%C3%B3n+del+Uruguay+Entre+R%C3%ADos"
+,
+    "resenaLink": "https://search.google.com/local/writereview?placeid=ChIJ01jcB1far5URvgtIKyxTOHg",
+    "opinionesLink": "https://search.google.com/local/reviews?placeid=ChIJ01jcB1far5URvgtIKyxTOHg"
   },
   "modulos": {
     "tienda": true,
