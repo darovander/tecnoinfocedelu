@@ -654,6 +654,12 @@
       c.appendChild(resumen);
 
       if (yo.estado === "aprobado") {
+        if (window.RedKit) {
+          window.RedKit.pintar(c, yo, {
+            el: el, boton: boton, enlaceExterno: enlaceExterno, cajaCon: cajaCon, aviso: aviso,
+            dominio: (K.C.negocio && K.C.negocio.dominio) || "tecnoinformatica-cdu.com.ar"
+          });
+        }
         formDerivar(c, usuario, yo, recargar);
         formPedirArchivo(c, yo);
       }
