@@ -378,7 +378,7 @@
     caja.appendChild(el("div", "etiqueta", "Red de técnicos"));
     var titulo = el("h2", null, "Acceso para técnicos");
     caja.appendChild(titulo);
-    caja.appendChild(el("p", null, "Para alumnos de DR Computers que forman parte de la red."));
+    caja.appendChild(el("p", null, "Para técnicos que quieran formar parte de la red."));
 
     var pest = el("div", "r-pestanas");
     pest.setAttribute("role", "tablist");
