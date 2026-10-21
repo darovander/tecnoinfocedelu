@@ -194,6 +194,12 @@
       col2.appendChild(mail);
     }
     grilla.appendChild(col2);
+    var red = el("a", null, "Red de técnicos");
+    red.href = "red.html";
+    col2.appendChild(red);
+    var acceso = el("a", null, "Acceso técnicos");
+    acceso.href = "acceso.html";
+    col2.appendChild(acceso);
 
     var col3 = el("div");
     col3.appendChild(el("h4", null, "Taller"));
@@ -759,6 +765,23 @@
     pintarTienda();
   }
 
+  // La red de técnicos (directorio, perfiles y paneles) vive en js/red.js.
+  function pintarConRed() {
+    var raiz = html("contenido");
+    if (!window.RedApp) {
+      var s = el("section", "seccion");
+      var c = el("div", "contenedor");
+      c.appendChild(el("h1", null, "Red de técnicos"));
+      c.appendChild(el("p", null, "No se pudo cargar esta sección. Recargá la página en un rato."));
+      s.appendChild(c);
+      raiz.appendChild(s);
+      return;
+    }
+    window.RedApp.pintar(pagina, {
+      C: C, el: el, linkWa: linkWa, pintarMeta: pintarMeta, revelar: revelar, raiz: raiz
+    });
+  }
+
   var pintores = {
     inicio: pintarInicio,
     servicios: pintarServicios,
@@ -767,7 +790,11 @@
     tienda: pintarConTienda,
     producto: pintarConTienda,
     carrito: pintarConTienda,
-    contacto: pintarContacto
+    contacto: pintarContacto,
+    red: pintarConRed,
+    tecnico: pintarConRed,
+    acceso: pintarConRed,
+    panel: pintarConRed
   };
 
   pintarCabecera();

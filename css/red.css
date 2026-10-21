@@ -1,0 +1,121 @@
+/* Red de técnicos: directorio, perfil, acceso y paneles */
+
+.r-filtros { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 26px; }
+.r-filtros input, .r-filtros select { flex: 1 1 220px; }
+
+.r-form { display: grid; gap: 14px; }
+.r-form.dos { grid-template-columns: 1fr 1fr; }
+.r-form .ancho { grid-column: 1 / -1; }
+.r-form label span, .r-campo span {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--texto-medio);
+  margin-bottom: 5px;
+}
+.r-form small { display: block; color: var(--texto-suave); font-size: 0.8rem; margin-top: 4px; line-height: 1.4; }
+.r-form input, .r-form select, .r-form textarea,
+.r-filtros input, .r-filtros select,
+.r-tabla input, .r-tabla select {
+  width: 100%;
+  min-width: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  border: var(--borde);
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 10px 12px;
+}
+.r-form textarea { min-height: 96px; resize: vertical; line-height: 1.5; }
+.r-form input:focus, .r-form select:focus, .r-form textarea:focus,
+.r-filtros input:focus, .r-filtros select:focus,
+.r-tabla input:focus, .r-tabla select:focus { outline: none; border-color: var(--azul); }
+.r-form .acciones { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+.r-caja { background: var(--panel); border: var(--borde); padding: 28px 26px; margin-bottom: 26px; }
+.r-caja > h2 { font-size: 1.5rem; margin-bottom: 6px; }
+.r-caja > p { color: var(--texto-medio); }
+.r-caja.angosta { max-width: 520px; margin-left: auto; margin-right: auto; }
+
+.r-aviso { border: var(--borde); border-left: 4px solid var(--azul); background: var(--panel-alto); padding: 12px 16px; font-size: 0.93rem; margin: 0 0 18px; }
+.r-aviso.ok { border-left-color: var(--verde-wa); }
+.r-aviso.error { border-left-color: #ff6b5b; }
+.r-aviso.espera { border-left-color: var(--naranja); }
+.r-aviso:empty { display: none; }
+
+.r-pestanas { display: flex; gap: 0; border-bottom: var(--borde); margin-bottom: 22px; }
+.r-pestanas button {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--texto-medio);
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+.r-pestanas button[aria-selected="true"] { color: var(--texto); border-bottom-color: var(--naranja); font-weight: 600; }
+
+.r-grilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+.r-tarjeta { background: var(--panel); border: var(--borde); display: flex; flex-direction: column; }
+.r-tarjeta .r-foto { aspect-ratio: 4 / 3; }
+.r-tarjeta .cuerpo { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.r-tarjeta h3 { font-size: 1.25rem; }
+.r-tarjeta .zona { font-family: var(--fuente-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--azul); }
+.r-tarjeta p { color: var(--texto-medio); font-size: 0.93rem; margin: 0; }
+.r-tarjeta .botones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 12px; }
+
+.r-foto { background: var(--panel-alto); overflow: hidden; display: grid; place-items: center; }
+.r-foto img { width: 100%; height: 100%; object-fit: cover; }
+.r-foto .iniciales { font-family: var(--fuente-titulo); font-size: 2.6rem; font-weight: 600; color: var(--texto-suave); }
+
+.r-sello {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--fuente-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--naranja);
+  border: 1px solid var(--naranja);
+  padding: 5px 10px;
+}
+
+.r-perfil { display: grid; grid-template-columns: minmax(220px, 340px) 1fr; gap: 36px; align-items: start; }
+.r-perfil .r-foto { aspect-ratio: 1; border: var(--borde); }
+.r-perfil h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); margin: 14px 0 8px; }
+.r-perfil .zona { color: var(--azul); font-weight: 500; margin-bottom: 18px; }
+.r-perfil ul { padding-left: 1.2em; color: var(--texto-medio); margin: 0 0 18px; }
+.r-perfil .nota { color: var(--texto-suave); font-size: 0.88rem; border-top: var(--borde); padding-top: 14px; margin-top: 22px; }
+
+.r-cabeza-panel { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 14px; margin-bottom: 26px; }
+.r-cabeza-panel h1 { font-size: clamp(2rem, 4.4vw, 3rem); }
+
+.r-estado { display: inline-block; font-size: 0.78rem; font-weight: 600; padding: 3px 9px; border: 1px solid currentColor; white-space: nowrap; }
+.r-estado.pendiente, .r-estado.recibido { color: var(--naranja); }
+.r-estado.aprobado, .r-estado.entregado, .r-estado.pagada { color: var(--verde-wa); }
+.r-estado.suspendido, .r-estado.cancelado { color: #ff6b5b; }
+.r-estado.en_reparacion { color: var(--azul); }
+
+.r-scroll { overflow-x: auto; border: var(--borde); }
+.r-tabla { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 720px; }
+.r-tabla th, .r-tabla td { text-align: left; padding: 10px 12px; border-bottom: var(--borde); vertical-align: top; }
+.r-tabla th { font-family: var(--fuente-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--azul); font-weight: 500; background: var(--panel-alto); }
+.r-tabla tr:last-child td { border-bottom: 0; }
+.r-tabla td small { display: block; color: var(--texto-suave); font-size: 0.8rem; }
+.r-tabla input, .r-tabla select { padding: 7px 8px; font-size: 0.88rem; }
+.r-tabla input[type="number"] { width: 120px; }
+.r-tabla input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--naranja); }
+.r-tabla .boton { white-space: nowrap; }
+.r-vacio { color: var(--texto-medio); padding: 18px; margin: 0; }
+
+.dato strong.r-numero { font-family: var(--fuente-titulo); font-size: 1.7rem; font-weight: 600; }
+
+@media (max-width: 760px) {
+  .r-form.dos { grid-template-columns: 1fr; }
+  .r-perfil { grid-template-columns: 1fr; gap: 20px; }
+  .r-perfil .r-foto { max-width: 280px; }
+  .r-caja { padding: 22px 18px; }
+  .r-form input, .r-form select, .r-form textarea, .r-filtros input, .r-filtros select { font-size: 16px; }
+}
+.r-perfil h3 { margin: 22px 0 8px; }
