@@ -130,8 +130,8 @@
     escribir(ctx, "WhatsApp " + telefono(numero), x + w / 2, y + h / 2 + tam * 0.36, { font: "700 " + tam + "px " + F_TIT, color: COL.fondo, align: "center" });
   }
 
-  // Formato estado / historia: 1080 x 1920
-  function dibujarEstado(p, img, logo, url) {
+  // Formato estado / historia: 1080 x 1920. "d" son los datos que el alumno dejó en el editor.
+  function dibujarEstado(d, img, logo, url) {
     var W = 1080, H = 1920, M = 90;
     var cv = document.createElement("canvas");
     cv.width = W; cv.height = H;
@@ -147,32 +147,49 @@
     }
     escribir(ctx, "RED DE TÉCNICOS", W / 2, 260, { font: "500 32px " + F_MONO, color: COL.naranja, align: "center" });
 
-    foto(ctx, img, p.nombre, (W - 400) / 2, 310, 400);
-
-    var y = escribir(ctx, p.nombre, W / 2, 820, { font: "700 96px " + F_TIT, color: COL.texto, align: "center", ancho: W - M * 2, max: 2, alto: 100 });
-    if (p.zona) y = escribir(ctx, p.zona, W / 2, y + 74, { font: "500 46px " + F_TXT, color: COL.azul, align: "center", ancho: W - M * 2, max: 1, alto: 56 });
-
     var qrLado = 300;
     var baseQr = H - 120 - qrLado;
-    var techo = baseQr - 150 - 40; // lo que haya arriba del botón de WhatsApp
+    var techo = (d.whatsapp ? baseQr - 150 : baseQr) - 40;
 
-    var serv = servicios(p.servicios).slice(0, 4);
-    y += 40;
-    serv.forEach(function (s) {
-      if (y + 66 > techo) return;
-      y += 66;
-      escribir(ctx, "•  " + s, W / 2, y, { font: "400 42px " + F_TXT, color: COL.texto, align: "center", ancho: W - M * 2, max: 1, alto: 50 });
-    });
+    // el bloque del medio se mide primero en un lienzo aparte y después se centra
+    function cuerpo(c, y0) {
+      var y = y0;
+      if (img) {
+        foto(c, img, d.nombre, (W - 400) / 2, y, 400);
+        y += 510;
+      } else {
+        y += 90;
+      }
+      if (d.nombre) y = escribir(c, d.nombre, W / 2, y, { font: "700 96px " + F_TIT, color: COL.texto, align: "center", ancho: W - M * 2, max: 2, alto: 100 });
+      if (d.zona) y = escribir(c, d.zona, W / 2, y + 74, { font: "500 46px " + F_TXT, color: COL.azul, align: "center", ancho: W - M * 2, max: 1, alto: 56 });
+      if (d.destacado) y = escribir(c, d.destacado, W / 2, y + 76, { font: "600 44px " + F_TIT, color: COL.naranja, align: "center", ancho: W - M * 2, max: 2, alto: 54 });
 
-    if (y + 90 + 48 <= techo) {
-      escribir(ctx, "Problemas de placa (no enciende, sin video): con el respaldo del taller TecnoInformática.", W / 2, y + 90,
-        { font: "400 36px " + F_TXT, color: COL.medio, align: "center", ancho: W - M * 2, max: 2, alto: 48 });
-    } else if (y + 80 <= techo) {
-      escribir(ctx, "Problemas de placa: con el respaldo de TecnoInformática.", W / 2, y + 80,
-        { font: "400 34px " + F_TXT, color: COL.medio, align: "center", ancho: W - M * 2, max: 1, alto: 44 });
+      y += 40;
+      servicios(d.servicios).slice(0, 6).forEach(function (s) {
+        if (y + 66 > techo) return;
+        y += 66;
+        escribir(c, "•  " + s, W / 2, y, { font: "400 42px " + F_TXT, color: COL.texto, align: "center", ancho: W - M * 2, max: 1, alto: 50 });
+      });
+
+      if (d.frase) {
+        c.font = "400 36px " + F_TXT;
+        var lineas = renglones(c, d.frase, W - M * 2, 3);
+        while (lineas.length && y + 90 + (lineas.length - 1) * 48 > techo) lineas.pop();
+        lineas.forEach(function (l, i) {
+          escribir(c, l, W / 2, y + 90 + i * 48, { font: "400 36px " + F_TXT, color: COL.medio, align: "center" });
+        });
+        if (lineas.length) y += 90 + (lineas.length - 1) * 48;
+      }
+      return y;
     }
+    var prueba = document.createElement("canvas");
+    prueba.width = W; prueba.height = H;
+    var inicio = 310;
+    var fin = cuerpo(prueba.getContext("2d"), inicio);
+    var sobra = techo - fin;
+    cuerpo(ctx, inicio + (sobra > 0 ? Math.round(sobra / 2) : 0));
 
-    if (p.whatsapp) botonWa(ctx, p.whatsapp, M, baseQr - 150, W - M * 2, 110, 60);
+    if (d.whatsapp) botonWa(ctx, d.whatsapp, M, baseQr - 150, W - M * 2, 110, 60);
     qr(ctx, url, M, baseQr, qrLado);
     escribir(ctx, "Escaneá y mirá", M + qrLado + 50, baseQr + 120, { font: "600 48px " + F_TIT, color: COL.texto });
     escribir(ctx, "mi perfil", M + qrLado + 50, baseQr + 178, { font: "600 48px " + F_TIT, color: COL.texto });
@@ -182,7 +199,7 @@
   }
 
   // Formato cuadrado (Facebook, Marketplace, Instagram): 1080 x 1080
-  function dibujarCuadrado(p, img, logo, url) {
+  function dibujarCuadrado(d, img, logo, url) {
     var W = 1080, H = 1080, M = 70;
     var cv = document.createElement("canvas");
     cv.width = W; cv.height = H;
@@ -199,24 +216,42 @@
     escribir(ctx, "RED DE TÉCNICOS", W - M, 100, { font: "500 26px " + F_MONO, color: COL.naranja, align: "right" });
 
     var lado = 300;
-    foto(ctx, img, p.nombre, M, 170, lado);
-    var xd = M + lado + 50, ancho = W - xd - M;
-    var y = escribir(ctx, p.nombre, xd, 250, { font: "700 74px " + F_TIT, color: COL.texto, ancho: ancho, max: 2, alto: 78 });
-    if (p.zona) y = escribir(ctx, p.zona, xd, y + 60, { font: "500 38px " + F_TXT, color: COL.azul, ancho: ancho, max: 2, alto: 46 });
-    escribir(ctx, "Formación DR Computers", xd, Math.max(y + 60, 440), { font: "400 30px " + F_TXT, color: COL.medio });
-
-    var serv = servicios(p.servicios).slice(0, 4);
-    var ys = 560;
-    serv.forEach(function (s, i) {
-      escribir(ctx, "•  " + s, M, ys + i * 54, { font: "400 36px " + F_TXT, color: COL.texto, ancho: W - M * 2 - 280, max: 1, alto: 44 });
-    });
-    escribir(ctx, "Problemas de placa: con el respaldo del taller TecnoInformática.", M, ys + serv.length * 54 + 30,
-      { font: "400 30px " + F_TXT, color: COL.medio, ancho: W - M * 2 - 280, max: 2, alto: 40 });
+    var xd = M, ancho = W - M * 2;
+    if (img) {
+      foto(ctx, img, d.nombre, M, 170, lado);
+      xd = M + lado + 50;
+      ancho = W - xd - M;
+    }
+    var y = 250;
+    if (d.nombre) y = escribir(ctx, d.nombre, xd, y, { font: "700 74px " + F_TIT, color: COL.texto, ancho: ancho, max: 2, alto: 78 });
+    if (d.zona) y = escribir(ctx, d.zona, xd, y + 60, { font: "500 38px " + F_TXT, color: COL.azul, ancho: ancho, max: 2, alto: 46 });
+    y = escribir(ctx, "Formación DR Computers", xd, y + 56, { font: "400 30px " + F_TXT, color: COL.medio });
 
     var qrLado = 240;
+    var anchoTexto = W - M * 2 - qrLado - 40;
+    var techo = (d.whatsapp ? H - 210 : H - 110) - 24;
+    y = Math.max(y + 20, img ? 500 : y + 20);
+    if (d.destacado) y = escribir(ctx, d.destacado, M, y + 50, { font: "600 38px " + F_TIT, color: COL.naranja, ancho: W - M * 2, max: 1, alto: 46 });
+
+    y += 10;
+    servicios(d.servicios).slice(0, 6).forEach(function (s) {
+      if (y + 54 > techo) return;
+      y += 54;
+      escribir(ctx, "•  " + s, M, y, { font: "400 36px " + F_TXT, color: COL.texto, ancho: anchoTexto, max: 1, alto: 44 });
+    });
+
+    if (d.frase) {
+      ctx.font = "400 30px " + F_TXT;
+      var lineas = renglones(ctx, d.frase, anchoTexto, 2);
+      while (lineas.length && y + 60 + (lineas.length - 1) * 40 > techo) lineas.pop();
+      lineas.forEach(function (l, i) {
+        escribir(ctx, l, M, y + 60 + i * 40, { font: "400 30px " + F_TXT, color: COL.medio });
+      });
+    }
+
     qr(ctx, url, W - M - qrLado, H - 150 - qrLado, qrLado);
     escribir(ctx, "Mi perfil", W - M - qrLado / 2, H - 112, { font: "600 30px " + F_TIT, color: COL.texto, align: "center" });
-    if (p.whatsapp) botonWa(ctx, p.whatsapp, M, H - 210, W - M * 2 - qrLado - 40, 100, 50);
+    if (d.whatsapp) botonWa(ctx, d.whatsapp, M, H - 210, anchoTexto, 100, 50);
     escribir(ctx, A.dominio, M, H - 50, { font: "500 24px " + F_MONO, color: COL.suave });
     return cv;
   }
@@ -271,87 +306,224 @@
     ];
   }
 
+  var FRASE = "Problemas de placa (no enciende, sin video): con el respaldo del taller TecnoInformática.";
+
+  function normalizarWa(valor) {
+    var d = String(valor || "").replace(/\D/g, "");
+    if (!d) return "";
+    d = d.replace(/^549/, "").replace(/^54/, "").replace(/^0/, "");
+    return d.length === 10 ? d : null;
+  }
+
+  function leerGuardado(clave) {
+    try { return JSON.parse(localStorage.getItem(clave)) || null; } catch (e) { return null; }
+  }
+  function guardar(clave, valor) {
+    try { localStorage.setItem(clave, JSON.stringify(valor)); } catch (e) { }
+  }
+  function borrar(clave) {
+    try { localStorage.removeItem(clave); } catch (e) { }
+  }
+
+  function desdePerfil(p) {
+    return {
+      nombre: p.nombre || "",
+      zona: p.zona || "",
+      destacado: "",
+      servicios: p.servicios || "",
+      frase: FRASE,
+      whatsapp: p.whatsapp ? telefono(p.whatsapp) : "",
+      conFoto: true,
+      textos: null
+    };
+  }
+
   function pintar(destino, p, ayudas) {
     A = ayudas;
     var el = A.el;
     var url = "https://" + A.dominio + "/tecnico?t=" + encodeURIComponent(p.slug);
+    var CLAVE = "red_kit_" + p.slug;
+    var d = Object.assign(desdePerfil(p), leerGuardado(CLAVE) || {});
 
     var caja = A.cajaCon(destino, "Tu kit de difusión",
-      "Descargá tu flyer y publicalo en estados, historias, Facebook y Marketplace. Si cambiás tu perfil, el flyer se actualiza solo.");
+      "Personalizá tu flyer, descargalo y publicalo en estados, historias, Facebook y Marketplace.");
     var msj = A.aviso(caja);
 
     // link
     var fila = el("div", "r-kit-link");
-    var campo = el("input");
-    campo.type = "text";
-    campo.readOnly = true;
-    campo.value = url;
-    campo.setAttribute("aria-label", "Link de tu perfil");
-    fila.appendChild(campo);
+    var campoLink = el("input");
+    campoLink.type = "text";
+    campoLink.readOnly = true;
+    campoLink.value = url;
+    campoLink.setAttribute("aria-label", "Link de tu perfil");
+    fila.appendChild(campoLink);
     var bl = A.boton("boton hueco chico", "Copiar link");
     bl.addEventListener("click", function () { copiar(url, bl); });
     fila.appendChild(bl);
     caja.appendChild(fila);
 
-    if (!p.whatsapp || !p.zona || !servicios(p.servicios).length) {
-      msj.mostrar("Tu flyer queda mejor con WhatsApp, zona y servicios completos en tu perfil.", "espera");
+    var cuerpo = el("div", "r-kit-cuerpo");
+    caja.appendChild(cuerpo);
+
+    // editor
+    var editor = el("form", "r-form r-kit-editor");
+    editor.addEventListener("submit", function (e) { e.preventDefault(); });
+    editor.appendChild(el("h3", "r-kit-sub", "Personalizá tu flyer"));
+    function control(tipo, nombre, etiqueta, ayuda, extra) {
+      var c = tipo === "textarea" ? el("textarea") : el("input");
+      if (tipo !== "textarea") c.type = tipo;
+      c.name = nombre;
+      Object.keys(extra || {}).forEach(function (k) { c.setAttribute(k, extra[k]); });
+      var l = el("label");
+      l.appendChild(el("span", null, etiqueta));
+      l.appendChild(c);
+      if (ayuda) l.appendChild(el("small", null, ayuda));
+      editor.appendChild(l);
+      return c;
+    }
+    var cNombre = control("text", "k_nombre", "Nombre", null, { maxlength: "60" });
+    var cZona = control("text", "k_zona", "Zona", null, { maxlength: "80" });
+    var cDest = control("text", "k_destacado", "Frase destacada (opcional)", "Sale en naranja. Ej: Retiro y entrega a domicilio", { maxlength: "70" });
+    var cServ = control("textarea", "k_servicios", "Servicios", "Uno por línea. Entran hasta 6, según el espacio.", { maxlength: "400", rows: "5" });
+    var cFrase = control("textarea", "k_frase", "Frase de abajo", "Dejala vacía si no la querés.", { maxlength: "160", rows: "2" });
+    var cWa = control("tel", "k_whatsapp", "WhatsApp", "Dejalo vacío para no mostrar el botón.", { maxlength: "20" });
+    var lFoto = el("label", "r-kit-check");
+    var cFoto = el("input");
+    cFoto.type = "checkbox";
+    lFoto.appendChild(cFoto);
+    lFoto.appendChild(document.createTextNode(p.foto_url ? " Mostrar mi foto" : " Mostrar mi foto (cargala en tu perfil)"));
+    cFoto.disabled = !p.foto_url;
+    editor.appendChild(lFoto);
+    var restaurar = A.boton("boton hueco chico", "Volver a los datos de mi perfil");
+    editor.appendChild(restaurar);
+    var nota = el("p", "r-kit-nota", "El logo, el QR a tu perfil y el sello de la Red quedan siempre. Tus cambios se guardan en este dispositivo.");
+    editor.appendChild(nota);
+    cuerpo.appendChild(editor);
+
+    function volcar() {
+      cNombre.value = d.nombre; cZona.value = d.zona; cDest.value = d.destacado;
+      cServ.value = d.servicios; cFrase.value = d.frase; cWa.value = d.whatsapp;
+      cFoto.checked = !!(d.conFoto && p.foto_url);
+    }
+    volcar();
+
+    // flyers
+    var grilla = el("div", "r-kit-flyers");
+    cuerpo.appendChild(grilla);
+    var formatos = [
+      ["Para estados e historias", "estado", dibujarEstado],
+      ["Para Facebook y Marketplace", "cuadrado", dibujarCuadrado]
+    ].map(function (f) {
+      var tarjeta = el("figure", "r-kit-flyer");
+      var vista = el("img");
+      vista.alt = "Flyer " + f[0].toLowerCase();
+      tarjeta.appendChild(vista);
+      var pie = el("figcaption");
+      pie.appendChild(el("span", null, f[0]));
+      var bajar = el("a", "boton chico", "Descargar");
+      bajar.download = "flyer-" + p.slug + "-" + f[1] + ".png";
+      pie.appendChild(bajar);
+      tarjeta.appendChild(pie);
+      grilla.appendChild(tarjeta);
+      return { dibujar: f[2], vista: vista, bajar: bajar, url: null };
+    });
+
+    var imgs = null;
+    var fotoBloqueada = false;
+    var turno = 0;
+
+    function datosFlyer() {
+      var wa = normalizarWa(d.whatsapp);
+      return {
+        nombre: d.nombre.trim(),
+        zona: d.zona.trim(),
+        destacado: d.destacado.trim(),
+        servicios: d.servicios,
+        frase: d.frase.trim(),
+        whatsapp: wa || ""
+      };
     }
 
-    var grilla = el("div", "r-kit-flyers");
-    caja.appendChild(grilla);
-    var espera = el("p", "r-vacio", "Armando tu flyer…");
-    grilla.appendChild(espera);
-
-    fuentesListas().then(function () {
-      return Promise.all([cargarImagen(p.foto_url, true), cargarImagen("img/logo.png", false)]);
-    }).then(function (imgs) {
-      espera.remove();
-      [
-        ["Para estados e historias", "estado", dibujarEstado],
-        ["Para Facebook y Marketplace", "cuadrado", dibujarCuadrado]
-      ].forEach(function (f) {
-        var cv = f[2](p, imgs[0], imgs[1], url);
-        var tarjeta = el("figure", "r-kit-flyer");
-        var vista = el("img");
-        vista.alt = "Flyer " + f[0].toLowerCase();
-        tarjeta.appendChild(vista);
-        var pie = el("figcaption");
-        pie.appendChild(el("span", null, f[0]));
-        var bajar = el("a", "boton chico", "Descargar");
-        bajar.download = "flyer-" + p.slug + "-" + f[1] + ".png";
-        pie.appendChild(bajar);
-        tarjeta.appendChild(pie);
-        grilla.appendChild(tarjeta);
-
-        aBlob(cv).catch(function () {
-          // la foto no dejó exportar (permisos del servidor): se arma sin foto
-          return aBlob(f[2](p, null, imgs[1], url));
+    function regenerar() {
+      if (!imgs) return;
+      var mio = ++turno;
+      var datos = datosFlyer();
+      var foto = d.conFoto && !fotoBloqueada ? imgs[0] : null;
+      formatos.forEach(function (f) {
+        aBlob(f.dibujar(datos, foto, imgs[1], url)).catch(function () {
+          // el servidor de la foto no dejó exportarla: se arma sin foto
+          fotoBloqueada = true;
+          return aBlob(f.dibujar(datos, null, imgs[1], url));
         }).then(function (blob) {
-          var u = URL.createObjectURL(blob);
-          vista.src = u;
-          bajar.href = u;
+          if (mio !== turno) return;
+          if (f.url) URL.revokeObjectURL(f.url);
+          f.url = URL.createObjectURL(blob);
+          f.vista.src = f.url;
+          f.bajar.href = f.url;
         }).catch(function () {
-          tarjeta.remove();
           msj.mostrar("No se pudo armar el flyer en este navegador. Probá desde Chrome.", "error");
         });
       });
+    }
+
+    var espera = null;
+    function alCambiar() {
+      d.nombre = cNombre.value; d.zona = cZona.value; d.destacado = cDest.value;
+      d.servicios = cServ.value; d.frase = cFrase.value; d.whatsapp = cWa.value;
+      d.conFoto = cFoto.checked;
+      if (normalizarWa(d.whatsapp) === null) msj.mostrar("El WhatsApp tiene que tener 10 números (código de área + número, sin 0 ni 15). Mientras tanto no se muestra.", "espera");
+      else msj.limpiar();
+      guardar(CLAVE, d);
+      clearTimeout(espera);
+      espera = setTimeout(regenerar, 300);
+    }
+    [cNombre, cZona, cDest, cServ, cFrase, cWa].forEach(function (c) { c.addEventListener("input", alCambiar); });
+    cFoto.addEventListener("change", alCambiar);
+    restaurar.addEventListener("click", function () {
+      borrar(CLAVE);
+      d = desdePerfil(p);
+      volcar();
+      pintarTextos();
+      msj.limpiar();
+      regenerar();
     });
 
-    // textos
-    var lista = el("div", "r-kit-textos");
-    textos(p, url).forEach(function (t) {
-      var bloque = el("div", "r-kit-texto");
-      var cab = el("div", "cab");
-      cab.appendChild(el("strong", null, t[0]));
-      var bc = A.boton("boton hueco chico", "Copiar");
-      bc.addEventListener("click", function () { copiar(t[1], bc); });
-      cab.appendChild(bc);
-      bloque.appendChild(cab);
-      bloque.appendChild(el("pre", null, t[1]));
-      lista.appendChild(bloque);
+    fuentesListas().then(function () {
+      return Promise.all([cargarImagen(p.foto_url, true), cargarImagen("img/logo.png", false)]);
+    }).then(function (cargadas) {
+      imgs = cargadas;
+      if (!imgs[0]) { cFoto.checked = false; cFoto.disabled = true; d.conFoto = false; }
+      regenerar();
     });
+
+    // textos editables
     caja.appendChild(el("h3", "r-kit-sub", "Textos listos para publicar"));
+    caja.appendChild(el("p", "r-kit-nota", "Podés cambiarlos antes de copiar: agregá o sacá lo que quieras."));
+    var lista = el("div", "r-kit-textos");
     caja.appendChild(lista);
+
+    function pintarTextos() {
+      lista.textContent = "";
+      var base = textos(p, url);
+      if (!d.textos || d.textos.length !== base.length) d.textos = base.map(function (t) { return t[1]; });
+      base.forEach(function (t, i) {
+        var bloque = el("div", "r-kit-texto");
+        var cab = el("div", "cab");
+        cab.appendChild(el("strong", null, t[0]));
+        var bc = A.boton("boton hueco chico", "Copiar");
+        cab.appendChild(bc);
+        bloque.appendChild(cab);
+        var area = el("textarea");
+        area.value = d.textos[i];
+        area.rows = Math.min(12, d.textos[i].split("\n").length + 2);
+        area.setAttribute("aria-label", t[0]);
+        area.addEventListener("input", function () { d.textos[i] = area.value; guardar(CLAVE, d); });
+        bc.addEventListener("click", function () { copiar(area.value, bc); });
+        bloque.appendChild(area);
+        lista.appendChild(bloque);
+      });
+    }
+    pintarTextos();
   }
 
   window.RedKit = { pintar: pintar };

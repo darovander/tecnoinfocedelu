@@ -136,3 +136,15 @@
   .r-kit-flyers { grid-template-columns: 1fr; }
   .r-kit-link { flex-direction: column; }
 }
+.r-kit-cuerpo { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(0, 2fr); gap: 24px; align-items: start; margin-bottom: 26px; }
+.r-kit-cuerpo .r-kit-flyers { margin-bottom: 0; }
+.r-kit-editor { gap: 12px; }
+.r-kit-editor textarea { min-height: 0; }
+.r-kit-check { display: flex; align-items: center; gap: 8px; font-size: 0.92rem; color: var(--texto-medio); }
+.r-kit-check input { width: 18px; height: 18px; accent-color: var(--naranja); }
+.r-kit-nota { color: var(--texto-suave); font-size: 0.82rem; margin: 0; }
+.r-kit-texto textarea { display: block; width: 100%; border: 0; background: transparent; color: var(--texto-medio); font: inherit; font-size: 0.9rem; line-height: 1.55; padding: 12px 14px; resize: vertical; }
+.r-kit-texto textarea:focus { outline: none; background: var(--panel-alto); color: var(--texto); }
+@media (max-width: 1000px) {
+  .r-kit-cuerpo { grid-template-columns: 1fr; }
+}
