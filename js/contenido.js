@@ -209,7 +209,7 @@ window.CONTENIDO = {
       },
       {
         "titulo": "Experiencia",
-        "texto": "Desde 2018 trabajando sobre placas de notebooks y PCs de escritorio. Lenovo, HP, Dell, Asus y Acer son las marcas que más pasan por el banco, con sus fallas típicas ya conocidas."
+        "texto": "Reparando computadoras desde 2008 y trabajando a nivel microelectrónica desde 2018. Más de quince años de banco con notebooks y PCs de escritorio de todas las marcas, y las fallas típicas de cada modelo ya conocidas."
       }
     ],
     "galeria": [
