@@ -148,3 +148,14 @@
 @media (max-width: 1000px) {
   .r-kit-cuerpo { grid-template-columns: 1fr; }
 }
+.r-tabla-precios { min-width: 560px; }
+.r-tabla-precios td:first-child { color: var(--azul); font-family: var(--fuente-mono); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+.r-tabla-precios td strong { white-space: nowrap; color: var(--texto); }
+.r-tabla-precios td:last-child { color: var(--texto-medio); font-size: 0.85rem; }
+.r-tabla-edicion { min-width: 900px; }
+.r-tabla-edicion td { padding: 6px 8px; }
+.r-tabla-edicion td:nth-child(1) { width: 140px; }
+.r-tabla-edicion td:nth-child(3) input, .r-tabla-edicion td:nth-child(4) input { width: 110px; }
+.r-acciones-fila { display: flex; gap: 6px; }
+.r-fila-nueva td { background: var(--panel-alto); }
+.r-tabla-edicion td:nth-child(2) { min-width: 300px; }

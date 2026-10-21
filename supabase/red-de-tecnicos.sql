@@ -320,3 +320,61 @@ drop policy if exists "fotos-tecnicos: borrar la propia" on storage.objects;
 create policy "fotos-tecnicos: borrar la propia" on storage.objects
   for delete to authenticated
   using (bucket_id = 'fotos-tecnicos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ---------------------------------------------------------------
+-- Precios de referencia: los edita Dario, los ven solo los técnicos aprobados
+-- ---------------------------------------------------------------
+create or replace function public.es_aprobado()
+returns boolean
+language sql stable security definer
+set search_path = public
+as $$
+  select exists (select 1 from public.tecnicos where id = auth.uid() and estado = 'aprobado');
+$$;
+revoke all on function public.es_aprobado() from public, anon;
+grant execute on function public.es_aprobado() to authenticated;
+
+create table if not exists public.precios (
+  id bigint generated always as identity primary key,
+  categoria text not null default 'General' check (char_length(categoria) between 1 and 60),
+  servicio text not null check (char_length(servicio) between 2 and 120),
+  desde numeric check (desde >= 0),
+  hasta numeric check (hasta >= 0),
+  nota text check (char_length(nota) <= 200),
+  actualizado timestamptz not null default now()
+);
+
+alter table public.precios enable row level security;
+drop policy if exists "precios: ver aprobados o admin" on public.precios;
+create policy "precios: ver aprobados o admin" on public.precios
+  for select to authenticated using (public.es_aprobado() or public.es_admin());
+drop policy if exists "precios: admin crea" on public.precios;
+create policy "precios: admin crea" on public.precios
+  for insert to authenticated with check (public.es_admin());
+drop policy if exists "precios: admin edita" on public.precios;
+create policy "precios: admin edita" on public.precios
+  for update to authenticated using (public.es_admin()) with check (public.es_admin());
+drop policy if exists "precios: admin borra" on public.precios;
+create policy "precios: admin borra" on public.precios
+  for delete to authenticated using (public.es_admin());
+
+revoke all on public.precios from anon;
+grant select, insert, update, delete on public.precios to authenticated;
+
+-- Lista inicial para completar (sin precios: los pone Dario desde su panel)
+insert into public.precios (categoria, servicio, nota)
+select v.categoria, v.servicio, v.nota
+from (values
+  ('Diagnóstico', 'Diagnóstico de PC o notebook', 'Se descuenta si el cliente hace la reparación'),
+  ('Software', 'Formateo e instalación de Windows con drivers', null),
+  ('Software', 'Instalación de programas / Office', null),
+  ('Software', 'Eliminación de virus y optimización', null),
+  ('Mantenimiento', 'Limpieza interna y pasta térmica (notebook)', null),
+  ('Mantenimiento', 'Limpieza interna y pasta térmica (PC)', null),
+  ('Hardware', 'Cambio de disco a SSD con clonado', 'Mano de obra, sin el disco'),
+  ('Hardware', 'Ampliación de memoria RAM', 'Mano de obra, sin la memoria'),
+  ('Hardware', 'Cambio de pantalla de notebook', 'Mano de obra, sin la pantalla'),
+  ('Hardware', 'Cambio de teclado de notebook', 'Mano de obra, sin el teclado'),
+  ('Hardware', 'Armado de PC', null)
+) as v(categoria, servicio, nota)
+where not exists (select 1 from public.precios);

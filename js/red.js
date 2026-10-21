@@ -662,6 +662,7 @@
         }
         formDerivar(c, usuario, yo, recargar);
         formPedirArchivo(c, yo);
+        preciosAlumno(c);
       }
 
       var deriv = trabajos.filter(function (t) { return t.sentido === "deriva"; });
@@ -874,6 +875,163 @@
     });
   }
 
+  // ----- precios de referencia -----
+
+  function rangoPrecio(r) {
+    var d = r.desde != null ? Number(r.desde) : null;
+    var h = r.hasta != null ? Number(r.hasta) : null;
+    if (d != null && h != null && h > d) return pesos(d) + " a " + pesos(h);
+    if (d != null) return pesos(d);
+    if (h != null) return "hasta " + pesos(h);
+    return "A definir";
+  }
+
+  function ordenarPrecios(lista) {
+    return lista.slice().sort(function (a, b) {
+      var c = String(a.categoria).localeCompare(String(b.categoria), "es");
+      return c || (a.id - b.id);
+    });
+  }
+
+  function ultimaActualizacion(lista) {
+    var max = 0;
+    lista.forEach(function (r) { var t = Date.parse(r.actualizado || 0); if (t > max) max = t; });
+    return max ? new Date(max).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" }) : "";
+  }
+
+  function preciosAlumno(c) {
+    var caja = cajaCon(c, "Precios de referencia",
+      "Lo que cobramos en la red, para que todos manejemos valores parecidos. Son de mano de obra: los repuestos se cobran aparte.");
+    var espera = cargando(caja);
+    db().from("precios").select("*").then(function (r) {
+      espera.remove();
+      if (r.error) return caja.appendChild(el("div", "r-aviso error", "No se pudieron cargar los precios: " + traducirError(r.error)));
+      var lista = ordenarPrecios(r.data || []);
+      if (!lista.length) return caja.appendChild(el("p", "r-vacio", "Todavía no hay precios cargados."));
+      var fecha = ultimaActualizacion(lista);
+      if (fecha) caja.appendChild(el("p", "r-kit-nota", "Actualizado el " + fecha + "."));
+      var buscar = entrada("search", "buscar_precio", "", { placeholder: "Buscar servicio…", "aria-label": "Buscar servicio" });
+      var filtros = el("div", "r-filtros");
+      filtros.appendChild(buscar);
+      caja.appendChild(filtros);
+      var t = tabla(["Categoría", "Servicio", "Precio", "Nota"]);
+      t.nodo.querySelector("table").classList.add("r-tabla-precios");
+      caja.appendChild(t.nodo);
+      function dibujar() {
+        t.cuerpo.textContent = "";
+        var q = buscar.value.trim().toLowerCase();
+        var previa = null;
+        lista.forEach(function (x) {
+          if (q && (x.servicio + " " + x.categoria + " " + (x.nota || "")).toLowerCase().indexOf(q) < 0) return;
+          var tr = el("tr");
+          celda(tr, x.categoria === previa ? "" : x.categoria);
+          previa = x.categoria;
+          celda(tr, x.servicio);
+          var precio = el("strong", null, rangoPrecio(x));
+          celda(tr, precio);
+          celda(tr, x.nota || "");
+          t.cuerpo.appendChild(tr);
+        });
+        if (!t.cuerpo.children.length) {
+          var tr = el("tr");
+          var td = el("td", "r-vacio", "No hay servicios con esa búsqueda.");
+          td.colSpan = 4;
+          tr.appendChild(td);
+          t.cuerpo.appendChild(tr);
+        }
+      }
+      buscar.addEventListener("input", dibujar);
+      dibujar();
+    });
+  }
+
+  function preciosAdmin(c) {
+    var caja = cajaCon(c, "Precios de referencia",
+      "Los ven solo los técnicos aprobados, en su panel. Cambiá lo que quieras y tocá Guardar en esa fila. Dejá \"hasta\" vacío si es un precio fijo.");
+    var msj = aviso(caja);
+    var zona = el("div");
+    caja.appendChild(zona);
+
+    function cargar() {
+      zona.textContent = "";
+      var espera = cargando(zona);
+      db().from("precios").select("*").then(function (r) {
+        espera.remove();
+        if (r.error) return msj.mostrar("No se pudieron cargar los precios: " + traducirError(r.error), "error");
+        var lista = ordenarPrecios(r.data || []);
+        var t = tabla(["Categoría", "Servicio", "Desde $", "Hasta $", "Nota", ""]);
+        t.nodo.querySelector("table").classList.add("r-tabla-edicion");
+        zona.appendChild(t.nodo);
+
+        function fila(x) {
+          var tr = el("tr");
+          var cat = entrada("text", "categoria", x ? x.categoria : "", { maxlength: "60", placeholder: "Ej: Hardware" });
+          var serv = entrada("text", "servicio", x ? x.servicio : "", { maxlength: "120", placeholder: "Servicio" });
+          var desde = entrada("number", "desde", x ? x.desde : "", { min: "0", step: "100" });
+          var hasta = entrada("number", "hasta", x ? x.hasta : "", { min: "0", step: "100" });
+          var nota = entrada("text", "nota", x ? x.nota : "", { maxlength: "200" });
+          [cat, serv, desde, hasta, nota].forEach(function (i) { celda(tr, i); });
+          var acciones = el("div", "r-acciones-fila");
+          var guardar = boton("boton chico", x ? "Guardar" : "Agregar");
+          acciones.appendChild(guardar);
+          var borrar = null;
+          if (x) {
+            borrar = boton("boton hueco chico", "Borrar");
+            acciones.appendChild(borrar);
+          }
+          celda(tr, acciones);
+
+          guardar.addEventListener("click", function () {
+            var datos = {
+              categoria: limpio(cat.value) || "General",
+              servicio: limpio(serv.value),
+              desde: desde.value === "" ? null : Number(desde.value),
+              hasta: hasta.value === "" ? null : Number(hasta.value),
+              nota: limpio(nota.value),
+              actualizado: new Date().toISOString()
+            };
+            if (!datos.servicio) return msj.mostrar("Falta el nombre del servicio.", "error");
+            if (datos.desde != null && datos.hasta != null && datos.hasta < datos.desde) return msj.mostrar("El precio \"hasta\" no puede ser menor que el \"desde\".", "error");
+            ocupado(guardar, true, "…");
+            var q = x ? db().from("precios").update(datos).eq("id", x.id) : db().from("precios").insert(datos);
+            q.then(function (res) {
+              ocupado(guardar, false);
+              if (res.error) return msj.mostrar(traducirError(res.error), "error");
+              msj.mostrar(x ? "Guardado: " + datos.servicio + "." : "Agregado: " + datos.servicio + ".", "ok");
+              if (!x) cargar();
+            });
+          });
+
+          if (borrar) {
+            var confirmar = false;
+            borrar.addEventListener("click", function () {
+              if (!confirmar) {
+                confirmar = true;
+                borrar.textContent = "¿Seguro?";
+                setTimeout(function () { confirmar = false; borrar.textContent = "Borrar"; }, 3000);
+                return;
+              }
+              ocupado(borrar, true, "…");
+              db().from("precios").delete().eq("id", x.id).then(function (res) {
+                ocupado(borrar, false);
+                if (res.error) return msj.mostrar(traducirError(res.error), "error");
+                msj.mostrar("Borrado: " + x.servicio + ".", "ok");
+                tr.remove();
+              });
+            });
+          }
+          return tr;
+        }
+
+        lista.forEach(function (x) { t.cuerpo.appendChild(fila(x)); });
+        var nueva = fila(null);
+        nueva.classList.add("r-fila-nueva");
+        t.cuerpo.appendChild(nueva);
+      });
+    }
+    cargar();
+  }
+
   function tabla(columnas) {
     var s = el("div", "r-scroll");
     var t = el("table", "r-tabla");
@@ -991,6 +1149,7 @@
       adminAlumnos(zona, tecnicos, recargar);
       adminPasarTrabajo(zona, tecnicos, recargar);
       adminTrabajos(zona, trabajos, porId, recargar);
+      preciosAdmin(zona);
       adminComisiones(zona, conf, recargar);
     }).catch(function (err) {
       espera.remove();
