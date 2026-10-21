@@ -49,7 +49,7 @@ window.CONTENIDO = {
     "rotulo": {
       "linea1": "Reparación a nivel componente",
       "linea2": "Desde 2008",
-      "linea3": "Lenovo · HP · Dell · Asus · Acer · Bangho ·"
+      "linea3": "Lenovo · HP · Dell · Asus · Acer · Apple · MSI y más"
     },
     "diferenciales": [
       {
@@ -334,7 +334,7 @@ window.CONTENIDO = {
       },
       {
         "pregunta": "¿Con qué marcas tienen más experiencia?",
-        "respuesta": "Lenovo, HP, Dell, Asus y Acer, Bangho, son las que más pasan por el banco, con sus fallas típicas ya conocidas."
+        "respuesta": "En notebooks: Lenovo, HP, Dell, Asus, Acer, Apple, MSI, Samsung, Toshiba, Bangho, EXO y Gfast. En placas madre de PC: Asus, MSI, Gigabyte / AORUS, ASRock y Biostar. Las que más pasan por el banco son Lenovo, HP, Dell, Asus y Acer, con sus fallas típicas ya conocidas."
       }
     ],
     "cierre": {
