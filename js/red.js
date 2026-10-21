@@ -227,11 +227,11 @@
   function pintarDirectorio() {
     K.pintarMeta({
       tituloPestana: "Red de técnicos | TecnoInformática",
-      metaDescripcion: "Técnicos en reparación de PC y notebooks formados en DR Computers, en Concepción del Uruguay y la zona. Encontrá uno cerca tuyo."
+      metaDescripcion: "Técnicos en reparación de PC y notebooks de la Red TecnoInformática, en Concepción del Uruguay y la zona. Encontrá uno cerca tuyo."
     });
     var c = seccion();
     cabeza(c, "Red de técnicos", "Encontrá un técnico cerca tuyo",
-      "Técnicos formados en DR Computers que trabajan junto a TecnoInformática. Escribile directo al que te quede más cómodo.");
+      "Técnicos que trabajan junto a TecnoInformática. Escribile directo al que te quede más cómodo.");
     var espera = cargando(c);
 
     db().rpc("red_publica").then(function (r) {
@@ -284,7 +284,7 @@
       dibujar();
 
       var pie = el("p", "r-vacio");
-      pie.appendChild(document.createTextNode("¿Sos alumno de DR Computers? "));
+      pie.appendChild(document.createTextNode("¿Sos técnico? "));
       pie.appendChild(enlace(null, "Sumate a la red", "acceso.html"));
       c.appendChild(pie);
     });
@@ -331,13 +331,13 @@
 
       K.pintarMeta({
         tituloPestana: t.nombre + " | Red de técnicos TecnoInformática",
-        metaDescripcion: "Técnico en reparación de PC y notebooks" + (t.zona ? " en " + t.zona : "") + ". Formado en DR Computers, parte de la Red TecnoInformática."
+        metaDescripcion: "Técnico en reparación de PC y notebooks" + (t.zona ? " en " + t.zona : "") + ". Parte de la Red TecnoInformática."
       });
 
       var p = el("div", "r-perfil");
       p.appendChild(foto(t.foto_url, t.nombre));
       var d = el("div");
-      d.appendChild(el("span", "r-sello", "Red TecnoInformática · Formado en DR Computers"));
+      d.appendChild(el("span", "r-sello", "Técnico de la Red TecnoInformática"));
       d.appendChild(el("h1", null, t.nombre));
       if (t.zona) d.appendChild(el("div", "zona", t.zona));
       if (t.descripcion) {
@@ -358,7 +358,7 @@
         d.appendChild(enlaceExterno("boton wa", "Escribirle por WhatsApp",
           linkWaTecnico(t.whatsapp, "Hola " + t.nombre.split(" ")[0] + ", te encontré en la Red de técnicos de TecnoInformática. Te consulto por una reparación.")));
       }
-      d.appendChild(el("p", "nota", "Técnico independiente formado en DR Computers. Los casos de placa más complejos los resuelve en conjunto con el taller de TecnoInformática."));
+      d.appendChild(el("p", "nota", "Técnico independiente de la Red TecnoInformática. Los casos de placa más complejos los resuelve en conjunto con el taller de TecnoInformática."));
       p.appendChild(d);
       c.appendChild(p);
 

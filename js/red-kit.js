@@ -193,7 +193,7 @@
     qr(ctx, url, M, baseQr, qrLado);
     escribir(ctx, "Escaneá y mirá", M + qrLado + 50, baseQr + 120, { font: "600 48px " + F_TIT, color: COL.texto });
     escribir(ctx, "mi perfil", M + qrLado + 50, baseQr + 178, { font: "600 48px " + F_TIT, color: COL.texto });
-    escribir(ctx, "Formación DR Computers", M + qrLado + 50, baseQr + 250, { font: "400 32px " + F_TXT, color: COL.medio });
+    escribir(ctx, "Red TecnoInformática", M + qrLado + 50, baseQr + 250, { font: "400 32px " + F_TXT, color: COL.medio });
     escribir(ctx, A.dominio, W / 2, H - 52, { font: "500 28px " + F_MONO, color: COL.suave, align: "center" });
     return cv;
   }
@@ -225,7 +225,7 @@
     var y = 250;
     if (d.nombre) y = escribir(ctx, d.nombre, xd, y, { font: "700 74px " + F_TIT, color: COL.texto, ancho: ancho, max: 2, alto: 78 });
     if (d.zona) y = escribir(ctx, d.zona, xd, y + 60, { font: "500 38px " + F_TXT, color: COL.azul, ancho: ancho, max: 2, alto: 46 });
-    y = escribir(ctx, "Formación DR Computers", xd, y + 56, { font: "400 30px " + F_TXT, color: COL.medio });
+    y = escribir(ctx, "Técnico de la Red TecnoInformática", xd, y + 56, { font: "400 30px " + F_TXT, color: COL.medio });
 
     var qrLado = 240;
     var anchoTexto = W - M * 2 - qrLado - 40;
@@ -296,7 +296,7 @@
       ["Publicación para Facebook / Marketplace",
         "Servicio técnico de PC y notebooks" + donde + "\n\n" +
         (servicios(p.servicios).length ? servicios(p.servicios).map(function (s) { return "✅ " + s; }).join("\n") + "\n\n" : "") +
-        "Soy parte de la Red de técnicos TecnoInformática, con formación en DR Computers. Las reparaciones de placa (no enciende, sin video, no carga) las resolvemos junto al taller TecnoInformática.\n\n" +
+        "Soy parte de la Red de técnicos TecnoInformática. Las reparaciones de placa (no enciende, sin video, no carga) las resolvemos junto al taller TecnoInformática.\n\n" +
         "📲 WhatsApp: " + (p.whatsapp ? telefono(p.whatsapp) : "") + "\n" +
         "👤 Mi perfil: " + url],
       ["Mensaje para tus contactos",
