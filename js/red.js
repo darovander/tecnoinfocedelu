@@ -651,7 +651,10 @@
         "Pagás " + reglaTexto(yo.recibe_tipo || conf.recibe_tipo, yo.recibe_valor != null ? yo.recibe_valor : conf.recibe_valor)));
       c.appendChild(resumen);
 
-      if (yo.estado === "aprobado") formDerivar(c, usuario, yo, recargar);
+      if (yo.estado === "aprobado") {
+        formDerivar(c, usuario, yo, recargar);
+        formPedirArchivo(c, yo);
+      }
 
       var deriv = trabajos.filter(function (t) { return t.sentido === "deriva"; });
       var recib = trabajos.filter(function (t) { return t.sentido === "recibe"; });
@@ -802,6 +805,44 @@
           K.linkWa("Hola Dario, soy " + yo.nombre + " de la Red de técnicos. Te derivé un trabajo: " + datos.equipo + (datos.falla ? " — " + datos.falla : "") + ". ¿Cuándo te lo llevo?")));
         setTimeout(recargar, 4000);
       });
+    });
+  }
+
+  // No se sube nada a la web: arma el pedido y lo manda por WhatsApp a Dario.
+  function formPedirArchivo(c, yo) {
+    var caja = cajaCon(c, "Pedir un archivo",
+      "¿Necesitás un BIOS, esquemático o boardview? Completá los datos y se te abre WhatsApp con el pedido listo para mandar.");
+    var msj = aviso(caja);
+    var f = el("form", "r-form dos");
+    var tipo = selector("tipo", [["BIOS", "BIOS"], ["Esquemático", "Esquemático"], ["Boardview", "Boardview"], ["Datasheet", "Datasheet"], ["Otro", "Otro"]], "BIOS");
+    var marca = entrada("text", "marca", "", { required: "", maxlength: "60", placeholder: "Ej: Lenovo" });
+    var modelo = entrada("text", "modelo", "", { required: "", maxlength: "80", placeholder: "Ej: IdeaPad 330-15IKB" });
+    var placa = entrada("text", "placa", "", { maxlength: "80", placeholder: "Ej: LA-F841P / DA0LV6MB6F0" });
+    var nota = texto("nota", "", { maxlength: "400", placeholder: "Ej: necesito el BIOS limpio, la placa es rev 1.0" });
+    f.appendChild(campo("Qué necesitás", tipo));
+    f.appendChild(campo("Marca", marca));
+    f.appendChild(campo("Modelo", modelo));
+    f.appendChild(campo("Código de placa (opcional)", placa, "El que está impreso en la placa madre."));
+    f.appendChild(campo("Comentario (opcional)", nota, null, true));
+    var ac = el("div", "acciones ancho");
+    var b = boton("boton wa", "Pedir por WhatsApp", "submit");
+    ac.appendChild(b);
+    f.appendChild(ac);
+    caja.appendChild(f);
+
+    f.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!limpio(marca.value) || !limpio(modelo.value)) return msj.mostrar("Completá marca y modelo.", "error");
+      var lineasPedido = [
+        "Hola Dario, soy " + yo.nombre + " de la Red de técnicos. Te pido un archivo:",
+        "• Tipo: " + tipo.value,
+        "• Equipo: " + limpio(marca.value) + " " + limpio(modelo.value)
+      ];
+      if (limpio(placa.value)) lineasPedido.push("• Placa: " + limpio(placa.value));
+      if (limpio(nota.value)) lineasPedido.push("• Comentario: " + limpio(nota.value));
+      window.open(K.linkWa(lineasPedido.join("\n")), "_blank", "noopener");
+      msj.mostrar("Se abrió WhatsApp con tu pedido. Si no se abrió, revisá que el navegador no haya bloqueado la ventana.", "ok");
+      f.reset();
     });
   }
 
