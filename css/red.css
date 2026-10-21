@@ -119,3 +119,4 @@
   .r-form input, .r-form select, .r-form textarea, .r-filtros input, .r-filtros select { font-size: 16px; }
 }
 .r-perfil h3 { margin: 22px 0 8px; }
+[hidden] { display: none !important; }

@@ -609,7 +609,9 @@
     if (yo) {
       var est = el("div", "r-aviso " + (yo.estado === "aprobado" ? "ok" : yo.estado === "pendiente" ? "espera" : "error"));
       if (yo.estado === "pendiente") {
-        est.textContent = "Tu perfil está esperando la aprobación de TecnoInformática. Mientras tanto completá tus datos y tu foto.";
+        est.appendChild(el("p", null, "Tu perfil está esperando la aprobación de TecnoInformática. Completá tus datos y tu foto, y después avisale a Dario para que te apruebe."));
+        est.appendChild(enlaceExterno("boton wa chico", "Avisar a Dario por WhatsApp",
+          K.linkWa("Hola Dario, soy " + yo.nombre + ". Me registré en la Red de técnicos y ya completé mi perfil. ¿Me aprobás?")));
       } else if (yo.estado === "aprobado") {
         est.appendChild(document.createTextNode("Tu perfil está publicado en la Red de técnicos. "));
         est.appendChild(enlaceExterno(null, "Ver mi perfil público", "tecnico.html?t=" + encodeURIComponent(yo.slug)));
@@ -798,14 +800,34 @@
       db().from("trabajos").insert(datos).then(function (r) {
         ocupado(b, false);
         if (r.error) return msj.mostrar(traducirError(r.error), "error");
-        f.reset();
-        msj.nodo.className = "r-aviso ok";
-        msj.nodo.textContent = "Listo, quedó cargado. ";
-        msj.nodo.appendChild(enlaceExterno(null, "Avisale a Dario por WhatsApp para coordinar la entrega",
-          K.linkWa("Hola Dario, soy " + yo.nombre + " de la Red de técnicos. Te derivé un trabajo: " + datos.equipo + (datos.falla ? " — " + datos.falla : "") + ". ¿Cuándo te lo llevo?")));
-        setTimeout(recargar, 4000);
+        pasoAviso(caja, f, msj, "Trabajo cargado. Último paso: avisale a Dario para coordinar la entrega.",
+          "Avisar a Dario por WhatsApp",
+          K.linkWa("Hola Dario, soy " + yo.nombre + " de la Red de técnicos. Te derivé un trabajo: " + datos.equipo +
+            (datos.falla ? " — " + datos.falla : "") +
+            (datos.cliente_nombre ? " (cliente: " + datos.cliente_nombre + ")" : "") + ". ¿Cuándo te lo llevo?"),
+          recargar);
       });
     });
+  }
+
+  // Después de cargar algo, el aviso por WhatsApp queda como paso visible de un toque.
+  function pasoAviso(caja, form, msj, textoAviso, textoBoton, url, recargar) {
+    form.style.display = "none";
+    msj.limpiar();
+    var paso = el("div", "r-aviso ok");
+    paso.appendChild(el("p", null, textoAviso));
+    var ac = el("div", "acciones");
+    ac.style.display = "flex";
+    ac.style.flexWrap = "wrap";
+    ac.style.gap = "10px";
+    var wa = enlaceExterno("boton wa", textoBoton, url);
+    wa.addEventListener("click", function () { setTimeout(recargar, 1500); });
+    ac.appendChild(wa);
+    var listo = boton("boton hueco chico", "Ya avisé");
+    listo.addEventListener("click", recargar);
+    ac.appendChild(listo);
+    paso.appendChild(ac);
+    caja.appendChild(paso);
   }
 
   // No se sube nada a la web: arma el pedido y lo manda por WhatsApp a Dario.
@@ -1108,15 +1130,20 @@
       db().from("trabajos").insert(datos).then(function (r) {
         ocupado(b, false);
         if (r.error) return msj.mostrar(traducirError(r.error), "error");
-        f.reset();
-        msj.nodo.className = "r-aviso ok";
-        msj.nodo.textContent = "Trabajo cargado. ";
         if (t && t.whatsapp) {
-          msj.nodo.appendChild(enlaceExterno(null, "Avisarle a " + t.nombre.split(" ")[0] + " por WhatsApp",
-            linkWaTecnico(t.whatsapp, "Hola " + t.nombre.split(" ")[0] + ", te pasé un trabajo en el panel de la Red: " + datos.equipo +
-              (datos.cliente_nombre ? " (cliente: " + datos.cliente_nombre + (datos.cliente_telefono ? ", " + datos.cliente_telefono : "") + ")" : "") + ".")));
+          var nom = t.nombre.split(" ")[0];
+          pasoAviso(caja, f, msj, "Trabajo cargado. Avisale a " + nom + " para que lo vea en su panel.",
+            "Avisar a " + nom + " por WhatsApp",
+            linkWaTecnico(t.whatsapp, "Hola " + nom + ", te pasé un trabajo en el panel de la Red: " + datos.equipo +
+              (datos.falla ? " — " + datos.falla : "") +
+              (datos.cliente_nombre ? " (cliente: " + datos.cliente_nombre + (datos.cliente_telefono ? ", " + datos.cliente_telefono : "") + ")" : "") +
+              ". Entrá a tecnoinformatica-cdu.com.ar/panel para verlo."),
+            recargar);
+        } else {
+          msj.mostrar("Trabajo cargado. Este alumno no tiene WhatsApp en su perfil: avisale por otro medio.", "ok");
+          f.reset();
+          setTimeout(recargar, 3000);
         }
-        setTimeout(recargar, 4000);
       });
     });
   }
