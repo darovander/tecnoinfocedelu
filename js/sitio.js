@@ -197,6 +197,9 @@
     var red = el("a", null, "Red de técnicos");
     red.href = "red.html";
     col2.appendChild(red);
+    var puntos = el("a", null, "Puntos de recepción");
+    puntos.href = "puntos.html";
+    col2.appendChild(puntos);
     var acceso = el("a", null, "Acceso técnicos");
     acceso.href = "acceso.html";
     col2.appendChild(acceso);
@@ -793,6 +796,7 @@
     contacto: pintarContacto,
     red: pintarConRed,
     tecnico: pintarConRed,
+    puntos: pintarConRed,
     acceso: pintarConRed,
     panel: pintarConRed
   };

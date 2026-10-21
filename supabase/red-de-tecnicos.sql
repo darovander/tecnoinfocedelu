@@ -80,6 +80,9 @@ create table if not exists public.tecnicos (
   creado timestamptz not null default now(),
   actualizado timestamptz not null default now()
 );
+-- agregadas después: localidad y punto de recepción (lo marca solo el admin)
+alter table public.tecnicos add column if not exists localidad text check (char_length(localidad) <= 80);
+alter table public.tecnicos add column if not exists punto_recepcion boolean not null default false;
 
 create or replace function public.slug_libre(base text, propio uuid)
 returns text
@@ -117,6 +120,7 @@ begin
       new.estado := 'pendiente';
       new.deriva_tipo := null; new.deriva_valor := null;
       new.recibe_tipo := null; new.recibe_valor := null;
+      new.punto_recepcion := false;
     end if;
   else
     if not public.puede_todo() then
@@ -126,6 +130,7 @@ begin
       new.estado := old.estado;
       new.deriva_tipo := old.deriva_tipo; new.deriva_valor := old.deriva_valor;
       new.recibe_tipo := old.recibe_tipo; new.recibe_valor := old.recibe_valor;
+      new.punto_recepcion := old.punto_recepcion;
     end if;
     new.creado := old.creado;
   end if;
@@ -154,15 +159,18 @@ create policy "tecnicos: admin borra" on public.tecnicos
   for delete to authenticated using (public.es_admin());
 
 -- Lo único que ve el público: perfiles aprobados, sin datos internos
-create or replace function public.red_publica()
+drop function if exists public.red_publica();
+create function public.red_publica()
 returns table (
   nombre text, slug text, zona text, servicios text,
-  descripcion text, horarios text, whatsapp text, foto_url text
+  descripcion text, horarios text, whatsapp text, foto_url text,
+  localidad text, punto_recepcion boolean
 )
 language sql stable security definer
 set search_path = public
 as $$
-  select nombre, slug, zona, servicios, descripcion, horarios, whatsapp, foto_url
+  select nombre, slug, zona, servicios, descripcion, horarios, whatsapp, foto_url,
+         localidad, punto_recepcion
   from public.tecnicos
   where estado = 'aprobado'
   order by nombre;

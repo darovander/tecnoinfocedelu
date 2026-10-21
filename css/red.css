@@ -159,3 +159,12 @@
 .r-acciones-fila { display: flex; gap: 6px; }
 .r-fila-nueva td { background: var(--panel-alto); }
 .r-tabla-edicion td:nth-child(2) { min-width: 300px; }
+.r-punto { align-self: flex-start; font-size: 0.75rem; font-weight: 600; color: var(--verde-wa); border: 1px solid var(--verde-wa); padding: 2px 8px; }
+.r-pasos { counter-reset: paso; list-style: none; padding: 0; margin: 0 0 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--linea); border: var(--borde); }
+.r-pasos li { counter-increment: paso; background: var(--panel); padding: 22px 22px 20px; color: var(--texto-medio); font-size: 0.95rem; }
+.r-pasos li::before { content: "0" counter(paso); display: block; font-family: var(--fuente-mono); color: var(--naranja); font-size: 0.8rem; margin-bottom: 8px; }
+.r-pasos strong { display: block; color: var(--texto); font-size: 1.05rem; margin-bottom: 4px; }
+.r-localidad { margin-bottom: 36px; }
+.r-localidad > h2 { font-size: 1.6rem; margin-bottom: 14px; padding-bottom: 10px; border-bottom: var(--borde); }
+.r-taller { border-color: var(--naranja); }
+.r-taller h3 { color: var(--naranja); }

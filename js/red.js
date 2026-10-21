@@ -163,6 +163,12 @@
     return "https://wa.me/549" + numero + (mensaje ? "?text=" + encodeURIComponent(mensaje) : "");
   }
 
+  var LOCALIDADES = ["Concepción del Uruguay", "Colón", "San José", "Villa Elisa", "Villa Mantero", "Basavilbaso",
+    "Caseros", "Pronunciamiento", "Rocamora", "Herrera", "Santa Anita", "Primero de Mayo", "Arroyo Barú", "San Justo",
+    "Gualeguaychú", "Urdinarrain", "Larroque", "Rosario del Tala", "Villaguay", "Paraná"];
+
+  function lugar(t) { return [t.localidad, t.zona].filter(Boolean).join(" · "); }
+
   function lineas(s) {
     return String(s || "").split(/\n|,|;/).map(function (x) { return x.trim(); }).filter(Boolean);
   }
@@ -248,17 +254,18 @@
         return;
       }
 
+      var clave = function (t) { return t.localidad || t.zona || ""; };
       var zonas = [];
-      lista.forEach(function (t) { if (t.zona && zonas.indexOf(t.zona) < 0) zonas.push(t.zona); });
-      zonas.sort();
+      lista.forEach(function (t) { var z = clave(t); if (z && zonas.indexOf(z) < 0) zonas.push(z); });
+      zonas.sort(function (a, b) { return a.localeCompare(b, "es"); });
 
       var filtros = el("div", "r-filtros");
       var buscar = entrada("search", "buscar", "", { placeholder: "Buscar por nombre o servicio…", "aria-label": "Buscar técnico" });
       filtros.appendChild(buscar);
       var zonaSel = null;
       if (zonas.length > 1) {
-        zonaSel = selector("zona", [["", "Todas las zonas"]].concat(zonas.map(function (z) { return [z, z]; })), "");
-        zonaSel.setAttribute("aria-label", "Filtrar por zona");
+        zonaSel = selector("zona", [["", "Todas las localidades"]].concat(zonas.map(function (z) { return [z, z]; })), "");
+        zonaSel.setAttribute("aria-label", "Filtrar por localidad");
         filtros.appendChild(zonaSel);
       }
       c.appendChild(filtros);
@@ -272,9 +279,9 @@
         var q = (buscar.value || "").toLowerCase();
         var z = zonaSel ? zonaSel.value : "";
         var vis = lista.filter(function (t) {
-          if (z && t.zona !== z) return false;
+          if (z && clave(t) !== z) return false;
           if (!q) return true;
-          return [t.nombre, t.servicios, t.descripcion, t.zona].join(" ").toLowerCase().indexOf(q) > -1;
+          return [t.nombre, t.servicios, t.descripcion, t.zona, t.localidad].join(" ").toLowerCase().indexOf(q) > -1;
         });
         if (!vis.length) { grilla.appendChild(nada); return; }
         vis.forEach(function (t) { grilla.appendChild(tarjeta(t)); });
@@ -294,7 +301,8 @@
     var a = el("article", "r-tarjeta");
     a.appendChild(foto(t.foto_url, t.nombre));
     var cu = el("div", "cuerpo");
-    if (t.zona) cu.appendChild(el("div", "zona", t.zona));
+    if (lugar(t)) cu.appendChild(el("div", "zona", lugar(t)));
+    if (t.punto_recepcion) cu.appendChild(el("span", "r-punto", "Punto de recepción"));
     cu.appendChild(el("h3", null, t.nombre));
     var serv = lineas(t.servicios).slice(0, 4).join(" · ");
     if (serv) cu.appendChild(el("p", null, serv));
@@ -303,6 +311,97 @@
     if (t.whatsapp) {
       bs.appendChild(enlaceExterno("boton wa chico", "WhatsApp",
         linkWaTecnico(t.whatsapp, "Hola " + t.nombre.split(" ")[0] + ", te encontré en la Red de técnicos de TecnoInformática. Te consulto por una reparación.")));
+    }
+    cu.appendChild(bs);
+    a.appendChild(cu);
+    return a;
+  }
+
+  // ---------- puntos de recepción ----------
+
+  function pintarPuntos() {
+    K.pintarMeta({
+      tituloPestana: "Puntos de recepción | TecnoInformática",
+      metaDescripcion: "Dejá tu notebook o PC para reparación de placa en tu localidad: puntos de recepción de TecnoInformática en Entre Ríos."
+    });
+    var neg = K.C.negocio || {};
+    var c = seccion();
+    cabeza(c, "Puntos de recepción", "Reparación de placa cerca de tu casa",
+      "¿Tu notebook o PC no enciende, no da video o no carga? No hace falta que viajes: dejala en el punto de recepción de tu localidad. La reparamos en el taller y vuelve a tus manos.");
+
+    var pasos = el("ol", "r-pasos");
+    [["Dejás el equipo", "en el punto de recepción de tu localidad, con la falla anotada."],
+     ["Lo reparamos en el taller", "diagnóstico y reparación a nivel componente en TecnoInformática. Te pasamos el presupuesto antes de reparar."],
+     ["Lo retirás", "en el mismo punto donde lo dejaste."]].forEach(function (p) {
+      var li = el("li");
+      li.appendChild(el("strong", null, p[0]));
+      li.appendChild(document.createTextNode(" " + p[1]));
+      pasos.appendChild(li);
+    });
+    c.appendChild(pasos);
+
+    var espera = cargando(c);
+    db().rpc("red_publica").then(function (r) {
+      espera.remove();
+      var puntos = r.error ? [] : (r.data || []).filter(function (t) { return t.punto_recepcion; });
+
+      var grupos = {};
+      puntos.forEach(function (t) {
+        var l = t.localidad || "Otras localidades";
+        (grupos[l] = grupos[l] || []).push(t);
+      });
+      var orden = Object.keys(grupos).sort(function (a, b) { return a.localeCompare(b, "es"); });
+
+      // el taller va primero
+      var bloqueTaller = el("div", "r-localidad");
+      bloqueTaller.appendChild(el("h2", null, "Concepción del Uruguay"));
+      var gt = el("div", "r-grilla");
+      var taller = el("article", "r-tarjeta r-taller");
+      var cu = el("div", "cuerpo");
+      cu.appendChild(el("div", "zona", "Taller central"));
+      cu.appendChild(el("h3", null, neg.nombre || "TecnoInformática"));
+      cu.appendChild(el("p", null, [neg.direccion, neg.ciudad].filter(Boolean).join(", ")));
+      var bs = el("div", "botones");
+      if (neg.mapa) bs.appendChild(enlaceExterno("boton hueco chico", "Cómo llegar", neg.mapa));
+      bs.appendChild(enlaceExterno("boton wa chico", "WhatsApp", K.linkWa("Hola, quiero consultar por una reparación de placa.")));
+      cu.appendChild(bs);
+      taller.appendChild(cu);
+      gt.appendChild(taller);
+      (grupos["Concepción del Uruguay"] || []).forEach(function (t) { gt.appendChild(tarjetaPunto(t)); });
+      bloqueTaller.appendChild(gt);
+      c.appendChild(bloqueTaller);
+
+      orden.forEach(function (l) {
+        if (l === "Concepción del Uruguay") return;
+        var b = el("div", "r-localidad");
+        b.appendChild(el("h2", null, l));
+        var g = el("div", "r-grilla");
+        grupos[l].forEach(function (t) { g.appendChild(tarjetaPunto(t)); });
+        b.appendChild(g);
+        c.appendChild(b);
+      });
+
+      var pie = el("p", "r-vacio");
+      pie.appendChild(document.createTextNode("¿Tu localidad no está? "));
+      pie.appendChild(enlaceExterno(null, "Escribinos", K.linkWa("Hola, soy de otra localidad y quiero hacer una reparación de placa.")));
+      pie.appendChild(document.createTextNode(" y coordinamos el envío. ¿Sos técnico y querés ser punto de recepción? "));
+      pie.appendChild(enlace(null, "Sumate a la red", "acceso.html"));
+      c.appendChild(pie);
+    });
+  }
+
+  function tarjetaPunto(t) {
+    var a = el("article", "r-tarjeta");
+    a.appendChild(foto(t.foto_url, t.nombre));
+    var cu = el("div", "cuerpo");
+    if (t.zona) cu.appendChild(el("div", "zona", t.zona));
+    cu.appendChild(el("h3", null, t.nombre));
+    if (t.horarios) cu.appendChild(el("p", null, t.horarios));
+    var bs = el("div", "botones");
+    bs.appendChild(enlace("boton hueco chico", "Ver perfil", "tecnico.html?t=" + encodeURIComponent(t.slug)));
+    if (t.whatsapp) {
+      bs.appendChild(enlaceExterno("boton wa chico", "WhatsApp",
+        linkWaTecnico(t.whatsapp, "Hola " + t.nombre.split(" ")[0] + ", quiero dejarte un equipo para reparación de placa con TecnoInformática.")));
     }
     cu.appendChild(bs);
     a.appendChild(cu);
@@ -331,7 +430,7 @@
 
       K.pintarMeta({
         tituloPestana: t.nombre + " | Red de técnicos TecnoInformática",
-        metaDescripcion: "Técnico en reparación de PC y notebooks" + (t.zona ? " en " + t.zona : "") + ". Parte de la Red TecnoInformática."
+        metaDescripcion: "Técnico en reparación de PC y notebooks" + (lugar(t) ? " en " + lugar(t) : "") + ". Parte de la Red TecnoInformática."
       });
 
       var p = el("div", "r-perfil");
@@ -339,7 +438,13 @@
       var d = el("div");
       d.appendChild(el("span", "r-sello", "Técnico de la Red TecnoInformática"));
       d.appendChild(el("h1", null, t.nombre));
-      if (t.zona) d.appendChild(el("div", "zona", t.zona));
+      if (lugar(t)) d.appendChild(el("div", "zona", lugar(t)));
+      if (t.punto_recepcion) {
+        var pr = el("div", "r-aviso ok");
+        pr.appendChild(el("strong", null, "Punto de recepción TecnoInformática. "));
+        pr.appendChild(document.createTextNode("Podés dejarle tu equipo para reparación de placa (no enciende, sin video, no carga): lo reparamos en el taller y te vuelve por acá."));
+        d.appendChild(pr);
+      }
       if (t.descripcion) {
         t.descripcion.split(/\n+/).forEach(function (par) { if (par.trim()) d.appendChild(el("p", null, par.trim())); });
       }
@@ -690,7 +795,11 @@
     var f = el("form", "r-form dos");
     var v = yo || {};
     var nombre = entrada("text", "nombre", v.nombre || (usuario.user_metadata && usuario.user_metadata.nombre) || "", { required: "", maxlength: "80" });
-    var zona = entrada("text", "zona", v.zona, { maxlength: "80", placeholder: "Ej: Centro, C. del Uruguay" });
+    var localidad = entrada("text", "localidad", v.localidad, { maxlength: "80", placeholder: "Ej: Villa Mantero", list: "r-localidades", autocomplete: "off" });
+    var lista = el("datalist");
+    lista.id = "r-localidades";
+    LOCALIDADES.forEach(function (l) { var o = el("option"); o.value = l; lista.appendChild(o); });
+    var zona = entrada("text", "zona", v.zona, { maxlength: "80", placeholder: "Ej: Centro, barrio, o zona rural" });
     var wa = entrada("tel", "whatsapp", v.whatsapp, { placeholder: "3442 419123", inputmode: "tel" });
     var horarios = entrada("text", "horarios", v.horarios, { maxlength: "160", placeholder: "Lun a vie 9 a 18 h" });
     var servicios = texto("servicios", v.servicios, { maxlength: "600", placeholder: "Formateo e instalación de Windows\nLimpieza y pasta térmica\nCambio de pantalla" });
@@ -698,7 +807,9 @@
     var archivo = entrada("file", "foto", null, { accept: "image/*" });
 
     f.appendChild(campo("Nombre y apellido", nombre));
-    f.appendChild(campo("Zona donde trabajás", zona));
+    f.appendChild(campo("Localidad", localidad, "Elegila de la lista o escribila."));
+    f.appendChild(lista);
+    f.appendChild(campo("Barrio o zona (opcional)", zona));
     f.appendChild(campo("WhatsApp", wa, "Con código de área, sin 0 ni 15 (10 números)."));
     f.appendChild(campo("Horarios", horarios));
     f.appendChild(campo("Servicios", servicios, "Uno por línea.", true));
@@ -752,6 +863,7 @@
       subir.then(function (fotoUrl) {
         var datos = {
           nombre: limpio(nombre.value),
+          localidad: limpio(localidad.value),
           zona: limpio(zona.value),
           whatsapp: numero || null,
           horarios: limpio(horarios.value),
@@ -1203,16 +1315,23 @@
       return;
     }
     var msj = aviso(caja);
-    var t = tabla(["Alumno", "Estado", "Le pagás (deriva)", "Te paga (recibe)", ""]);
+    var t = tabla(["Alumno", "Estado", "Punto de recepción", "Le pagás (deriva)", "Te paga (recibe)", ""]);
     tecnicos.forEach(function (x) {
       var tr = el("tr");
       var info = el("div");
       if (x.estado === "aprobado") info.appendChild(enlaceExterno(null, x.nombre, "tecnico.html?t=" + encodeURIComponent(x.slug)));
       else info.appendChild(el("strong", null, x.nombre));
-      info.appendChild(el("small", null, [x.email, x.zona, x.whatsapp].filter(Boolean).join(" · ")));
+      info.appendChild(el("small", null, [x.email, lugar(x), x.whatsapp].filter(Boolean).join(" · ")));
       celda(tr, info);
       var est = selector("estado", Object.keys(ESTADOS_TECNICO).map(function (k) { return [k, ESTADOS_TECNICO[k]]; }), x.estado);
       celda(tr, est);
+      var punto = entrada("checkbox", "punto_recepcion");
+      punto.checked = !!x.punto_recepcion;
+      punto.setAttribute("aria-label", "Punto de recepción");
+      var lp = el("label", "r-kit-check");
+      lp.appendChild(punto);
+      lp.appendChild(document.createTextNode(" Recibe equipos"));
+      celda(tr, lp);
 
       function par(tipo, valor) {
         var d = el("div");
@@ -1235,6 +1354,7 @@
       b.addEventListener("click", function () {
         var cambios = {
           estado: est.value,
+          punto_recepcion: punto.checked,
           deriva_tipo: der.tipo.value || null,
           deriva_valor: der.tipo.value && der.valor.value !== "" ? Number(der.valor.value) : null,
           recibe_tipo: rec.tipo.value || null,
@@ -1391,6 +1511,7 @@
       try {
         if (pagina === "red") return pintarDirectorio();
         if (pagina === "tecnico") return pintarPerfil();
+        if (pagina === "puntos") return pintarPuntos();
         if (pagina === "acceso") return pintarAcceso();
         if (pagina === "panel") return pintarPanel();
       } catch (err) {
