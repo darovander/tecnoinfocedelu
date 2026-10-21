@@ -96,9 +96,16 @@ window.CONTENIDO = {
       "Dell",
       "Asus",
       "Acer",
+      "Apple",
+      "MSI",
       "Samsung",
       "Toshiba",
-      "Bangho"
+      "Bangho",
+      "EXO",
+      "Gfast",
+      "Gigabyte / AORUS",
+      "ASRock",
+      "Biostar"
     ],
     "cierre": {
       "titulo": "Contanos qué le pasa al equipo",
