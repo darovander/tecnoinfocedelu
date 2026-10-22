@@ -953,6 +953,67 @@
     return { zona: function (id) { return zonas[id]; }, ir: ir };
   }
 
+  // Explicación de cómo funciona la red y de las comisiones, con los números reales de cada alumno.
+  function reglaDe(yo, conf, sentido) {
+    yo = yo || {}; conf = conf || {};
+    return {
+      tipo: yo[sentido + "_tipo"] || conf[sentido + "_tipo"],
+      valor: yo[sentido + "_valor"] != null ? yo[sentido + "_valor"] : conf[sentido + "_valor"]
+    };
+  }
+
+  function bienvenidaRed(destino, yo, conf) {
+    var pasos = cajaCon(destino, "Cómo funciona la Red de técnicos",
+      "Trabajamos juntos: vos atendés a tu cliente y, cuando un equipo necesita reparación de placa, lo resolvemos en el taller.");
+    var ol = el("ol", "r-pasos");
+    [
+      ["Completás tu perfil", "con tu foto, localidad, WhatsApp y servicios. Es lo que ven los clientes en la red."],
+      ["TecnoInformática te aprueba", "cuando tu perfil está listo, avisale a Dario por WhatsApp. Al aprobarte, tu página queda publicada."],
+      ["Atendés a tu cliente", "el cliente lo recibís vos directamente: es tuyo."],
+      ["Derivás lo que no podés resolver", "equipos con fallas de placa (no enciende, sin video, cortos). Los cargás en la pestaña Trabajos y coordinamos la entrega."],
+      ["Recibís trabajos de tu zona", "si a TecnoInformática le llega un trabajo simple cerca tuyo, te lo pasa y lo ves en tu panel."]
+    ].forEach(function (p) {
+      var li = el("li");
+      li.appendChild(el("strong", null, p[0]));
+      li.appendChild(document.createTextNode(" " + p[1]));
+      ol.appendChild(li);
+    });
+    pasos.appendChild(ol);
+
+    var cobra = reglaDe(yo, conf, "deriva");
+    var paga = reglaDe(yo, conf, "recibe");
+    var com = cajaCon(destino, "Cómo funcionan las comisiones",
+      "Hay comisión en los dos sentidos, para que a todos nos convenga pasarnos trabajo.");
+    var datos = el("div", "datos");
+    datos.style.marginBottom = "18px";
+    datos.appendChild(dato("Si derivás un trabajo", "Cobrás " + reglaTexto(cobra.tipo, cobra.valor), "El cliente era tuyo y lo reparamos nosotros."));
+    datos.appendChild(dato("Si te paso un trabajo", "Pagás " + reglaTexto(paga.tipo, paga.valor), "El trabajo era nuestro y lo hacés vos."));
+    com.appendChild(datos);
+
+    var reglas = el("ul", "r-pasos");
+    var items = [];
+    if (cobra.tipo === "porcentaje" && cobra.valor != null) {
+      items.push("Ejemplo: si derivás un trabajo de " + pesos(100000) + " y se entrega, cobrás " + pesos(100000 * Number(cobra.valor) / 100) + ".");
+    }
+    items.push("La comisión se calcula sobre el monto final del trabajo. Si el trabajo se cancela, no hay comisión.");
+    items.push("En la pestaña Inicio ves siempre cuánto te debe TecnoInformática y cuánto le debés.");
+    items.push("TecnoInformática marca cada comisión como pagada cuando se salda. Una vez pagada, queda fija.");
+    if (yo && (yo.deriva_tipo || yo.recibe_tipo)) items.push("Tenés una comisión propia acordada con TecnoInformática; los valores de arriba ya la incluyen.");
+    items.forEach(function (t) { reglas.appendChild(el("li", null, t)); });
+    com.appendChild(reglas);
+
+    var avisos = cajaCon(destino, "Avisos y mapa",
+      "Cuando cargás un trabajo, el último paso es tocar el botón de WhatsApp para avisarle a Dario: así coordinamos la entrega al instante. " +
+      "En Mi página podés tildar \"Quiero aparecer en el mapa de la red\"; es opcional y lo sacás cuando quieras.");
+    return avisos;
+  }
+
+  function cargarComisiones() {
+    return db().from("config_comisiones").select("*").eq("id", 1).maybeSingle()
+      .then(function (r) { return (r && r.data) || {}; })
+      .catch(function () { return {}; });
+  }
+
   function panelAlumno(c, usuario, yo, recargar) {
     if (yo) {
       var est = el("div", "r-aviso " + (yo.estado === "aprobado" ? "ok" : yo.estado === "pendiente" ? "espera" : "error"));
@@ -971,14 +1032,20 @@
       c.appendChild(est);
     }
 
-    // sin aprobar: solo el perfil
+    // sin aprobar: la explicación de la red y el perfil
     if (!yo || yo.estado !== "aprobado") {
+      if (yo && yo.estado === "pendiente") {
+        var zonaInfo = el("div");
+        c.appendChild(zonaInfo);
+        cargarComisiones().then(function (conf) { bienvenidaRed(zonaInfo, yo, conf); });
+      }
       formPerfil(c, usuario, yo, recargar);
       return;
     }
 
     var tabs = pestanas(c, [
       ["inicio", "Inicio"],
+      ["como-funciona", "Cómo funciona"],
       ["mi-pagina", "Mi página"],
       ["difusion", "Difusión"],
       ["trabajos", "Trabajos"],
@@ -986,6 +1053,7 @@
     ], "inicio");
 
     formPerfil(tabs.zona("mi-pagina"), usuario, yo, recargar);
+    cargarComisiones().then(function (conf) { bienvenidaRed(tabs.zona("como-funciona"), yo, conf); });
     preciosAlumno(tabs.zona("precios"));
     if (window.RedKit) {
       window.RedKit.pintar(tabs.zona("difusion"), yo, {
@@ -996,6 +1064,22 @@
     }
 
     var inicio = tabs.zona("inicio");
+    var primera = null;
+    var yaVista = false;
+    try { yaVista = localStorage.getItem("ti-bienvenida-vista") === "1"; } catch (e) { }
+    if (!yaVista) {
+      primera = el("div", "r-aviso ok");
+      primera.appendChild(el("p", null, "¡Bienvenido a la Red! Antes de empezar, mirá cómo funciona y cómo se manejan las comisiones."));
+      var verComo = boton("boton chico", "Ver cómo funciona", "button");
+      verComo.addEventListener("click", function () {
+        try { localStorage.setItem("ti-bienvenida-vista", "1"); } catch (e) { }
+        primera.remove();
+        tabs.ir("como-funciona", true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      primera.appendChild(verComo);
+      inicio.appendChild(primera);
+    }
     var trabajosZ = tabs.zona("trabajos");
     var derivar = formDerivar(trabajosZ, usuario, yo, recargar);
     formPedirArchivo(trabajosZ, yo);
@@ -1021,7 +1105,7 @@
       resumen.appendChild(dato("Tus comisiones",
         "Cobrás " + reglaTexto(yo.deriva_tipo || conf.deriva_tipo, yo.deriva_valor != null ? yo.deriva_valor : conf.deriva_valor),
         "Pagás " + reglaTexto(yo.recibe_tipo || conf.recibe_tipo, yo.recibe_valor != null ? yo.recibe_valor : conf.recibe_valor)));
-      inicio.insertBefore(resumen, inicio.firstChild);
+      inicio.insertBefore(resumen, primera ? primera.nextSibling : inicio.firstChild);
 
       tablaDerivados(trabajosZ, trabajos.filter(function (t) { return t.sentido === "deriva"; }));
       tablaRecibidos(trabajosZ, trabajos.filter(function (t) { return t.sentido === "recibe"; }), recargar);
@@ -2086,7 +2170,17 @@
           recargar();
         });
       });
-      celda(tr, b);
+      var accion = el("div");
+      accion.appendChild(b);
+      if (x.estado === "aprobado" && x.whatsapp) {
+        var avisar = enlaceExterno("boton wa chico", "Avisarle por WhatsApp",
+          linkWaTecnico(x.whatsapp, "Hola " + x.nombre.split(" ")[0] + ", ya sos parte de la Red de técnicos de TecnoInformática: tu perfil quedó aprobado y publicado. " +
+            "Entrá a " + location.origin + "/panel y mirá la pestaña \"Cómo funciona\" para ver cómo trabajamos y cómo son las comisiones. ¡Bienvenido!"));
+        avisar.style.display = "inline-block";
+        avisar.style.marginTop = "6px";
+        accion.appendChild(avisar);
+      }
+      celda(tr, accion);
       t.cuerpo.appendChild(tr);
     });
     caja.appendChild(t.nodo);
