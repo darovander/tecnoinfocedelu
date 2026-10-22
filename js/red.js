@@ -169,6 +169,11 @@
 
   function lugar(t) { return [t.localidad, t.zona].filter(Boolean).join(" · "); }
 
+  function mapa(t) {
+    var q = [t.direccion, t.localidad, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
+    return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+  }
+
   function urlInstagram(v) {
     v = String(v).trim();
     if (/^https?:\/\//i.test(v)) return v;
@@ -410,9 +415,11 @@
     var cu = el("div", "cuerpo");
     if (t.zona) cu.appendChild(el("div", "zona", t.zona));
     cu.appendChild(el("h3", null, t.nombre));
+    if (t.direccion) cu.appendChild(el("p", null, t.direccion));
     if (t.horarios) cu.appendChild(el("p", null, t.horarios));
     var bs = el("div", "botones");
     bs.appendChild(enlace("boton hueco chico", "Ver perfil", "tecnico.html?t=" + encodeURIComponent(t.slug)));
+    if (t.direccion) bs.appendChild(enlaceExterno("boton hueco chico", "Cómo llegar", mapa(t)));
     if (t.whatsapp) {
       bs.appendChild(enlaceExterno("boton wa chico", "WhatsApp",
         linkWaTecnico(t.whatsapp, "Hola " + t.nombre.split(" ")[0] + ", quiero dejarte un equipo para reparación de placa con TecnoInformática.")));
@@ -475,6 +482,13 @@
       if (t.horarios) {
         d.appendChild(el("h3", null, "Horarios"));
         d.appendChild(el("p", null, t.horarios));
+      }
+      if (t.direccion && activo) {
+        var dir = el("div", "r-direccion");
+        dir.appendChild(el("span", null, "Recibe equipos en"));
+        dir.appendChild(el("strong", null, [t.direccion, t.localidad].filter(Boolean).join(", ")));
+        dir.appendChild(enlaceExterno("boton hueco chico", "Cómo llegar", mapa(t)));
+        d.appendChild(dir);
       }
       var redes = el("p", "r-redes");
       if (t.instagram) redes.appendChild(enlaceExterno(null, "Instagram", urlInstagram(t.instagram)));
@@ -893,6 +907,7 @@
     lista.id = "r-localidades";
     LOCALIDADES.forEach(function (l) { var o = el("option"); o.value = l; lista.appendChild(o); });
     var zona = entrada("text", "zona", v.zona, { maxlength: "80", placeholder: "Ej: Centro, barrio, o zona rural" });
+    var direccion = entrada("text", "direccion", v.direccion, { maxlength: "120", placeholder: "Ej: San Martín 450", autocomplete: "street-address" });
     var wa = entrada("tel", "whatsapp", v.whatsapp, { placeholder: "3442 419123", inputmode: "tel" });
     var horarios = entrada("text", "horarios", v.horarios, { maxlength: "160", placeholder: "Lun a vie 9 a 18 h" });
     var servicios = texto("servicios", v.servicios, { maxlength: "600", placeholder: "Formateo e instalación de Windows\nLimpieza y pasta térmica\nCambio de pantalla" });
@@ -917,6 +932,7 @@
     f.appendChild(campo("Localidad", localidad, "Elegila de la lista o escribila."));
     f.appendChild(lista);
     f.appendChild(campo("Barrio o zona (opcional)", zona));
+    f.appendChild(campo("Dirección para recibir equipos (opcional)", direccion, "Solo si querés que te lleven el equipo. Si trabajás a domicilio o preferís coordinar por WhatsApp, dejala vacía.", true));
     f.appendChild(campo("WhatsApp", wa, "Con código de área, sin 0 ni 15 (10 números)."));
     f.appendChild(campo("Horarios", horarios));
     f.appendChild(campo("Servicios", servicios, "Uno por línea.", true));
@@ -979,6 +995,7 @@
           nombre: limpio(nombre.value),
           localidad: limpio(localidad.value),
           zona: limpio(zona.value),
+          direccion: limpio(direccion.value),
           whatsapp: numero || null,
           horarios: limpio(horarios.value),
           servicios: limpio(servicios.value),

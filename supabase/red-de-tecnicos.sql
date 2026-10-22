@@ -90,6 +90,7 @@ alter table public.tecnicos add column if not exists facebook text check (char_l
 alter table public.tecnicos add column if not exists aviso_presupuesto text check (char_length(aviso_presupuesto) <= 240);
 alter table public.tecnicos add column if not exists mostrar_presupuesto boolean not null default true;
 alter table public.tecnicos add column if not exists disponible boolean not null default true;
+alter table public.tecnicos add column if not exists direccion text check (char_length(direccion) <= 120);
 
 create or replace function public.slug_libre(base text, propio uuid)
 returns text
@@ -173,7 +174,7 @@ returns table (
   descripcion text, horarios text, whatsapp text, foto_url text,
   localidad text, punto_recepcion boolean,
   destacado text, instagram text, facebook text, aviso_presupuesto text,
-  mostrar_presupuesto boolean, disponible boolean
+  mostrar_presupuesto boolean, disponible boolean, direccion text
 )
 language sql stable security definer
 set search_path = public
@@ -181,7 +182,7 @@ as $$
   select nombre, slug, zona, servicios, descripcion, horarios, whatsapp, foto_url,
          localidad, punto_recepcion,
          destacado, instagram, facebook, aviso_presupuesto,
-         mostrar_presupuesto, disponible
+         mostrar_presupuesto, disponible, direccion
   from public.tecnicos
   where estado = 'aprobado'
   order by nombre;
