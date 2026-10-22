@@ -488,3 +488,80 @@ create policy "pedidos: admin borra" on public.pedidos
 
 revoke all on public.pedidos from anon;
 grant select, update, delete on public.pedidos to authenticated;
+
+-- ---------------------------------------------------------------
+-- Seguimiento de órdenes (/seguimiento)
+-- No se guarda el teléfono del cliente: solo una huella SHA-256 de
+-- identificador | número de orden | teléfono, calculada en el navegador.
+-- ---------------------------------------------------------------
+create table if not exists public.ordenes_seguimiento (
+  id bigint generated always as identity primary key,
+  numero text not null unique check (numero ~ '^[A-Z0-9-]{1,30}$'),
+  huella text not null check (huella ~ '^[0-9a-f]{64}$'),
+  equipo text check (char_length(equipo) <= 120),
+  estado text not null default 'recibido'
+    check (estado in ('recibido', 'diagnostico', 'presupuesto', 'esperando_repuesto', 'en_reparacion', 'listo', 'entregado', 'sin_reparacion')),
+  nota text check (char_length(nota) <= 300),
+  creado timestamptz not null default now(),
+  actualizado timestamptz not null default now()
+);
+
+create or replace function public.ordenes_actualizado()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.actualizado := now();
+  return new;
+end;
+$$;
+drop trigger if exists ordenes_actualizado on public.ordenes_seguimiento;
+create trigger ordenes_actualizado before update on public.ordenes_seguimiento
+  for each row execute function public.ordenes_actualizado();
+
+alter table public.ordenes_seguimiento enable row level security;
+drop policy if exists "ordenes: solo admin" on public.ordenes_seguimiento;
+create policy "ordenes: solo admin" on public.ordenes_seguimiento
+  for all to authenticated using (public.es_admin()) with check (public.es_admin());
+revoke all on public.ordenes_seguimiento from anon;
+grant select, insert, update, delete on public.ordenes_seguimiento to authenticated;
+
+-- registro de consultas para frenar a quien pruebe teléfonos al azar
+create table if not exists public.consultas_seguimiento (
+  creado timestamptz not null default now(),
+  numero text,
+  ok boolean not null
+);
+create index if not exists consultas_seguimiento_creado on public.consultas_seguimiento (creado);
+alter table public.consultas_seguimiento enable row level security;
+revoke all on public.consultas_seguimiento from anon, authenticated;
+
+-- La única puerta pública: devuelve el estado solo si número y huella coinciden.
+create or replace function public.consultar_estado(p_numero text, p_huella text)
+returns table (numero text, equipo text, estado text, nota text, actualizado timestamptz)
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  n text := upper(regexp_replace(coalesce(p_numero, ''), '\s', '', 'g'));
+  h text := lower(coalesce(p_huella, ''));
+  encontrada boolean;
+begin
+  if n = '' or h !~ '^[0-9a-f]{64}$' then return; end if;
+
+  -- frenos: 10 intentos fallidos por orden cada 15 minutos, 120 consultas por minuto en total
+  if (select count(*) from public.consultas_seguimiento c where c.numero = n and not c.ok and c.creado > now() - interval '15 minutes') >= 10 then return; end if;
+  if (select count(*) from public.consultas_seguimiento c where c.creado > now() - interval '1 minute') >= 120 then return; end if;
+
+  select exists (select 1 from public.ordenes_seguimiento o where o.numero = n and o.huella = h) into encontrada;
+  insert into public.consultas_seguimiento (numero, ok) values (n, encontrada);
+  delete from public.consultas_seguimiento c where c.creado < now() - interval '2 days';
+
+  return query
+    select o.numero, o.equipo, o.estado, o.nota, o.actualizado
+    from public.ordenes_seguimiento o
+    where o.numero = n and o.huella = h;
+end;
+$$;
+revoke all on function public.consultar_estado(text, text) from public;
+grant execute on function public.consultar_estado(text, text) to anon, authenticated;

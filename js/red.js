@@ -1332,6 +1332,137 @@
     });
   }
 
+  // ----- seguimiento de órdenes (/seguimiento) -----
+
+  function adminOrdenes(c) {
+    var S = window.Seguimiento;
+    var caja = cajaCon(c, "Seguimiento de órdenes",
+      "Lo que el cliente ve en /seguimiento con su número de orden y su teléfono. El teléfono no se guarda: solo una huella para comprobarlo.");
+    if (!S) { caja.appendChild(el("div", "r-aviso error", "Falta cargar js/seguimiento.js en esta página.")); return; }
+    var msj = aviso(caja);
+    var dominio = "https://" + ((K.C.negocio && K.C.negocio.dominio) || "tecnoinformatica-cdu.com.ar");
+    var linkOrden = function (n) { return dominio + "/seguimiento?n=" + encodeURIComponent(n); };
+    var opcionesEstado = Object.keys(S.ESTADOS).map(function (k) { return [k, S.ESTADOS[k].texto]; });
+
+    var f = el("form", "r-form dos");
+    var num = entrada("text", "numero", "", { required: "", maxlength: "30", placeholder: "OT-000001" });
+    var tel = entrada("tel", "telefono", "", { required: "", maxlength: "20", placeholder: "3442 419123" });
+    var eq = entrada("text", "equipo", "", { maxlength: "120", placeholder: "Notebook Lenovo IdeaPad 330" });
+    var est = selector("estado", opcionesEstado, "recibido");
+    var nota = entrada("text", "nota", "", { maxlength: "300", placeholder: "Opcional: lo ve el cliente" });
+    f.appendChild(campo("N° de orden", num, "Letras, números y guiones."));
+    f.appendChild(campo("Teléfono del cliente", tel, "Con código de área, sin 0 ni 15. No se guarda: solo sirve para que pueda consultar."));
+    f.appendChild(campo("Equipo", eq));
+    f.appendChild(campo("Estado", est));
+    f.appendChild(campo("Nota para el cliente", nota, null, true));
+    var ac = el("div", "acciones ancho");
+    var crear = boton("boton", "Cargar orden", "submit");
+    ac.appendChild(crear);
+    f.appendChild(ac);
+    caja.appendChild(f);
+    var despues = el("div");
+    caja.appendChild(despues);
+
+    var zona = el("div");
+    caja.appendChild(zona);
+    var lista = [];
+
+    function siguienteNumero() {
+      var max = 0;
+      lista.forEach(function (o) { var m = /^OT-(\d+)$/.exec(o.numero); if (m) max = Math.max(max, Number(m[1])); });
+      return "OT-" + ("000000" + (max + 1)).slice(-6);
+    }
+
+    f.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var n = S.normalizarNumero(num.value);
+      var t = S.normalizarTelefono(tel.value);
+      if (!/^[A-Z0-9-]{1,30}$/.test(n)) return msj.mostrar("El número de orden solo puede tener letras, números y guiones.", "error");
+      var telCompleto = String(tel.value).replace(/\D/g, "").replace(/^549/, "").replace(/^54/, "").replace(/^0/, "");
+      if (telCompleto.length !== 10) return msj.mostrar("El teléfono va con código de área, sin 0 ni 15 (10 números). Ej: 3442 419123", "error");
+      ocupado(crear, true);
+      S.huella(n, t).then(function (h) {
+        return db().from("ordenes_seguimiento").insert({ numero: n, huella: h, equipo: limpio(eq.value), estado: est.value, nota: limpio(nota.value) });
+      }).then(function (r) {
+        ocupado(crear, false);
+        if (r.error) return msj.mostrar(/duplicate|unique/i.test(r.error.message) ? "Ya existe una orden con ese número." : traducirError(r.error), "error");
+        msj.limpiar();
+        despues.textContent = "";
+        var ok = el("div", "r-aviso ok");
+        ok.appendChild(el("p", null, "Orden " + n + " cargada. Mandale el link al cliente para que la siga:"));
+        var fila = el("div", "acciones");
+        fila.style.display = "flex"; fila.style.flexWrap = "wrap"; fila.style.gap = "10px";
+        var wa = enlaceExterno("boton wa chico", "Enviar por WhatsApp",
+          linkWaTecnico(telCompleto.slice(-10), "Hola, tu equipo" + (limpio(eq.value) ? " (" + limpio(eq.value) + ")" : "") + " quedó registrado en TecnoInformática con la orden " + n +
+            ". Podés seguir la reparación acá: " + linkOrden(n) + " (te va a pedir este mismo teléfono)."));
+        fila.appendChild(wa);
+        var cp = boton("boton hueco chico", "Copiar link");
+        cp.addEventListener("click", function () { copiarTexto(linkOrden(n), cp); });
+        fila.appendChild(cp);
+        ok.appendChild(fila);
+        despues.appendChild(ok);
+        f.reset();
+        cargar();
+      }).catch(function (err) { ocupado(crear, false); msj.mostrar(traducirError(err), "error"); });
+    });
+
+    function cargar() {
+      zona.textContent = "";
+      var espera = cargando(zona);
+      db().from("ordenes_seguimiento").select("id, numero, equipo, estado, nota, actualizado").order("creado", { ascending: false }).then(function (r) {
+        espera.remove();
+        if (r.error) return msj.mostrar("No se pudieron cargar las órdenes: " + traducirError(r.error), "error");
+        lista = r.data || [];
+        if (!num.value) num.value = siguienteNumero();
+        if (!lista.length) return zona.appendChild(el("p", "r-vacio", "Todavía no cargaste órdenes."));
+        var t = tabla(["Orden", "Equipo", "Estado", "Nota para el cliente", "Actualizado", ""]);
+        lista.forEach(function (o) {
+          var tr = el("tr");
+          celda(tr, el("strong", null, o.numero));
+          var e1 = entrada("text", "equipo", o.equipo, { maxlength: "120" });
+          celda(tr, e1);
+          var e2 = selector("estado", opcionesEstado, o.estado);
+          celda(tr, e2);
+          var e3 = entrada("text", "nota", o.nota, { maxlength: "300" });
+          celda(tr, e3);
+          celda(tr, fecha(o.actualizado));
+          var acc = el("div", "r-acciones-fila");
+          var g = boton("boton chico", "Guardar");
+          g.addEventListener("click", function () {
+            ocupado(g, true, "…");
+            db().from("ordenes_seguimiento").update({ equipo: limpio(e1.value), estado: e2.value, nota: limpio(e3.value) }).eq("id", o.id).then(function (res) {
+              ocupado(g, false);
+              if (res.error) return msj.mostrar(traducirError(res.error), "error");
+              msj.mostrar("Orden " + o.numero + " actualizada: " + S.ESTADOS[e2.value].texto + ".", "ok");
+            });
+          });
+          acc.appendChild(g);
+          var cp = boton("boton hueco chico", "Link");
+          cp.title = "Copiar el link de seguimiento";
+          cp.addEventListener("click", function () { copiarTexto(linkOrden(o.numero), cp); });
+          acc.appendChild(cp);
+          acc.appendChild(botonBorrar(function () {
+            return db().from("ordenes_seguimiento").delete().eq("id", o.id).then(function (res) {
+              if (res.error) throw res.error;
+              msj.mostrar("Orden " + o.numero + " borrada.", "ok");
+              tr.remove();
+            });
+          }, msj));
+          celda(tr, acc);
+          t.cuerpo.appendChild(tr);
+        });
+        zona.appendChild(t.nodo);
+      });
+    }
+    cargar();
+  }
+
+  function copiarTexto(texto, b) {
+    var listo = function () { var a = b.textContent; b.textContent = "¡Copiado!"; setTimeout(function () { b.textContent = a; }, 1600); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(texto).then(listo, function () { });
+    else { var t = el("textarea"); t.value = texto; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); listo(); } catch (e) { } t.remove(); }
+  }
+
   // ----- precios de referencia -----
 
   function rangoPrecio(r) {
@@ -1607,6 +1738,7 @@
       // cada sección por separado: si una falla, las demás se muestran igual
       [
         function () { adminPedidos(zona, porId); },
+        function () { adminOrdenes(zona); },
         function () { adminAlumnos(zona, tecnicos, recargar); },
         function () { adminPasarTrabajo(zona, tecnicos, recargar); },
         function () { adminTrabajos(zona, trabajos, porId, recargar); },

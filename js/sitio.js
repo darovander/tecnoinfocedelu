@@ -194,6 +194,9 @@
       col2.appendChild(mail);
     }
     grilla.appendChild(col2);
+    var segui = el("a", null, "Seguí tu reparación");
+    segui.href = "seguimiento.html";
+    col2.appendChild(segui);
     var presu = el("a", null, "Pedir presupuesto");
     presu.href = "presupuesto.html";
     col2.appendChild(presu);
@@ -965,6 +968,14 @@
     carrito: pintarConTienda,
     contacto: pintarContacto,
     presupuesto: pintarPresupuesto,
+    seguimiento: function () {
+      var raiz = html("contenido");
+      if (!window.Seguimiento) {
+        raiz.appendChild(el("p", "respaldo", "No se pudo cargar el seguimiento. Escribinos por WhatsApp."));
+        return;
+      }
+      window.Seguimiento.pintar({ el: el, pintarMeta: pintarMeta, linkWa: linkWa, raiz: raiz });
+    },
     red: pintarConRed,
     tecnico: pintarConRed,
     puntos: pintarConRed,
