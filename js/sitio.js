@@ -895,7 +895,7 @@
     var modelo = campo("Modelo (opcional)", entrada("text", "modelo", { maxlength: "80", placeholder: "Ej: IdeaPad 330-15IKB" }), "Suele estar en la etiqueta de abajo del equipo.", true);
     var falla = campo("¿Qué le pasa?", selector("falla", [["", "Elegí la falla…"]].concat(FALLAS), param), null, true);
     if (op.avisoPlaca) {
-      var notaPlaca = el("small", "r-nota-placa", "Este tipo de falla es de placa: la resolvemos junto al taller TecnoInformática, especialistas en reparación a nivel componente.");
+      var notaPlaca = el("small", "r-nota-placa", "Si la falla necesita una reparación más compleja, la resolvemos junto al taller TecnoInformática.");
       falla.parentNode.appendChild(notaPlaca);
       var verNota = function () { notaPlaca.hidden = FALLAS_PLACA.indexOf(falla.value) < 0; };
       falla.addEventListener("change", verNota);
