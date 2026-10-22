@@ -1406,52 +1406,111 @@
       }).catch(function (err) { ocupado(crear, false); msj.mostrar(traducirError(err), "error"); });
     });
 
+    var LOTE = 30;
+    var limite = LOTE;
+
+    var filtros = el("div", "r-filtros");
+    var buscar = entrada("search", "buscar", "", { placeholder: "Buscar por orden, equipo o nota", "aria-label": "Buscar órdenes" });
+    var fEstado = selector("filtro_estado", [["activas", "Activas (sin entregadas)"], ["todas", "Todas"]].concat(opcionesEstado), "activas");
+    fEstado.setAttribute("aria-label", "Filtrar por estado");
+    var fOrden = selector("orden", [["recientes", "Más recientes primero"], ["actualizadas", "Última actualización"], ["numero", "Por número de orden"]], "recientes");
+    fOrden.setAttribute("aria-label", "Ordenar");
+    filtros.appendChild(buscar);
+    filtros.appendChild(fEstado);
+    filtros.appendChild(fOrden);
+    caja.insertBefore(filtros, zona);
+    var resumen = el("p", null, "");
+    resumen.style.margin = "0 0 12px";
+    resumen.style.fontSize = "0.85rem";
+    resumen.style.color = "var(--texto-suave)";
+    caja.insertBefore(resumen, zona);
+
+    function numeroDe(o) { return parseInt(String(o.numero).replace(/\D/g, ""), 10) || 0; }
+
+    function dibujar() {
+      zona.textContent = "";
+      if (!lista.length) { resumen.textContent = ""; return zona.appendChild(el("p", "r-vacio", "Todavía no cargaste órdenes.")); }
+      var q = buscar.value.trim().toLowerCase();
+      var fe = fEstado.value;
+      var vis = lista.filter(function (o) {
+        if (fe === "activas" && (o.estado === "entregado" || o.estado === "sin_reparacion")) return false;
+        if (fe !== "activas" && fe !== "todas" && o.estado !== fe) return false;
+        if (q && (o.numero + " " + (o.equipo || "") + " " + (o.nota || "")).toLowerCase().indexOf(q) === -1) return false;
+        return true;
+      });
+      var modo = fOrden.value;
+      vis.sort(function (x, y) {
+        if (modo === "numero") return numeroDe(y) - numeroDe(x) || String(y.numero).localeCompare(String(x.numero));
+        if (modo === "actualizadas") return (new Date(y.actualizado || 0)) - (new Date(x.actualizado || 0));
+        return x._i - y._i;
+      });
+      var mostradas = vis.slice(0, limite);
+      resumen.textContent = "Mostrando " + mostradas.length + " de " + vis.length + (vis.length !== lista.length ? " (hay " + lista.length + " en total)" : "") + ".";
+      if (!vis.length) return zona.appendChild(el("p", "r-vacio", "No hay órdenes con ese filtro."));
+      var t = tabla(["Orden", "Equipo", "Estado", "Nota para el cliente", "Actualizado", ""]);
+      mostradas.forEach(function (o) {
+        var tr = el("tr");
+        celda(tr, el("strong", null, o.numero));
+        var e1 = entrada("text", "equipo", o.equipo, { maxlength: "120" });
+        celda(tr, e1);
+        var e2 = selector("estado", opcionesEstado, o.estado);
+        celda(tr, e2);
+        var e3 = entrada("text", "nota", o.nota, { maxlength: "300" });
+        celda(tr, e3);
+        celda(tr, fecha(o.actualizado));
+        var acc = el("div", "r-acciones-fila");
+        var g = boton("boton chico", "Guardar");
+        g.addEventListener("click", function () {
+          ocupado(g, true, "…");
+          db().from("ordenes_seguimiento").update({ equipo: limpio(e1.value), estado: e2.value, nota: limpio(e3.value) }).eq("id", o.id).then(function (res) {
+            ocupado(g, false);
+            if (res.error) return msj.mostrar(traducirError(res.error), "error");
+            o.equipo = limpio(e1.value);
+            o.estado = e2.value;
+            o.nota = limpio(e3.value);
+            o.actualizado = new Date().toISOString();
+            msj.mostrar("Orden " + o.numero + " actualizada: " + S.ESTADOS[e2.value].texto + ".", "ok");
+          });
+        });
+        acc.appendChild(g);
+        var cp = boton("boton hueco chico", "Link");
+        cp.title = "Copiar el link de seguimiento";
+        cp.addEventListener("click", function () { copiarTexto(linkOrden(o.numero), cp); });
+        acc.appendChild(cp);
+        acc.appendChild(botonBorrar(function () {
+          return db().from("ordenes_seguimiento").delete().eq("id", o.id).then(function (res) {
+            if (res.error) throw res.error;
+            msj.mostrar("Orden " + o.numero + " borrada.", "ok");
+            lista = lista.filter(function (x) { return x.id !== o.id; });
+            tr.remove();
+          });
+        }, msj));
+        celda(tr, acc);
+        t.cuerpo.appendChild(tr);
+      });
+      zona.appendChild(t.nodo);
+      if (vis.length > limite) {
+        var mas = boton("boton hueco", "Ver " + Math.min(LOTE, vis.length - limite) + " más (" + (vis.length - limite) + " restantes)");
+        mas.style.marginTop = "14px";
+        mas.addEventListener("click", function () { limite += LOTE; dibujar(); });
+        zona.appendChild(mas);
+      }
+    }
+
+    function refiltrar() { limite = LOTE; dibujar(); }
+    buscar.addEventListener("input", refiltrar);
+    fEstado.addEventListener("change", refiltrar);
+    fOrden.addEventListener("change", refiltrar);
+
     function cargar() {
       zona.textContent = "";
       var espera = cargando(zona);
       db().from("ordenes_seguimiento").select("id, numero, equipo, estado, nota, actualizado").order("creado", { ascending: false }).then(function (r) {
         espera.remove();
         if (r.error) return msj.mostrar("No se pudieron cargar las órdenes: " + traducirError(r.error), "error");
-        lista = r.data || [];
+        lista = (r.data || []).map(function (o, i) { o._i = i; return o; });
         if (!num.value) num.value = siguienteNumero();
-        if (!lista.length) return zona.appendChild(el("p", "r-vacio", "Todavía no cargaste órdenes."));
-        var t = tabla(["Orden", "Equipo", "Estado", "Nota para el cliente", "Actualizado", ""]);
-        lista.forEach(function (o) {
-          var tr = el("tr");
-          celda(tr, el("strong", null, o.numero));
-          var e1 = entrada("text", "equipo", o.equipo, { maxlength: "120" });
-          celda(tr, e1);
-          var e2 = selector("estado", opcionesEstado, o.estado);
-          celda(tr, e2);
-          var e3 = entrada("text", "nota", o.nota, { maxlength: "300" });
-          celda(tr, e3);
-          celda(tr, fecha(o.actualizado));
-          var acc = el("div", "r-acciones-fila");
-          var g = boton("boton chico", "Guardar");
-          g.addEventListener("click", function () {
-            ocupado(g, true, "…");
-            db().from("ordenes_seguimiento").update({ equipo: limpio(e1.value), estado: e2.value, nota: limpio(e3.value) }).eq("id", o.id).then(function (res) {
-              ocupado(g, false);
-              if (res.error) return msj.mostrar(traducirError(res.error), "error");
-              msj.mostrar("Orden " + o.numero + " actualizada: " + S.ESTADOS[e2.value].texto + ".", "ok");
-            });
-          });
-          acc.appendChild(g);
-          var cp = boton("boton hueco chico", "Link");
-          cp.title = "Copiar el link de seguimiento";
-          cp.addEventListener("click", function () { copiarTexto(linkOrden(o.numero), cp); });
-          acc.appendChild(cp);
-          acc.appendChild(botonBorrar(function () {
-            return db().from("ordenes_seguimiento").delete().eq("id", o.id).then(function (res) {
-              if (res.error) throw res.error;
-              msj.mostrar("Orden " + o.numero + " borrada.", "ok");
-              tr.remove();
-            });
-          }, msj));
-          celda(tr, acc);
-          t.cuerpo.appendChild(tr);
-        });
-        zona.appendChild(t.nodo);
+        dibujar();
       });
     }
     cargar();
