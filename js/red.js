@@ -463,9 +463,34 @@
         d.appendChild(enlaceExterno("boton wa", "Escribirle por WhatsApp",
           linkWaTecnico(t.whatsapp, "Hola " + t.nombre.split(" ")[0] + ", te encontré en la Red de técnicos de TecnoInformática. Te consulto por una reparación.")));
       }
+      if (t.whatsapp) {
+        var irPres = enlace("boton hueco", "Pedir presupuesto", "#presupuesto");
+        irPres.style.marginLeft = "10px";
+        irPres.addEventListener("click", function (e) {
+          var destino = document.getElementById("presupuesto");
+          if (destino) { e.preventDefault(); destino.scrollIntoView({ behavior: "smooth", block: "start" }); }
+        });
+        d.appendChild(irPres);
+      }
       d.appendChild(el("p", "nota", "Técnico independiente de la Red TecnoInformática. Los casos más complejos los resuelve en conjunto con el taller de TecnoInformática."));
       p.appendChild(d);
       c.appendChild(p);
+
+      if (t.whatsapp && K.formPresupuesto) {
+        var nom = t.nombre.split(" ")[0];
+        var sp = el("div", "r-caja");
+        sp.id = "presupuesto";
+        sp.style.maxWidth = "820px";
+        sp.style.marginTop = "40px";
+        sp.appendChild(el("h2", null, "Pedile presupuesto a " + nom));
+        sp.appendChild(el("p", null, "Completá los datos y se te abre WhatsApp con el pedido listo para mandarle."));
+        K.formPresupuesto(sp, {
+          enlace: function (m) { return linkWaTecnico(t.whatsapp, m); },
+          saludo: "Hola " + nom + ", te encontré en la Red de técnicos TecnoInformática y quiero pedir un presupuesto:"
+        });
+        c.appendChild(sp);
+        if (location.hash === "#presupuesto") setTimeout(function () { sp.scrollIntoView({ block: "start" }); }, 50);
+      }
 
       var volver = el("p", "r-vacio");
       volver.appendChild(enlace(null, "← Ver todos los técnicos", "red.html"));

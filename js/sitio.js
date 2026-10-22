@@ -795,7 +795,8 @@
       return;
     }
     window.RedApp.pintar(pagina, {
-      C: C, el: el, linkWa: linkWa, pintarMeta: pintarMeta, revelar: revelar, raiz: raiz
+      C: C, el: el, linkWa: linkWa, pintarMeta: pintarMeta, revelar: revelar, raiz: raiz,
+      formPresupuesto: formPresupuesto
     });
   }
 
@@ -829,6 +830,15 @@
 
     var caja = el("div", "r-caja");
     caja.style.maxWidth = "820px";
+    formPresupuesto(caja, { enlace: linkWa, saludo: "Hola, quiero pedir un presupuesto:" });
+    cont.appendChild(caja);
+    seccion.appendChild(cont);
+    raiz.appendChild(seccion);
+  }
+
+  // Se usa en /presupuesto (llega a TecnoInformática) y en el perfil de cada técnico de la red (le llega a él).
+  // op.enlace(mensaje) devuelve el link de WhatsApp; op.saludo es la primera línea del pedido.
+  function formPresupuesto(caja, op) {
     var aviso = el("div", "r-aviso");
     aviso.setAttribute("role", "status");
     caja.appendChild(aviso);
@@ -884,9 +894,6 @@
     acc.appendChild(el("small", null, "Si tenés fotos del equipo o de la etiqueta, mandalas después en el mismo chat."));
     f.appendChild(acc);
     caja.appendChild(f);
-    cont.appendChild(caja);
-    seccion.appendChild(cont);
-    raiz.appendChild(seccion);
 
     function mostrar(texto, tipoAviso) {
       aviso.className = "r-aviso" + (tipoAviso ? " " + tipoAviso : "");
@@ -900,7 +907,7 @@
       var textoFalla = falla.options[falla.selectedIndex].textContent;
       var equipo = [tipo.value, marca.value && marca.value !== "Otra" ? marca.value : "", modelo.value.trim()].filter(Boolean).join(" ");
       var lineas = [
-        "Hola, quiero pedir un presupuesto:",
+        op.saludo,
         "• Equipo: " + equipo,
         "• Falla: " + textoFalla
       ];
@@ -908,7 +915,7 @@
       lineas.push("• ¿Lo revisó otro técnico?: " + revisado.value);
       var quien = [nombre.value.trim(), localidad.value.trim() ? "(" + localidad.value.trim() + ")" : ""].filter(Boolean).join(" ");
       if (quien) lineas.push("• Nombre: " + quien);
-      window.open(linkWa(lineas.join("\n")), "_blank", "noopener");
+      window.open(op.enlace(lineas.join("\n")), "_blank", "noopener");
       mostrar("¡Listo! Se abrió WhatsApp con tu pedido: solo tocá enviar. Si no se abrió, revisá que el navegador no haya bloqueado la ventana.", "ok");
     });
   }

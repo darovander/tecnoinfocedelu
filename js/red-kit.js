@@ -298,7 +298,8 @@
         (servicios(p.servicios).length ? servicios(p.servicios).map(function (s) { return "✅ " + s; }).join("\n") + "\n\n" : "") +
         "Soy parte de la Red de técnicos TecnoInformática. Las reparaciones de placa (no enciende, sin video, no carga) las resolvemos junto al taller TecnoInformática.\n\n" +
         "📲 WhatsApp: " + (p.whatsapp ? telefono(p.whatsapp) : "") + "\n" +
-        "👤 Mi perfil: " + url],
+        "👤 Mi perfil: " + url + "\n" +
+        "📝 Pedime presupuesto: " + url + "#presupuesto"],
       ["Mensaje para tus contactos",
         "¡Hola! Te cuento que ahora formo parte de la Red de técnicos TecnoInformática. " +
         "Si vos o alguien que conozcas necesita arreglar una PC o notebook, escribime. " +
@@ -361,6 +362,20 @@
     bl.addEventListener("click", function () { copiar(url, bl); });
     fila.appendChild(bl);
     caja.appendChild(fila);
+
+    var urlPres = url + "#presupuesto";
+    var fila2 = el("div", "r-kit-link");
+    var campoPres = el("input");
+    campoPres.type = "text";
+    campoPres.readOnly = true;
+    campoPres.value = urlPres;
+    campoPres.setAttribute("aria-label", "Link para pedirte presupuesto");
+    fila2.appendChild(campoPres);
+    var bp = A.boton("boton hueco chico", "Copiar link de presupuesto");
+    bp.addEventListener("click", function () { copiar(urlPres, bp); });
+    fila2.appendChild(bp);
+    caja.appendChild(el("p", "r-kit-nota", "Link de tu perfil y link directo a tu formulario de presupuesto: el cliente completa equipo y falla, y el pedido te llega a tu WhatsApp."));
+    caja.appendChild(fila2);
 
     var cuerpo = el("div", "r-kit-cuerpo");
     caja.appendChild(cuerpo);
