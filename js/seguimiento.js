@@ -26,6 +26,15 @@ var SEGUIMIENTO_IDENTIFICADOR = "tecnoinformatica-cdu";
     return String(v || "").toUpperCase().replace(/\s+/g, "");
   }
 
+  // Lo que escribe el cliente en el campo: "323", "ot 323", "OT-323" u "ot-323"
+  // pasan a OT-000323. Cualquier otro formato (por ejemplo una orden vieja
+  // con otro prefijo) queda como estaba, solo normalizado.
+  function normalizarOrden(v) {
+    var limpio = normalizarNumero(v);
+    var m = /^(?:OT)?-?(\d{1,6})$/.exec(limpio);
+    return m ? "OT-" + ("000000" + m[1]).slice(-6) : limpio;
+  }
+
   // Últimos 6 dígitos: dan lo mismo con o sin +54, 9, 0, código de área o 15
   // (3442 15 419123, 03442-419123 y +54 9 3442 419123 terminan todos en 419123).
   function normalizarTelefono(v) {
@@ -111,8 +120,17 @@ var SEGUIMIENTO_IDENTIFICADOR = "tecnoinformatica-cdu";
     seccion.appendChild(cont);
     K.raiz.appendChild(seccion);
 
-    var n = new URLSearchParams(location.search).get("n");
-    if (n) { num.value = normalizarNumero(n).slice(0, 30); tel.focus(); }
+    var params = new URLSearchParams(location.search);
+    var n = params.get("n");
+    var t = params.get("t");
+    var autoconsulta = false;
+    if (n) { num.value = normalizarOrden(n).slice(0, 30); tel.focus(); }
+    if (t) {
+      tel.value = String(t).slice(0, 20);
+      autoconsulta = !!(n && normalizarTelefono(t).length >= 6);
+      // el teléfono no tiene que quedar en la barra ni en el historial
+      try { history.replaceState(null, "", location.pathname); } catch (err) { }
+    }
 
     function aviso(texto, tipo) {
       salida.textContent = "";
@@ -121,7 +139,9 @@ var SEGUIMIENTO_IDENTIFICADOR = "tecnoinformatica-cdu";
 
     f.addEventListener("submit", function (e) {
       e.preventDefault();
-      if (!normalizarNumero(num.value) || normalizarTelefono(tel.value).length < 6) {
+      var numero = normalizarOrden(num.value);
+      num.value = numero;
+      if (!numero || normalizarTelefono(tel.value).length < 6) {
         return aviso("Completá el número de orden y el teléfono con código de área.", "error");
       }
       if (!window.crypto || !crypto.subtle) {
@@ -129,12 +149,12 @@ var SEGUIMIENTO_IDENTIFICADOR = "tecnoinformatica-cdu";
       }
       b.disabled = true;
       b.textContent = "Consultando…";
-      consultar(num.value, tel.value).then(function (orden) {
+      consultar(numero, tel.value).then(function (orden) {
         if (!orden) {
           var no = el("div", "r-aviso error");
           no.appendChild(document.createTextNode("No encontramos una orden con esos datos. Revisá el número y el teléfono. "));
           var wa = el("a", null, "Consultanos por WhatsApp");
-          wa.href = K.linkWa("Hola, quiero consultar el estado de la orden " + normalizarNumero(num.value) + ".");
+          wa.href = K.linkWa("Hola, quiero consultar el estado de la orden " + numero + ".");
           wa.target = "_blank";
           wa.rel = "noopener";
           no.appendChild(wa);
@@ -150,6 +170,8 @@ var SEGUIMIENTO_IDENTIFICADOR = "tecnoinformatica-cdu";
         b.textContent = "Consultar estado";
       });
     });
+
+    if (autoconsulta) f.dispatchEvent(new Event("submit", { cancelable: true }));
 
     // Muestra solo lo que devolvió la consulta: número, equipo, estado, nota y fecha.
     function mostrar(o) {
@@ -193,6 +215,7 @@ var SEGUIMIENTO_IDENTIFICADOR = "tecnoinformatica-cdu";
     pintar: pintar,
     huella: huella,
     normalizarNumero: normalizarNumero,
+    normalizarOrden: normalizarOrden,
     normalizarTelefono: normalizarTelefono,
     ESTADOS: ESTADOS
   };
