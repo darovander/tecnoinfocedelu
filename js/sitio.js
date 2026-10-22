@@ -528,6 +528,44 @@
       raiz.appendChild(sProc);
     }
 
+    // Invitación a la Red de técnicos
+    if (d.red && d.red.bloques && d.red.bloques.length) {
+      var sRed = el("section", "seccion ajustada");
+      var cRed = el("div", "contenedor");
+      var cabRed = el("div", "seccion-cabeza");
+      cabRed.appendChild(el("div", "etiqueta", d.red.etiqueta || "Red de técnicos"));
+      cabRed.appendChild(el("h2", null, d.red.titulo));
+      if (d.red.intro) cabRed.appendChild(el("p", null, d.red.intro));
+      cRed.appendChild(cabRed);
+      var blRed = el("div", "bloques");
+      d.red.bloques.forEach(function (b) {
+        var caja = el("article", "bloque aparece");
+        caja.appendChild(el("h3", null, b.titulo));
+        caja.appendChild(el("p", null, b.texto));
+        blRed.appendChild(caja);
+      });
+      cRed.appendChild(blRed);
+      if (d.red.nota) {
+        var pNota = el("p", null, d.red.nota);
+        pNota.style.marginTop = "18px";
+        cRed.appendChild(pNota);
+      }
+      var accRed = el("div");
+      accRed.style.display = "flex";
+      accRed.style.flexWrap = "wrap";
+      accRed.style.gap = "12px";
+      accRed.style.marginTop = "22px";
+      var aSumar = el("a", "boton", d.red.botonSumar || "Quiero sumarme");
+      aSumar.href = "acceso.html";
+      accRed.appendChild(aSumar);
+      var aVer = el("a", "boton hueco", d.red.botonVer || "Ver la red");
+      aVer.href = "red.html";
+      accRed.appendChild(aVer);
+      cRed.appendChild(accRed);
+      sRed.appendChild(cRed);
+      raiz.appendChild(sRed);
+    }
+
     if (d.preguntas && d.preguntas.length) {
       var sf = el("section", "seccion ajustada");
       var cf = el("div", "contenedor");

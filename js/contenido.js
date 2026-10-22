@@ -319,6 +319,28 @@ window.CONTENIDO = {
         "texto": "Con el ok, reparo y te aviso cuando esté. Vos se lo entregás a tu cliente como siempre."
       }
     ],
+    "red": {
+      "etiqueta": "Red de técnicos",
+      "titulo": "Sumate a la Red de técnicos",
+      "intro": "Además de recibir tus derivaciones, armé una red de técnicos independientes que trabajan junto al taller. Si querés sumarte, vas a tener tu propia página y trabajo en los dos sentidos.",
+      "bloques": [
+        {
+          "titulo": "Tu página y tu zona",
+          "texto": "Tenés un perfil público con tu foto, tus servicios y tu WhatsApp, para que los clientes de tu localidad te encuentren. Si querés, también aparecés en el mapa de la red."
+        },
+        {
+          "titulo": "Derivás lo complejo",
+          "texto": "Atendés a tu cliente como siempre y, cuando hay una falla de placa que no podés resolver, me la pasás a mí. Por cada trabajo derivado que se entrega, cobrás una comisión."
+        },
+        {
+          "titulo": "Recibís trabajo",
+          "texto": "Cuando me llega un trabajo simple de tu zona, te lo paso a vos. En ese caso la comisión va para el taller. Todo se lleva desde tu panel."
+        }
+      ],
+      "nota": "Aprobamos cada perfil antes de publicarlo.",
+      "botonVer": "Ver la red",
+      "botonSumar": "Quiero sumarme"
+    },
     "preguntas": [
       {
         "pregunta": "¿Mi cliente se entera de que el equipo pasó por otro taller?",
