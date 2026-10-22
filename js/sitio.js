@@ -729,6 +729,38 @@
     }
 
     cont.appendChild(datos);
+
+    // Mapa del taller (Google Maps embebido por dirección, sin clave)
+    var consulta = [neg.direccion, neg.ciudad].filter(Boolean).join(", ");
+    if (consulta) {
+      var cajaMapa = el("div", "mapa-taller");
+      cajaMapa.style.marginTop = "28px";
+      var marco = el("iframe");
+      marco.src = "https://www.google.com/maps?q=" + encodeURIComponent(consulta) + "&hl=es&z=16&output=embed";
+      marco.title = "Mapa con la ubicación del taller";
+      marco.loading = "lazy";
+      marco.referrerPolicy = "no-referrer-when-downgrade";
+      marco.setAttribute("allowfullscreen", "");
+      marco.style.width = "100%";
+      marco.style.height = "380px";
+      marco.style.border = "1px solid var(--linea)";
+      marco.style.borderRadius = "12px";
+      marco.style.background = "var(--panel)";
+      marco.style.display = "block";
+      cajaMapa.appendChild(marco);
+      if (neg.mapa) {
+        var pMapa = el("p");
+        pMapa.style.marginTop = "10px";
+        var aMapa = el("a", null, "Abrir en Google Maps · Cómo llegar");
+        aMapa.href = neg.mapa;
+        aMapa.target = "_blank";
+        aMapa.rel = "noopener";
+        pMapa.appendChild(aMapa);
+        cajaMapa.appendChild(pMapa);
+      }
+      cont.appendChild(cajaMapa);
+    }
+
     seccion.appendChild(cont);
     raiz.appendChild(seccion);
 

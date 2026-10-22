@@ -287,6 +287,11 @@
       }
       c.appendChild(filtros);
 
+      var huecoMapa = el("div");
+      huecoMapa.style.marginBottom = "26px";
+      c.appendChild(huecoMapa);
+      pintarMapaRed(huecoMapa, lista);
+
       var grilla = el("div", "r-grilla");
       c.appendChild(grilla);
       var nada = el("p", "r-vacio", "No hay técnicos que coincidan con la búsqueda.");
@@ -336,6 +341,145 @@
     return a;
   }
 
+  // ---------- mapa de la red ----------
+  // Leaflet + OpenStreetMap: gratis y sin clave. Se carga recién cuando hay algo para mostrar.
+  var LEAFLET_JS = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js";
+  var LEAFLET_CSS = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css";
+  var leafletListo = null;
+
+  function cargarLeaflet() {
+    if (window.L && window.L.map) return Promise.resolve(window.L);
+    if (leafletListo) return leafletListo;
+    leafletListo = new Promise(function (ok, mal) {
+      var css = document.createElement("link");
+      css.rel = "stylesheet";
+      css.href = LEAFLET_CSS;
+      document.head.appendChild(css);
+      var s = document.createElement("script");
+      s.src = LEAFLET_JS;
+      s.onload = function () { ok(window.L); };
+      s.onerror = function () { leafletListo = null; mal(new Error("No cargó el mapa")); };
+      document.head.appendChild(s);
+    });
+    return leafletListo;
+  }
+
+  // Busca coordenadas con Nominatim (OpenStreetMap). Devuelve {lat, lng} o null.
+  function geocodificar(direccion, localidad) {
+    var q = [direccion, localidad, "Entre Ríos", "Argentina"].filter(Boolean).join(", ");
+    var url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ar&accept-language=es&q=" + encodeURIComponent(q);
+    return fetch(url)
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (a) {
+        if (!a || !a[0]) return null;
+        var lat = parseFloat(a[0].lat), lng = parseFloat(a[0].lon);
+        return isNaN(lat) || isNaN(lng) ? null : { lat: lat, lng: lng };
+      })
+      .catch(function () { return null; });
+  }
+
+  // Ubicación del taller: la de contenido.js si está cargada; si no, se busca por dirección (queda guardada en la sesión).
+  function ubicarTaller() {
+    var neg = (K.C && K.C.negocio) || {};
+    if (neg.lat != null && neg.lng != null) return Promise.resolve({ lat: Number(neg.lat), lng: Number(neg.lng) });
+    try {
+      var g = sessionStorage.getItem("ti-taller-pos");
+      if (g) return Promise.resolve(JSON.parse(g));
+    } catch (e) { }
+    return geocodificar(neg.direccion, "Concepción del Uruguay").then(function (p) {
+      if (p) { try { sessionStorage.setItem("ti-taller-pos", JSON.stringify(p)); } catch (e) { } }
+      return p;
+    });
+  }
+
+  // Sin dirección cargada solo se muestra la zona: se corre un poco el punto para que no se pise con otros.
+  function correrZona(lat, lng, clave) {
+    var h = 0;
+    for (var i = 0; i < clave.length; i++) h = (h * 31 + clave.charCodeAt(i)) % 9973;
+    var ang = (h % 360) * Math.PI / 180;
+    var d = 0.0025 + (h % 7) * 0.0004;
+    return { lat: lat + Math.sin(ang) * d, lng: lng + Math.cos(ang) * d };
+  }
+
+  // Dibuja el mapa dentro de "destino". Solo entran los técnicos que eligieron aparecer y tienen coordenadas.
+  function pintarMapaRed(destino, tecnicos) {
+    var puntos = (tecnicos || []).filter(function (t) {
+      return t.mostrar_en_mapa === true && t.lat != null && t.lng != null;
+    });
+    var caja = el("div", "r-mapa-caja");
+    var lienzo = el("div", "r-mapa");
+    lienzo.style.height = "380px";
+    lienzo.style.borderRadius = "12px";
+    lienzo.style.overflow = "hidden";
+    lienzo.style.border = "1px solid var(--linea)";
+    lienzo.style.background = "var(--panel)";
+    lienzo.style.zIndex = "0";
+    caja.appendChild(lienzo);
+    var nota = el("p", "r-vacio", "Cada técnico elige si quiere aparecer en el mapa. Los puntos sin dirección muestran solo una zona aproximada.");
+    nota.style.marginTop = "10px";
+    caja.appendChild(nota);
+
+    Promise.all([cargarLeaflet(), ubicarTaller()]).then(function (res) {
+      var L = res[0], taller = res[1];
+      destino.appendChild(caja);
+      var mapa = L.map(lienzo, { scrollWheelZoom: false });
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\" rel=\"noopener\">OpenStreetMap</a>"
+      }).addTo(mapa);
+
+      var limites = [];
+      if (taller) {
+        L.circleMarker([taller.lat, taller.lng], { radius: 10, color: "#fe9536", weight: 3, fillColor: "#fe9536", fillOpacity: 0.85 })
+          .bindPopup(function () {
+            var d = el("div");
+            d.appendChild(el("strong", null, (K.C.negocio && K.C.negocio.nombre) || "TecnoInformática"));
+            d.appendChild(el("br"));
+            d.appendChild(document.createTextNode("Taller central"));
+            return d;
+          })
+          .addTo(mapa);
+        limites.push([taller.lat, taller.lng]);
+      }
+
+      puntos.forEach(function (t) {
+        var lat = Number(t.lat), lng = Number(t.lng);
+        var aprox = !t.direccion;
+        if (aprox) { var c = correrZona(lat, lng, t.slug || t.nombre || ""); lat = c.lat; lng = c.lng; }
+        var m = L.circleMarker([lat, lng], { radius: 8, color: "#29a9ff", weight: 2, fillColor: "#29a9ff", fillOpacity: aprox ? 0.35 : 0.85 });
+        m.bindPopup(function () {
+          var d = el("div");
+          d.appendChild(el("strong", null, t.nombre));
+          d.appendChild(el("br"));
+          d.appendChild(document.createTextNode(aprox ? (t.localidad || "Zona aproximada") + " (zona aproximada)" : [t.direccion, t.localidad].filter(Boolean).join(", ")));
+          var acc = el("div");
+          acc.style.marginTop = "8px";
+          var ver = el("a", null, "Ver perfil");
+          ver.href = "tecnico.html?t=" + encodeURIComponent(t.slug);
+          acc.appendChild(ver);
+          if (t.whatsapp && t.disponible !== false) {
+            acc.appendChild(document.createTextNode(" · "));
+            var w = el("a", null, "WhatsApp");
+            w.href = linkWaTecnico(t.whatsapp, "Hola " + t.nombre.split(" ")[0] + ", te encontré en el mapa de la Red de técnicos de TecnoInformática.");
+            w.target = "_blank";
+            w.rel = "noopener";
+            acc.appendChild(w);
+          }
+          d.appendChild(acc);
+          return d;
+        });
+        m.addTo(mapa);
+        limites.push([lat, lng]);
+      });
+
+      if (limites.length > 1) mapa.fitBounds(limites, { padding: [40, 40], maxZoom: 14 });
+      else if (limites.length === 1) mapa.setView(limites[0], 14);
+      else mapa.setView([-32.4846, -58.2330], 12);
+      setTimeout(function () { mapa.invalidateSize(); }, 300);
+      window.addEventListener("load", function () { mapa.invalidateSize(); });
+    }).catch(function () { /* sin mapa: la lista de abajo sigue funcionando */ });
+  }
+
   // ---------- puntos de recepción ----------
 
   function pintarPuntos() {
@@ -359,10 +503,15 @@
     });
     c.appendChild(pasos);
 
+    var huecoMapa = el("div");
+    huecoMapa.style.margin = "26px 0";
+    c.appendChild(huecoMapa);
+
     var espera = cargando(c);
     db().rpc("red_publica").then(function (r) {
       espera.remove();
       var puntos = r.error ? [] : (r.data || []).filter(function (t) { return t.punto_recepcion && t.disponible !== false; });
+      pintarMapaRed(huecoMapa, puntos);
 
       var grupos = {};
       puntos.forEach(function (t) {
@@ -927,6 +1076,7 @@
     }
     var disponible = casilla("disponible", "Estoy tomando trabajos (si lo destildás, tu página avisa que no estás disponible y oculta tu WhatsApp)", v.disponible !== false);
     var mostrarPres = casilla("mostrar_presupuesto", "Mostrar el formulario de presupuesto en mi página", v.mostrar_presupuesto !== false);
+    var enMapa = casilla("mostrar_en_mapa", "Quiero aparecer en el mapa de la red (si cargaste dirección se ve ese punto; si no, solo una zona aproximada de tu localidad). Podés sacarte cuando quieras.", v.mostrar_en_mapa === true);
 
     f.appendChild(campo("Nombre y apellido", nombre));
     f.appendChild(campo("Localidad", localidad, "Elegila de la lista o escribila."));
@@ -943,6 +1093,7 @@
     f.appendChild(el("h3", "r-kit-sub ancho", "Opciones de tu página"));
     f.appendChild(disponible.nodo);
     f.appendChild(mostrarPres.nodo);
+    f.appendChild(enMapa.nodo);
     f.appendChild(campo("Aviso del formulario de presupuesto", avisoPres, "Aparece cuando el cliente elige no enciende, no da imagen, no carga o se mojó. Si lo dejás vacío, sale el aviso de la red.", true));
 
     var filaFoto = el("div", "ancho");
@@ -976,6 +1127,9 @@
       var numero = normalizarWa(wa.value);
       if (numero === null) return msj.mostrar("El WhatsApp tiene que tener 10 números: código de área + número, sin 0 ni 15. Ej: 3442 419123", "error");
       if (!limpio(nombre.value)) return msj.mostrar("Falta tu nombre.", "error");
+      if (enMapa.input.checked && !limpio(direccion.value) && !limpio(localidad.value)) {
+        return msj.mostrar("Para aparecer en el mapa completá tu localidad (o tu dirección).", "error");
+      }
 
       ocupado(b, true);
       var subir = Promise.resolve(v.foto_url || null);
@@ -990,7 +1144,23 @@
         });
       }
 
-      subir.then(function (fotoUrl) {
+      // Ubicación para el mapa: solo si eligió aparecer. Si no cambió nada, se reusa la que ya está guardada.
+      var ubicar = Promise.resolve({ lat: null, lng: null });
+      if (enMapa.input.checked) {
+        var dirNueva = limpio(direccion.value) || "";
+        var locNueva = limpio(localidad.value) || "";
+        var igual = v.mostrar_en_mapa === true && v.lat != null && v.lng != null &&
+          (v.direccion || "") === dirNueva && (v.localidad || "") === locNueva;
+        ubicar = igual
+          ? Promise.resolve({ lat: v.lat, lng: v.lng })
+          : geocodificar(dirNueva, locNueva).then(function (p) {
+              if (!p) throw new Error("No pude ubicar esa dirección en el mapa. Revisá la dirección y la localidad, o destildá la opción del mapa.");
+              return p;
+            });
+      }
+
+      Promise.all([subir, ubicar]).then(function (res) {
+        var fotoUrl = res[0], pos = res[1];
         var datos = {
           nombre: limpio(nombre.value),
           localidad: limpio(localidad.value),
@@ -1006,6 +1176,9 @@
           aviso_presupuesto: limpio(avisoPres.value),
           disponible: disponible.input.checked,
           mostrar_presupuesto: mostrarPres.input.checked,
+          mostrar_en_mapa: enMapa.input.checked,
+          lat: pos.lat,
+          lng: pos.lng,
           foto_url: fotoUrl
         };
         var q = yo
