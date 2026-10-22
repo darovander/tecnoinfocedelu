@@ -194,6 +194,9 @@
       col2.appendChild(mail);
     }
     grilla.appendChild(col2);
+    var presu = el("a", null, "Pedir presupuesto");
+    presu.href = "presupuesto.html";
+    col2.appendChild(presu);
     var red = el("a", null, "Red de técnicos");
     red.href = "red.html";
     col2.appendChild(red);
@@ -252,7 +255,15 @@
     boton.href = linkWa(datos.mensaje || "Hola, te consulto por una reparación.");
     boton.target = "_blank";
     boton.rel = "noopener";
-    cont.appendChild(boton);
+    var fila = el("div", "hoja-acciones");
+    fila.style.marginBottom = "0";
+    fila.appendChild(boton);
+    if (pagina !== "presupuesto") {
+      var pres = el("a", "boton hueco", "Pedir presupuesto");
+      pres.href = "presupuesto.html";
+      fila.appendChild(pres);
+    }
+    cont.appendChild(fila);
     seccion.appendChild(cont);
     return seccion;
   }
@@ -276,7 +287,10 @@
     b1.rel = "noopener";
     var b2 = el("a", "boton hueco", d.hero.botonSecundario);
     b2.href = "servicios.html";
+    var b3 = el("a", "boton", "Pedir presupuesto");
+    b3.href = "presupuesto.html";
     acciones.appendChild(b1);
+    acciones.appendChild(b3);
     acciones.appendChild(b2);
     interno.appendChild(acciones);
     hoja.appendChild(interno);
@@ -785,6 +799,120 @@
     });
   }
 
+  // Formulario de presupuesto: arma el pedido completo y lo manda por WhatsApp.
+  var FALLAS = [
+    ["no-enciende", "No enciende / está muerta"],
+    ["sin-video", "Enciende pero no da imagen"],
+    ["no-carga", "No carga la batería / no toma el cargador"],
+    ["se-apaga", "Se apaga sola o calienta mucho"],
+    ["liquido", "Se mojó o le cayó líquido"],
+    ["golpe", "Se cayó o recibió un golpe"],
+    ["pantalla", "Pantalla rota, con líneas o manchas"],
+    ["teclado", "Teclado, touchpad o puertos que no andan"],
+    ["lenta", "Lenta, con virus o hay que formatear"],
+    ["otra", "Otra falla"]
+  ];
+
+  function pintarPresupuesto() {
+    pintarMeta({
+      tituloPestana: "Pedir presupuesto | TecnoInformática",
+      metaDescripcion: "Pedí presupuesto para reparar tu notebook o PC en Concepción del Uruguay: contanos la marca, el modelo y qué le pasa, y te respondemos por WhatsApp."
+    });
+    var raiz = html("contenido");
+    var seccion = el("section", "seccion");
+    var cont = el("div", "contenedor");
+    var cab = el("div", "seccion-cabeza");
+    cab.appendChild(el("div", "etiqueta", "Presupuesto"));
+    cab.appendChild(el("h1", null, "Contanos qué le pasa a tu equipo"));
+    cab.appendChild(el("p", null, "Completá estos datos y se te abre WhatsApp con el pedido listo para mandar. Así te podemos orientar desde el primer mensaje."));
+    cont.appendChild(cab);
+
+    var caja = el("div", "r-caja");
+    caja.style.maxWidth = "820px";
+    var aviso = el("div", "r-aviso");
+    aviso.setAttribute("role", "status");
+    caja.appendChild(aviso);
+
+    var f = el("form", "r-form dos");
+    function campo(etiqueta, control, ayuda, ancho) {
+      var l = el("label", ancho ? "ancho" : null);
+      l.appendChild(el("span", null, etiqueta));
+      l.appendChild(control);
+      if (ayuda) l.appendChild(el("small", null, ayuda));
+      f.appendChild(l);
+      return control;
+    }
+    function selector(nombre, opciones, valor) {
+      var sel = el("select");
+      sel.name = nombre;
+      opciones.forEach(function (o) {
+        var op = el("option", null, o[1]);
+        op.value = o[0];
+        if (o[0] === valor) op.selected = true;
+        sel.appendChild(op);
+      });
+      return sel;
+    }
+    function entrada(tipo, nombre, extra) {
+      var i = el("input");
+      i.type = tipo;
+      i.name = nombre;
+      Object.keys(extra || {}).forEach(function (k) { i.setAttribute(k, extra[k]); });
+      return i;
+    }
+
+    var param = new URLSearchParams(location.search).get("falla") || "";
+    var marcas = ((C.inicio && C.inicio.marcas) || []).map(function (m) { return [m, m]; });
+
+    var tipo = campo("Tipo de equipo", selector("tipo", [["", "Elegí…"], ["Notebook", "Notebook"], ["PC de escritorio", "PC de escritorio"], ["All-in-one", "All-in-one"], ["Placa madre", "Placa madre suelta"], ["Otro", "Otro"]], ""));
+    var marca = campo("Marca", selector("marca", [["", "Elegí…"]].concat(marcas).concat([["Otra", "Otra / no sé"]]), ""));
+    var modelo = campo("Modelo (opcional)", entrada("text", "modelo", { maxlength: "80", placeholder: "Ej: IdeaPad 330-15IKB" }), "Suele estar en la etiqueta de abajo del equipo.", true);
+    var falla = campo("¿Qué le pasa?", selector("falla", [["", "Elegí la falla…"]].concat(FALLAS), param), null, true);
+    var detalle = el("textarea");
+    detalle.name = "detalle";
+    detalle.maxLength = 600;
+    detalle.placeholder = "Desde cuándo pasa, si se mojó o se cayó, qué probaste…";
+    campo("Contanos más (opcional)", detalle, null, true);
+    var revisado = campo("¿Ya lo revisó otro técnico?", selector("revisado", [["No", "No"], ["Sí", "Sí"]], "No"));
+    var nombre = campo("Tu nombre", entrada("text", "nombre", { maxlength: "60", autocomplete: "given-name" }));
+    var localidad = campo("Localidad (opcional)", entrada("text", "localidad", { maxlength: "60", placeholder: "Ej: Concepción del Uruguay" }));
+
+    var acc = el("div", "acciones ancho");
+    var enviar = el("button", "boton wa", "Enviar por WhatsApp");
+    enviar.type = "submit";
+    acc.appendChild(enviar);
+    acc.appendChild(el("small", null, "Si tenés fotos del equipo o de la etiqueta, mandalas después en el mismo chat."));
+    f.appendChild(acc);
+    caja.appendChild(f);
+    cont.appendChild(caja);
+    seccion.appendChild(cont);
+    raiz.appendChild(seccion);
+
+    function mostrar(texto, tipoAviso) {
+      aviso.className = "r-aviso" + (tipoAviso ? " " + tipoAviso : "");
+      aviso.textContent = texto;
+      if (texto) aviso.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+
+    f.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!tipo.value || !falla.value) return mostrar("Elegí el tipo de equipo y qué le pasa.", "error");
+      var textoFalla = falla.options[falla.selectedIndex].textContent;
+      var equipo = [tipo.value, marca.value && marca.value !== "Otra" ? marca.value : "", modelo.value.trim()].filter(Boolean).join(" ");
+      var lineas = [
+        "Hola, quiero pedir un presupuesto:",
+        "• Equipo: " + equipo,
+        "• Falla: " + textoFalla
+      ];
+      if (detalle.value.trim()) lineas.push("• Detalle: " + detalle.value.trim());
+      lineas.push("• ¿Lo revisó otro técnico?: " + revisado.value);
+      var quien = [nombre.value.trim(), localidad.value.trim() ? "(" + localidad.value.trim() + ")" : ""].filter(Boolean).join(" ");
+      if (quien) lineas.push("• Nombre: " + quien);
+      window.open(linkWa(lineas.join("\n")), "_blank", "noopener");
+      mostrar("¡Listo! Se abrió WhatsApp con tu pedido: solo tocá enviar. Si no se abrió, revisá que el navegador no haya bloqueado la ventana.", "ok");
+    });
+  }
+
   var pintores = {
     inicio: pintarInicio,
     servicios: pintarServicios,
@@ -794,6 +922,7 @@
     producto: pintarConTienda,
     carrito: pintarConTienda,
     contacto: pintarContacto,
+    presupuesto: pintarPresupuesto,
     red: pintarConRed,
     tecnico: pintarConRed,
     puntos: pintarConRed,

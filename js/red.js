@@ -463,7 +463,7 @@
         d.appendChild(enlaceExterno("boton wa", "Escribirle por WhatsApp",
           linkWaTecnico(t.whatsapp, "Hola " + t.nombre.split(" ")[0] + ", te encontré en la Red de técnicos de TecnoInformática. Te consulto por una reparación.")));
       }
-      d.appendChild(el("p", "nota", "Técnico independiente de la Red TecnoInformática. Los casos de placa más complejos los resuelve en conjunto con el taller de TecnoInformática."));
+      d.appendChild(el("p", "nota", "Técnico independiente de la Red TecnoInformática. Los casos más complejos los resuelve en conjunto con el taller de TecnoInformática."));
       p.appendChild(d);
       c.appendChild(p);
 
