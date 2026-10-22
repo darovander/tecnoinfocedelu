@@ -386,3 +386,89 @@ from (values
   ('Hardware', 'Armado de PC', null)
 ) as v(categoria, servicio, nota)
 where not exists (select 1 from public.precios);
+
+-- ---------------------------------------------------------------
+-- Pedidos de presupuesto (formulario de /presupuesto y de cada perfil de técnico)
+-- El público no toca la tabla: solo llama a registrar_pedido().
+-- ---------------------------------------------------------------
+create table if not exists public.pedidos (
+  id bigint generated always as identity primary key,
+  creado timestamptz not null default now(),
+  destino text not null check (destino in ('taller', 'tecnico')),
+  tecnico_id uuid references public.tecnicos (id) on delete set null,
+  tipo text, marca text, modelo text,
+  falla text, falla_texto text, detalle text,
+  revisado text, nombre text, localidad text,
+  es_placa boolean not null default false,
+  estado text not null default 'nuevo' check (estado in ('nuevo', 'respondido', 'aceptado', 'no_acepto')),
+  notas text check (char_length(notas) <= 500)
+);
+create index if not exists pedidos_tecnico on public.pedidos (tecnico_id);
+create index if not exists pedidos_creado on public.pedidos (creado desc);
+
+create or replace function public.registrar_pedido(datos jsonb)
+returns void
+language plpgsql security definer
+set search_path = public
+as $$
+declare
+  tid uuid;
+  slug_t text := nullif(trim(coalesce(datos ->> 'tecnico', '')), '');
+  f text := left(coalesce(datos ->> 'falla', ''), 40);
+begin
+  if slug_t is not null then
+    select id into tid from public.tecnicos where slug = slug_t and estado = 'aprobado';
+    if tid is null then return; end if;
+  end if;
+  -- freno simple contra spam: como mucho 30 pedidos por minuto en total
+  if (select count(*) from public.pedidos where creado > now() - interval '1 minute') >= 30 then
+    return;
+  end if;
+  insert into public.pedidos (destino, tecnico_id, tipo, marca, modelo, falla, falla_texto, detalle, revisado, nombre, localidad, es_placa)
+  values (
+    case when tid is null then 'taller' else 'tecnico' end, tid,
+    left(datos ->> 'tipo', 40), left(datos ->> 'marca', 60), left(datos ->> 'modelo', 80),
+    f, left(datos ->> 'falla_texto', 80), left(datos ->> 'detalle', 600),
+    left(datos ->> 'revisado', 5), left(datos ->> 'nombre', 60), left(datos ->> 'localidad', 60),
+    f in ('no-enciende', 'sin-video', 'no-carga', 'liquido')
+  );
+end;
+$$;
+revoke all on function public.registrar_pedido(jsonb) from public;
+grant execute on function public.registrar_pedido(jsonb) to anon, authenticated;
+
+-- el técnico solo cambia el estado de sus pedidos
+create or replace function public.pedidos_proteger()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if not public.puede_todo() then
+    new.id := old.id; new.creado := old.creado; new.destino := old.destino; new.tecnico_id := old.tecnico_id;
+    new.tipo := old.tipo; new.marca := old.marca; new.modelo := old.modelo;
+    new.falla := old.falla; new.falla_texto := old.falla_texto; new.detalle := old.detalle;
+    new.revisado := old.revisado; new.nombre := old.nombre; new.localidad := old.localidad;
+    new.es_placa := old.es_placa; new.notas := old.notas;
+  end if;
+  return new;
+end;
+$$;
+drop trigger if exists pedidos_proteger on public.pedidos;
+create trigger pedidos_proteger before update on public.pedidos
+  for each row execute function public.pedidos_proteger();
+
+alter table public.pedidos enable row level security;
+drop policy if exists "pedidos: ver los propios o admin" on public.pedidos;
+create policy "pedidos: ver los propios o admin" on public.pedidos
+  for select to authenticated using (tecnico_id = auth.uid() or public.es_admin());
+drop policy if exists "pedidos: editar los propios o admin" on public.pedidos;
+create policy "pedidos: editar los propios o admin" on public.pedidos
+  for update to authenticated using (tecnico_id = auth.uid() or public.es_admin())
+  with check (tecnico_id = auth.uid() or public.es_admin());
+drop policy if exists "pedidos: admin borra" on public.pedidos;
+create policy "pedidos: admin borra" on public.pedidos
+  for delete to authenticated using (public.es_admin());
+
+revoke all on public.pedidos from anon;
+grant select, update, delete on public.pedidos to authenticated;

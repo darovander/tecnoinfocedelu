@@ -486,7 +486,9 @@
         sp.appendChild(el("p", null, "Completá los datos y se te abre WhatsApp con el pedido listo para mandarle."));
         K.formPresupuesto(sp, {
           enlace: function (m) { return linkWaTecnico(t.whatsapp, m); },
-          saludo: "Hola " + nom + ", te encontré en la Red de técnicos TecnoInformática y quiero pedir un presupuesto:"
+          saludo: "Hola " + nom + ", te encontré en la Red de técnicos TecnoInformática y quiero pedir un presupuesto:",
+          tecnico: t.slug,
+          avisoPlaca: true
         });
         c.appendChild(sp);
         if (location.hash === "#presupuesto") setTimeout(function () { sp.scrollIntoView({ block: "start" }); }, 50);
@@ -783,14 +785,16 @@
         "Pagás " + reglaTexto(yo.recibe_tipo || conf.recibe_tipo, yo.recibe_valor != null ? yo.recibe_valor : conf.recibe_valor)));
       c.appendChild(resumen);
 
+      var derivar = null;
       if (yo.estado === "aprobado") {
+        pedidosAlumno(c, function (p) { if (derivar) derivar.prellenar(p); });
         if (window.RedKit) {
           window.RedKit.pintar(c, yo, {
             el: el, boton: boton, enlaceExterno: enlaceExterno, cajaCon: cajaCon, aviso: aviso,
             dominio: (K.C.negocio && K.C.negocio.dominio) || "tecnoinformatica-cdu.com.ar"
           });
         }
-        formDerivar(c, usuario, yo, recargar);
+        derivar = formDerivar(c, usuario, yo, recargar);
         formPedirArchivo(c, yo);
         preciosAlumno(c);
       }
@@ -952,6 +956,16 @@
           recargar);
       });
     });
+    return {
+      prellenar: function (p) {
+        f.style.display = "";
+        equipo.value = [p.tipo, p.marca && p.marca !== "Otra" ? p.marca : "", p.modelo].filter(Boolean).join(" ");
+        falla.value = [p.falla_texto, p.detalle].filter(Boolean).join(". ");
+        cli.value = [p.nombre, p.localidad ? "(" + p.localidad + ")" : ""].filter(Boolean).join(" ");
+        msj.mostrar("Completamos los datos con el pedido del cliente. Revisalos y tocá Derivar trabajo.", "espera");
+        caja.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    };
   }
 
   // Después de cargar algo, el aviso por WhatsApp queda como paso visible de un toque.
@@ -1009,6 +1023,171 @@
       window.open(K.linkWa(lineasPedido.join("\n")), "_blank", "noopener");
       msj.mostrar("Se abrió WhatsApp con tu pedido. Si no se abrió, revisá que el navegador no haya bloqueado la ventana.", "ok");
       f.reset();
+    });
+  }
+
+  // ----- pedidos de presupuesto -----
+
+  var ESTADOS_PEDIDO = { nuevo: "Nuevo", respondido: "Respondido", aceptado: "Aceptó", no_acepto: "No aceptó" };
+
+  function infoPedido(x) {
+    var d = el("div");
+    d.appendChild(el("strong", null, [x.tipo, x.marca && x.marca !== "Otra" ? x.marca : "", x.modelo].filter(Boolean).join(" ") || "Equipo"));
+    if (x.detalle) d.appendChild(el("small", null, x.detalle));
+    return d;
+  }
+
+  function fallaPedido(x) {
+    var d = el("div");
+    d.appendChild(document.createTextNode(x.falla_texto || x.falla || ""));
+    if (x.es_placa) {
+      var b = el("span", "r-placa", "Placa");
+      d.appendChild(document.createTextNode(" "));
+      d.appendChild(b);
+    }
+    return d;
+  }
+
+  function pedidosAlumno(c, alDerivar) {
+    var caja = cajaCon(c, "Pedidos de presupuesto que te llegaron",
+      "Los que te mandaron clientes desde tu perfil. Marcá cómo te fue con cada uno. Las fallas de placa derivalas al taller con un toque.");
+    var msj = aviso(caja);
+    var espera = cargando(caja);
+    db().from("pedidos").select("*").order("creado", { ascending: false }).then(function (r) {
+      espera.remove();
+      if (r.error) return msj.mostrar("No se pudieron cargar los pedidos: " + traducirError(r.error), "error");
+      var lista = r.data || [];
+      if (!lista.length) return caja.appendChild(el("p", "r-vacio", "Todavía no te llegaron pedidos. Compartí tu link de presupuesto del kit de difusión."));
+      var t = tabla(["Fecha", "Equipo", "Falla", "Cliente", "Estado", ""]);
+      lista.forEach(function (x) {
+        var tr = el("tr");
+        celda(tr, fecha(x.creado));
+        celda(tr, infoPedido(x));
+        celda(tr, fallaPedido(x));
+        celda(tr, x.nombre || "—", x.localidad || null);
+        var est = selector("estado", Object.keys(ESTADOS_PEDIDO).map(function (k) { return [k, ESTADOS_PEDIDO[k]]; }), x.estado);
+        celda(tr, est);
+        var acciones = el("div", "r-acciones-fila");
+        var g = boton("boton chico", "Guardar");
+        g.addEventListener("click", function () {
+          ocupado(g, true, "…");
+          db().from("pedidos").update({ estado: est.value }).eq("id", x.id).then(function (res) {
+            ocupado(g, false);
+            if (res.error) return msj.mostrar(traducirError(res.error), "error");
+            msj.mostrar("Pedido actualizado.", "ok");
+          });
+        });
+        acciones.appendChild(g);
+        if (x.es_placa) {
+          var dv = boton("boton hueco chico", "Derivar al taller");
+          dv.addEventListener("click", function () { alDerivar(x); });
+          acciones.appendChild(dv);
+        }
+        celda(tr, acciones);
+        t.cuerpo.appendChild(tr);
+      });
+      caja.appendChild(t.nodo);
+    });
+  }
+
+  function contar(lista, clave) {
+    var m = {};
+    lista.forEach(function (x) { var k = clave(x); if (k) m[k] = (m[k] || 0) + 1; });
+    return Object.keys(m).map(function (k) { return [k, m[k]]; }).sort(function (a, b) { return b[1] - a[1]; });
+  }
+
+  function adminPedidos(c, porId) {
+    var caja = cajaCon(c, "Pedidos de presupuesto",
+      "Todo lo que llega por el formulario de la web y por los formularios de los técnicos. Los de placa que entran por la red son posibles derivaciones.");
+    var msj = aviso(caja);
+    var espera = cargando(caja);
+    db().from("pedidos").select("*").order("creado", { ascending: false }).then(function (r) {
+      espera.remove();
+      if (r.error) return msj.mostrar("No se pudieron cargar los pedidos: " + traducirError(r.error), "error");
+      var todos = r.data || [];
+      if (!todos.length) return caja.appendChild(el("p", "r-vacio", "Todavía no llegaron pedidos de presupuesto."));
+
+      var desde = Date.now() - 30 * 864e5;
+      var mes = todos.filter(function (x) { return Date.parse(x.creado) >= desde; });
+      var resumen = el("div", "datos");
+      resumen.style.marginBottom = "18px";
+      resumen.appendChild(dato("Pedidos últimos 30 días", String(mes.length), "Total de pedidos"));
+      resumen.appendChild(dato("Al taller", String(mes.filter(function (x) { return x.destino === "taller"; }).length), "Desde /presupuesto"));
+      resumen.appendChild(dato("A la red", String(mes.filter(function (x) { return x.destino === "tecnico"; }).length), "Desde perfiles de técnicos"));
+      resumen.appendChild(dato("Placa en la red", String(mes.filter(function (x) { return x.destino === "tecnico" && x.es_placa; }).length), "Posibles derivaciones"));
+      caja.appendChild(resumen);
+
+      var rankings = el("div", "r-rankings");
+      [["Fallas más pedidas", contar(mes, function (x) { return x.falla_texto; })],
+       ["Localidades", contar(mes, function (x) { return x.localidad; })],
+       ["Técnicos con más pedidos", contar(mes, function (x) { return x.tecnico_id && porId[x.tecnico_id] ? porId[x.tecnico_id].nombre : ""; })]
+      ].forEach(function (rk) {
+        var b = el("div", "r-ranking");
+        b.appendChild(el("h3", null, rk[0]));
+        if (!rk[1].length) b.appendChild(el("p", "r-kit-nota", "Sin datos todavía."));
+        var ol = el("ol");
+        rk[1].slice(0, 5).forEach(function (par) {
+          var li = el("li");
+          li.appendChild(el("span", null, par[0]));
+          li.appendChild(el("strong", null, String(par[1])));
+          ol.appendChild(li);
+        });
+        b.appendChild(ol);
+        rankings.appendChild(b);
+      });
+      caja.appendChild(rankings);
+
+      var filtros = el("div", "r-filtros");
+      var filtro = selector("filtro_pedidos", [["todos", "Todos los pedidos"], ["placa_red", "Placa que entró por la red"], ["taller", "Al taller"], ["red", "A la red"], ["nuevo", "Sin responder"]], "todos");
+      filtro.setAttribute("aria-label", "Filtrar pedidos");
+      filtros.appendChild(filtro);
+      caja.appendChild(filtros);
+      var t = tabla(["Fecha", "Para", "Equipo", "Falla", "Cliente", "Estado", "Notas", ""]);
+      caja.appendChild(t.nodo);
+
+      function dibujar() {
+        t.cuerpo.textContent = "";
+        var f = filtro.value;
+        todos.filter(function (x) {
+          if (f === "placa_red") return x.destino === "tecnico" && x.es_placa;
+          if (f === "taller") return x.destino === "taller";
+          if (f === "red") return x.destino === "tecnico";
+          if (f === "nuevo") return x.estado === "nuevo";
+          return true;
+        }).forEach(function (x) {
+          var tr = el("tr");
+          celda(tr, fecha(x.creado));
+          celda(tr, x.destino === "taller" ? "Taller" : (porId[x.tecnico_id] ? porId[x.tecnico_id].nombre : "Técnico"));
+          celda(tr, infoPedido(x));
+          celda(tr, fallaPedido(x));
+          celda(tr, x.nombre || "—", x.localidad || null);
+          var est = selector("estado", Object.keys(ESTADOS_PEDIDO).map(function (k) { return [k, ESTADOS_PEDIDO[k]]; }), x.estado);
+          celda(tr, est);
+          var notas = entrada("text", "notas", x.notas, { maxlength: "500", placeholder: "Nota interna" });
+          celda(tr, notas);
+          var g = boton("boton chico", "Guardar");
+          g.addEventListener("click", function () {
+            ocupado(g, true, "…");
+            db().from("pedidos").update({ estado: est.value, notas: limpio(notas.value) }).eq("id", x.id).then(function (res) {
+              ocupado(g, false);
+              if (res.error) return msj.mostrar(traducirError(res.error), "error");
+              x.estado = est.value; x.notas = limpio(notas.value);
+              msj.mostrar("Pedido actualizado.", "ok");
+            });
+          });
+          celda(tr, g);
+          t.cuerpo.appendChild(tr);
+        });
+        if (!t.cuerpo.children.length) {
+          var tr = el("tr");
+          var td = el("td", "r-vacio", "No hay pedidos con ese filtro.");
+          td.colSpan = 8;
+          tr.appendChild(td);
+          t.cuerpo.appendChild(tr);
+        }
+      }
+      filtro.addEventListener("change", dibujar);
+      dibujar();
     });
   }
 
@@ -1283,6 +1462,7 @@
       resumen.appendChild(dato("Comisiones a cobrar a alumnos", pesos(aCobrar), "Por trabajos que les pasaste"));
       zona.appendChild(resumen);
 
+      adminPedidos(zona, porId);
       adminAlumnos(zona, tecnicos, recargar);
       adminPasarTrabajo(zona, tecnicos, recargar);
       adminTrabajos(zona, trabajos, porId, recargar);

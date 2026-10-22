@@ -801,6 +801,22 @@
   }
 
   // Formulario de presupuesto: arma el pedido completo y lo manda por WhatsApp.
+  var FALLAS_PLACA = ["no-enciende", "sin-video", "no-carga", "liquido"];
+
+  // Deja registro del pedido en la base de la red (no frena nada si falla).
+  var SUPABASE_URL = "https://kofqyguccmpjkktlziou.supabase.co";
+  var SUPABASE_CLAVE = "sb_publishable_WTMCRpDE19XgV0TMhZ7MSA_MFO6__cM";
+  function registrarPedido(datos) {
+    try {
+      fetch(SUPABASE_URL + "/rest/v1/rpc/registrar_pedido", {
+        method: "POST",
+        keepalive: true,
+        headers: { "Content-Type": "application/json", apikey: SUPABASE_CLAVE },
+        body: JSON.stringify({ datos: datos })
+      }).catch(function () { });
+    } catch (e) { }
+  }
+
   var FALLAS = [
     ["no-enciende", "No enciende / está muerta"],
     ["sin-video", "Enciende pero no da imagen"],
@@ -878,6 +894,13 @@
     var marca = campo("Marca", selector("marca", [["", "Elegí…"]].concat(marcas).concat([["Otra", "Otra / no sé"]]), ""));
     var modelo = campo("Modelo (opcional)", entrada("text", "modelo", { maxlength: "80", placeholder: "Ej: IdeaPad 330-15IKB" }), "Suele estar en la etiqueta de abajo del equipo.", true);
     var falla = campo("¿Qué le pasa?", selector("falla", [["", "Elegí la falla…"]].concat(FALLAS), param), null, true);
+    if (op.avisoPlaca) {
+      var notaPlaca = el("small", "r-nota-placa", "Este tipo de falla es de placa: la resolvemos junto al taller TecnoInformática, especialistas en reparación a nivel componente.");
+      falla.parentNode.appendChild(notaPlaca);
+      var verNota = function () { notaPlaca.hidden = FALLAS_PLACA.indexOf(falla.value) < 0; };
+      falla.addEventListener("change", verNota);
+      verNota();
+    }
     var detalle = el("textarea");
     detalle.name = "detalle";
     detalle.maxLength = 600;
@@ -916,6 +939,18 @@
       var quien = [nombre.value.trim(), localidad.value.trim() ? "(" + localidad.value.trim() + ")" : ""].filter(Boolean).join(" ");
       if (quien) lineas.push("• Nombre: " + quien);
       window.open(op.enlace(lineas.join("\n")), "_blank", "noopener");
+      registrarPedido({
+        tecnico: op.tecnico || "",
+        tipo: tipo.value,
+        marca: marca.value,
+        modelo: modelo.value.trim(),
+        falla: falla.value,
+        falla_texto: textoFalla,
+        detalle: detalle.value.trim(),
+        revisado: revisado.value,
+        nombre: nombre.value.trim(),
+        localidad: localidad.value.trim()
+      });
       mostrar("¡Listo! Se abrió WhatsApp con tu pedido: solo tocá enviar. Si no se abrió, revisá que el navegador no haya bloqueado la ventana.", "ok");
     });
   }
