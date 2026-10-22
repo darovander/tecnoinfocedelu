@@ -169,6 +169,18 @@
 
   function lugar(t) { return [t.localidad, t.zona].filter(Boolean).join(" · "); }
 
+  function urlInstagram(v) {
+    v = String(v).trim();
+    if (/^https?:\/\//i.test(v)) return v;
+    return "https://www.instagram.com/" + v.replace(/^@/, "").replace(/^instagram\.com\//i, "") + "/";
+  }
+
+  function urlFacebook(v) {
+    v = String(v).trim();
+    if (/^https?:\/\//i.test(v)) return v;
+    return "https://www.facebook.com/" + v.replace(/^@/, "").replace(/^(www\.)?facebook\.com\//i, "");
+  }
+
   function lineas(s) {
     return String(s || "").split(/\n|,|;/).map(function (x) { return x.trim(); }).filter(Boolean);
   }
@@ -302,13 +314,15 @@
     a.appendChild(foto(t.foto_url, t.nombre));
     var cu = el("div", "cuerpo");
     if (lugar(t)) cu.appendChild(el("div", "zona", lugar(t)));
-    if (t.punto_recepcion) cu.appendChild(el("span", "r-punto", "Punto de recepción"));
+    if (t.disponible === false) cu.appendChild(el("span", "r-no-disponible", "No disponible por ahora"));
+    else if (t.punto_recepcion) cu.appendChild(el("span", "r-punto", "Punto de recepción"));
+    if (t.destacado) cu.appendChild(el("p", "r-destacado", t.destacado));
     cu.appendChild(el("h3", null, t.nombre));
     var serv = lineas(t.servicios).slice(0, 4).join(" · ");
     if (serv) cu.appendChild(el("p", null, serv));
     var bs = el("div", "botones");
     bs.appendChild(enlace("boton hueco chico", "Ver perfil", "tecnico.html?t=" + encodeURIComponent(t.slug)));
-    if (t.whatsapp) {
+    if (t.whatsapp && t.disponible !== false) {
       bs.appendChild(enlaceExterno("boton wa chico", "WhatsApp",
         linkWaTecnico(t.whatsapp, "Hola " + t.nombre.split(" ")[0] + ", te encontré en la Red de técnicos de TecnoInformática. Te consulto por una reparación.")));
     }
@@ -343,7 +357,7 @@
     var espera = cargando(c);
     db().rpc("red_publica").then(function (r) {
       espera.remove();
-      var puntos = r.error ? [] : (r.data || []).filter(function (t) { return t.punto_recepcion; });
+      var puntos = r.error ? [] : (r.data || []).filter(function (t) { return t.punto_recepcion && t.disponible !== false; });
 
       var grupos = {};
       puntos.forEach(function (t) {
@@ -439,7 +453,10 @@
       d.appendChild(el("span", "r-sello", "Técnico de la Red TecnoInformática"));
       d.appendChild(el("h1", null, t.nombre));
       if (lugar(t)) d.appendChild(el("div", "zona", lugar(t)));
-      if (t.punto_recepcion) {
+      var activo = t.disponible !== false;
+      if (t.destacado) d.appendChild(el("p", "r-destacado", t.destacado));
+      if (!activo) d.appendChild(el("div", "r-aviso espera", "Por ahora no está tomando trabajos. Podés consultar a otro técnico de la red o al taller TecnoInformática."));
+      if (t.punto_recepcion && activo) {
         var pr = el("div", "r-aviso ok");
         pr.appendChild(el("strong", null, "Punto de recepción TecnoInformática. "));
         pr.appendChild(document.createTextNode("Podés dejarle tu equipo para reparación de placa (no enciende, sin video, no carga): lo reparamos en el taller y te vuelve por acá."));
@@ -459,11 +476,16 @@
         d.appendChild(el("h3", null, "Horarios"));
         d.appendChild(el("p", null, t.horarios));
       }
-      if (t.whatsapp) {
+      var redes = el("p", "r-redes");
+      if (t.instagram) redes.appendChild(enlaceExterno(null, "Instagram", urlInstagram(t.instagram)));
+      if (t.facebook) redes.appendChild(enlaceExterno(null, "Facebook", urlFacebook(t.facebook)));
+      if (redes.children.length) d.appendChild(redes);
+      if (t.whatsapp && activo) {
         d.appendChild(enlaceExterno("boton wa", "Escribirle por WhatsApp",
           linkWaTecnico(t.whatsapp, "Hola " + t.nombre.split(" ")[0] + ", te encontré en la Red de técnicos de TecnoInformática. Te consulto por una reparación.")));
       }
-      if (t.whatsapp) {
+      var conForm = t.whatsapp && activo && t.mostrar_presupuesto !== false;
+      if (conForm) {
         var irPres = enlace("boton hueco", "Pedir presupuesto", "#presupuesto");
         irPres.style.marginLeft = "10px";
         irPres.addEventListener("click", function (e) {
@@ -476,7 +498,7 @@
       p.appendChild(d);
       c.appendChild(p);
 
-      if (t.whatsapp && K.formPresupuesto) {
+      if (conForm && K.formPresupuesto) {
         var nom = t.nombre.split(" ")[0];
         var sp = el("div", "r-caja");
         sp.id = "presupuesto";
@@ -488,7 +510,8 @@
           enlace: function (m) { return linkWaTecnico(t.whatsapp, m); },
           saludo: "Hola " + nom + ", te encontré en la Red de técnicos TecnoInformática y quiero pedir un presupuesto:",
           tecnico: t.slug,
-          avisoPlaca: true
+          avisoPlaca: true,
+          textoAviso: t.aviso_presupuesto || null
         });
         c.appendChild(sp);
         if (location.hash === "#presupuesto") setTimeout(function () { sp.scrollIntoView({ block: "start" }); }, 50);
@@ -737,6 +760,36 @@
 
   // ----- alumno -----
 
+  // Pestañas simples: muestra un panel a la vez y recuerda la última en la dirección (#mi-pagina, etc.)
+  function pestanas(c, defs, inicial) {
+    var barra = el("div", "r-pestanas r-pestanas-panel");
+    barra.setAttribute("role", "tablist");
+    c.appendChild(barra);
+    var zonas = {};
+    var botones = {};
+    defs.forEach(function (d) {
+      var b = boton(null, d[1]);
+      b.setAttribute("role", "tab");
+      b.addEventListener("click", function () { ir(d[0], true); });
+      barra.appendChild(b);
+      botones[d[0]] = b;
+      var z = el("div", "r-pestana");
+      z.setAttribute("role", "tabpanel");
+      c.appendChild(z);
+      zonas[d[0]] = z;
+    });
+    function ir(id, marcar) {
+      if (!zonas[id]) id = defs[0][0];
+      Object.keys(zonas).forEach(function (k) {
+        zonas[k].hidden = k !== id;
+        botones[k].setAttribute("aria-selected", k === id ? "true" : "false");
+      });
+      if (marcar) { try { history.replaceState(null, "", "#" + id); } catch (e) { } }
+    }
+    ir((location.hash || "").slice(1) || inicial, false);
+    return { zona: function (id) { return zonas[id]; }, ir: ir };
+  }
+
   function panelAlumno(c, usuario, yo, recargar) {
     if (yo) {
       var est = el("div", "r-aviso " + (yo.estado === "aprobado" ? "ok" : yo.estado === "pendiente" ? "espera" : "error"));
@@ -745,22 +798,44 @@
         est.appendChild(enlaceExterno("boton wa chico", "Avisar a Dario por WhatsApp",
           K.linkWa("Hola Dario, soy " + yo.nombre + ". Me registré en la Red de técnicos y ya completé mi perfil. ¿Me aprobás?")));
       } else if (yo.estado === "aprobado") {
-        est.appendChild(document.createTextNode("Tu perfil está publicado en la Red de técnicos. "));
-        est.appendChild(enlaceExterno(null, "Ver mi perfil público", "tecnico.html?t=" + encodeURIComponent(yo.slug)));
+        est.appendChild(document.createTextNode(yo.disponible === false
+          ? "Tu página está publicada pero marcada como no disponible. "
+          : "Tu página está publicada en la Red de técnicos. "));
+        est.appendChild(enlaceExterno(null, "Ver mi página", "tecnico.html?t=" + encodeURIComponent(yo.slug)));
       } else {
         est.textContent = "Tu perfil está suspendido y no aparece en la red. Consultá con TecnoInformática.";
       }
       c.appendChild(est);
     }
 
-    // aprobado: primero el trabajo del día a día, el perfil abajo
-    var zonaTrabajos = el("div");
-    var zonaPerfil = el("div");
-    if (yo && yo.estado === "aprobado") { c.appendChild(zonaTrabajos); c.appendChild(zonaPerfil); }
-    else { c.appendChild(zonaPerfil); c.appendChild(zonaTrabajos); }
-    formPerfil(zonaPerfil, usuario, yo, recargar);
-    if (!yo) return;
-    c = zonaTrabajos;
+    // sin aprobar: solo el perfil
+    if (!yo || yo.estado !== "aprobado") {
+      formPerfil(c, usuario, yo, recargar);
+      return;
+    }
+
+    var tabs = pestanas(c, [
+      ["inicio", "Inicio"],
+      ["mi-pagina", "Mi página"],
+      ["difusion", "Difusión"],
+      ["trabajos", "Trabajos"],
+      ["precios", "Precios"]
+    ], "inicio");
+
+    formPerfil(tabs.zona("mi-pagina"), usuario, yo, recargar);
+    preciosAlumno(tabs.zona("precios"));
+    if (window.RedKit) {
+      window.RedKit.pintar(tabs.zona("difusion"), yo, {
+        el: el, boton: boton, enlaceExterno: enlaceExterno, cajaCon: cajaCon, aviso: aviso,
+        dominio: (K.C.negocio && K.C.negocio.dominio) || "tecnoinformatica-cdu.com.ar",
+        irA: function (id) { tabs.ir(id, true); window.scrollTo({ top: 0, behavior: "smooth" }); }
+      });
+    }
+
+    var inicio = tabs.zona("inicio");
+    var trabajosZ = tabs.zona("trabajos");
+    var derivar = formDerivar(trabajosZ, usuario, yo, recargar);
+    formPedirArchivo(trabajosZ, yo);
 
     Promise.all([
       db().from("trabajos").select("*").eq("tecnico_id", usuario.id).order("creado", { ascending: false }),
@@ -783,31 +858,20 @@
       resumen.appendChild(dato("Tus comisiones",
         "Cobrás " + reglaTexto(yo.deriva_tipo || conf.deriva_tipo, yo.deriva_valor != null ? yo.deriva_valor : conf.deriva_valor),
         "Pagás " + reglaTexto(yo.recibe_tipo || conf.recibe_tipo, yo.recibe_valor != null ? yo.recibe_valor : conf.recibe_valor)));
-      c.appendChild(resumen);
+      inicio.insertBefore(resumen, inicio.firstChild);
 
-      var derivar = null;
-      if (yo.estado === "aprobado") {
-        pedidosAlumno(c, function (p) { if (derivar) derivar.prellenar(p); });
-        if (window.RedKit) {
-          window.RedKit.pintar(c, yo, {
-            el: el, boton: boton, enlaceExterno: enlaceExterno, cajaCon: cajaCon, aviso: aviso,
-            dominio: (K.C.negocio && K.C.negocio.dominio) || "tecnoinformatica-cdu.com.ar"
-          });
-        }
-        derivar = formDerivar(c, usuario, yo, recargar);
-        formPedirArchivo(c, yo);
-        preciosAlumno(c);
-      }
-
-      var deriv = trabajos.filter(function (t) { return t.sentido === "deriva"; });
-      var recib = trabajos.filter(function (t) { return t.sentido === "recibe"; });
-      tablaDerivados(c, deriv);
-      tablaRecibidos(c, recib, recargar);
+      tablaDerivados(trabajosZ, trabajos.filter(function (t) { return t.sentido === "deriva"; }));
+      tablaRecibidos(trabajosZ, trabajos.filter(function (t) { return t.sentido === "recibe"; }), recargar);
     }).catch(function (err) {
-      var a = el("div", "r-aviso error", "No se pudieron cargar tus trabajos: " + traducirError(err));
-      c.appendChild(a);
+      inicio.appendChild(el("div", "r-aviso error", "No se pudieron cargar tus trabajos: " + traducirError(err)));
+    });
+
+    pedidosAlumno(inicio, function (p) {
+      tabs.ir("trabajos", true);
+      derivar.prellenar(p);
     });
   }
+
 
   function dato(titulo, valor, nota) {
     var d = el("div", "dato");
@@ -818,8 +882,8 @@
   }
 
   function formPerfil(c, usuario, yo, recargar) {
-    var caja = cajaCon(c, yo ? "Tu perfil público" : "Completá tu perfil",
-      "Esto es lo que ven los clientes en la Red de técnicos.");
+    var caja = cajaCon(c, yo ? "Tu página" : "Completá tu perfil",
+      "Esto es lo que ven los clientes en la Red de técnicos. Cambiá lo que quieras y tocá Guardar cambios.");
     var msj = aviso(caja);
     var f = el("form", "r-form dos");
     var v = yo || {};
@@ -834,6 +898,20 @@
     var servicios = texto("servicios", v.servicios, { maxlength: "600", placeholder: "Formateo e instalación de Windows\nLimpieza y pasta térmica\nCambio de pantalla" });
     var desc = texto("descripcion", v.descripcion, { maxlength: "1200", placeholder: "Contá en pocas líneas quién sos y cómo trabajás." });
     var archivo = entrada("file", "foto", null, { accept: "image/*" });
+    var destacado = entrada("text", "destacado", v.destacado, { maxlength: "80", placeholder: "Ej: Retiro y entrega a domicilio" });
+    var instagram = entrada("text", "instagram", v.instagram, { maxlength: "120", placeholder: "@tuusuario" });
+    var facebook = entrada("text", "facebook", v.facebook, { maxlength: "200", placeholder: "Link a tu página de Facebook" });
+    var avisoPres = texto("aviso_presupuesto", v.aviso_presupuesto, { maxlength: "240", rows: "2", placeholder: "Si la falla necesita una reparación más compleja, la resolvemos junto al taller TecnoInformática." });
+    function casilla(nombreCampo, texto, marcado) {
+      var l = el("label", "r-kit-check ancho");
+      var i = entrada("checkbox", nombreCampo);
+      i.checked = marcado;
+      l.appendChild(i);
+      l.appendChild(document.createTextNode(" " + texto));
+      return { nodo: l, input: i };
+    }
+    var disponible = casilla("disponible", "Estoy tomando trabajos (si lo destildás, tu página avisa que no estás disponible y oculta tu WhatsApp)", v.disponible !== false);
+    var mostrarPres = casilla("mostrar_presupuesto", "Mostrar el formulario de presupuesto en mi página", v.mostrar_presupuesto !== false);
 
     f.appendChild(campo("Nombre y apellido", nombre));
     f.appendChild(campo("Localidad", localidad, "Elegila de la lista o escribila."));
@@ -843,6 +921,13 @@
     f.appendChild(campo("Horarios", horarios));
     f.appendChild(campo("Servicios", servicios, "Uno por línea.", true));
     f.appendChild(campo("Sobre vos", desc, null, true));
+    f.appendChild(campo("Frase destacada (opcional)", destacado, "Sale en naranja en tu página y en tu flyer."));
+    f.appendChild(campo("Instagram (opcional)", instagram));
+    f.appendChild(campo("Facebook (opcional)", facebook, null, true));
+    f.appendChild(el("h3", "r-kit-sub ancho", "Opciones de tu página"));
+    f.appendChild(disponible.nodo);
+    f.appendChild(mostrarPres.nodo);
+    f.appendChild(campo("Aviso del formulario de presupuesto", avisoPres, "Aparece cuando el cliente elige no enciende, no da imagen, no carga o se mojó. Si lo dejás vacío, sale el aviso de la red.", true));
 
     var filaFoto = el("div", "ancho");
     var vista = foto(v.foto_url, v.nombre || nombre.value);
@@ -898,6 +983,12 @@
           horarios: limpio(horarios.value),
           servicios: limpio(servicios.value),
           descripcion: limpio(desc.value),
+          destacado: limpio(destacado.value),
+          instagram: limpio(instagram.value),
+          facebook: limpio(facebook.value),
+          aviso_presupuesto: limpio(avisoPres.value),
+          disponible: disponible.input.checked,
+          mostrar_presupuesto: mostrarPres.input.checked,
           foto_url: fotoUrl
         };
         var q = yo

@@ -83,6 +83,13 @@ create table if not exists public.tecnicos (
 -- agregadas después: localidad y punto de recepción (lo marca solo el admin)
 alter table public.tecnicos add column if not exists localidad text check (char_length(localidad) <= 80);
 alter table public.tecnicos add column if not exists punto_recepcion boolean not null default false;
+-- opciones de la página de cada técnico (las maneja él)
+alter table public.tecnicos add column if not exists destacado text check (char_length(destacado) <= 80);
+alter table public.tecnicos add column if not exists instagram text check (char_length(instagram) <= 120);
+alter table public.tecnicos add column if not exists facebook text check (char_length(facebook) <= 200);
+alter table public.tecnicos add column if not exists aviso_presupuesto text check (char_length(aviso_presupuesto) <= 240);
+alter table public.tecnicos add column if not exists mostrar_presupuesto boolean not null default true;
+alter table public.tecnicos add column if not exists disponible boolean not null default true;
 
 create or replace function public.slug_libre(base text, propio uuid)
 returns text
@@ -164,13 +171,17 @@ create function public.red_publica()
 returns table (
   nombre text, slug text, zona text, servicios text,
   descripcion text, horarios text, whatsapp text, foto_url text,
-  localidad text, punto_recepcion boolean
+  localidad text, punto_recepcion boolean,
+  destacado text, instagram text, facebook text, aviso_presupuesto text,
+  mostrar_presupuesto boolean, disponible boolean
 )
 language sql stable security definer
 set search_path = public
 as $$
   select nombre, slug, zona, servicios, descripcion, horarios, whatsapp, foto_url,
-         localidad, punto_recepcion
+         localidad, punto_recepcion,
+         destacado, instagram, facebook, aviso_presupuesto,
+         mostrar_presupuesto, disponible
   from public.tecnicos
   where estado = 'aprobado'
   order by nombre;

@@ -286,28 +286,29 @@
     var nom = p.nombre.split(" ")[0];
     var serv = servicios(p.servicios).slice(0, 3).map(function (x) { return x.charAt(0).toLowerCase() + x.slice(1); }).join(", ");
     var wa = p.whatsapp ? "https://wa.me/549" + p.whatsapp : url;
-    var donde = p.zona ? " en " + p.zona : "";
+    var lugarTxt = [p.localidad, p.zona].filter(Boolean).join(", ");
+    var donde = lugarTxt ? " en " + lugarTxt : "";
     return [
       ["Estado de WhatsApp",
         "🔧 ¿Se te rompió la compu o la notebook?\n" +
         "Reparo PC y notebooks" + donde + (serv ? ": " + serv : "") + ".\n" +
-        "Y si es un problema de placa (no enciende, no da video), lo resolvemos con el taller TecnoInformática.\n" +
+        "Y si es algo más complejo, lo resolvemos con el taller TecnoInformática.\n" +
         "Escribime 👉 " + wa],
       ["Publicación para Facebook / Marketplace",
         "Servicio técnico de PC y notebooks" + donde + "\n\n" +
         (servicios(p.servicios).length ? servicios(p.servicios).map(function (s) { return "✅ " + s; }).join("\n") + "\n\n" : "") +
-        "Soy parte de la Red de técnicos TecnoInformática. Las reparaciones de placa (no enciende, sin video, no carga) las resolvemos junto al taller TecnoInformática.\n\n" +
+        "Soy parte de la Red de técnicos TecnoInformática. Los casos más complejos los resolvemos junto al taller TecnoInformática.\n\n" +
         "📲 WhatsApp: " + (p.whatsapp ? telefono(p.whatsapp) : "") + "\n" +
         "👤 Mi perfil: " + url + "\n" +
         "📝 Pedime presupuesto: " + url + "#presupuesto"],
       ["Mensaje para tus contactos",
         "¡Hola! Te cuento que ahora formo parte de la Red de técnicos TecnoInformática. " +
         "Si vos o alguien que conozcas necesita arreglar una PC o notebook, escribime. " +
-        "Hasta los problemas de placa los resolvemos con el taller. Acá está mi perfil: " + url]
+        "Hasta los casos más complejos los resolvemos con el taller. Acá está mi perfil: " + url]
     ];
   }
 
-  var FRASE = "Problemas de placa (no enciende, sin video): con el respaldo del taller TecnoInformática.";
+  var FRASE = "Reparaciones complejas: con el respaldo del taller TecnoInformática.";
 
   function normalizarWa(valor) {
     var d = String(valor || "").replace(/\D/g, "");
@@ -326,17 +327,9 @@
     try { localStorage.removeItem(clave); } catch (e) { }
   }
 
-  function desdePerfil(p) {
-    return {
-      nombre: p.nombre || "",
-      zona: p.zona || "",
-      destacado: "",
-      servicios: p.servicios || "",
-      frase: FRASE,
-      whatsapp: p.whatsapp ? telefono(p.whatsapp) : "",
-      conFoto: true,
-      textos: null
-    };
+  // Lo propio del flyer (lo demás sale del perfil, para no cargar lo mismo dos veces)
+  function opcionesIniciales() {
+    return { frase: FRASE, conFoto: true, textos: null };
   }
 
   function pintar(destino, p, ayudas) {
@@ -344,7 +337,9 @@
     var el = A.el;
     var url = "https://" + A.dominio + "/tecnico?t=" + encodeURIComponent(p.slug);
     var CLAVE = "red_kit_" + p.slug;
-    var d = Object.assign(desdePerfil(p), leerGuardado(CLAVE) || {});
+    var guardado = leerGuardado(CLAVE) || {};
+    var d = opcionesIniciales();
+    ["frase", "conFoto", "textos"].forEach(function (k) { if (guardado[k] !== undefined) d[k] = guardado[k]; });
 
     var caja = A.cajaCon(destino, "Tu kit de difusión",
       "Personalizá tu flyer, descargalo y publicalo en estados, historias, Facebook y Marketplace.");
@@ -396,12 +391,13 @@
       editor.appendChild(l);
       return c;
     }
-    var cNombre = control("text", "k_nombre", "Nombre", null, { maxlength: "60" });
-    var cZona = control("text", "k_zona", "Zona", null, { maxlength: "80" });
-    var cDest = control("text", "k_destacado", "Frase destacada (opcional)", "Sale en naranja. Ej: Retiro y entrega a domicilio", { maxlength: "70" });
-    var cServ = control("textarea", "k_servicios", "Servicios", "Uno por línea. Entran hasta 6, según el espacio.", { maxlength: "400", rows: "5" });
-    var cFrase = control("textarea", "k_frase", "Frase de abajo", "Dejala vacía si no la querés.", { maxlength: "160", rows: "2" });
-    var cWa = control("tel", "k_whatsapp", "WhatsApp", "Dejalo vacío para no mostrar el botón.", { maxlength: "20" });
+    editor.appendChild(el("p", "r-kit-nota", "Nombre, localidad, frase destacada, servicios y WhatsApp salen de tu página. Para cambiarlos andá a Mi página."));
+    if (A.irA) {
+      var irPagina = A.boton("boton hueco chico", "Editar Mi página");
+      irPagina.addEventListener("click", function () { A.irA("mi-pagina"); });
+      editor.appendChild(irPagina);
+    }
+    var cFrase = control("textarea", "k_frase", "Frase de abajo del flyer", "Dejala vacía si no la querés.", { maxlength: "160", rows: "3" });
     var lFoto = el("label", "r-kit-check");
     var cFoto = el("input");
     cFoto.type = "checkbox";
@@ -409,15 +405,14 @@
     lFoto.appendChild(document.createTextNode(p.foto_url ? " Mostrar mi foto" : " Mostrar mi foto (cargala en tu perfil)"));
     cFoto.disabled = !p.foto_url;
     editor.appendChild(lFoto);
-    var restaurar = A.boton("boton hueco chico", "Volver a los datos de mi perfil");
+    var restaurar = A.boton("boton hueco chico", "Volver a lo original");
     editor.appendChild(restaurar);
     var nota = el("p", "r-kit-nota", "El logo, el QR a tu perfil y el sello de la Red quedan siempre. Tus cambios se guardan en este dispositivo.");
     editor.appendChild(nota);
     cuerpo.appendChild(editor);
 
     function volcar() {
-      cNombre.value = d.nombre; cZona.value = d.zona; cDest.value = d.destacado;
-      cServ.value = d.servicios; cFrase.value = d.frase; cWa.value = d.whatsapp;
+      cFrase.value = d.frase;
       cFoto.checked = !!(d.conFoto && p.foto_url);
     }
     volcar();
@@ -448,14 +443,13 @@
     var turno = 0;
 
     function datosFlyer() {
-      var wa = normalizarWa(d.whatsapp);
       return {
-        nombre: d.nombre.trim(),
-        zona: d.zona.trim(),
-        destacado: d.destacado.trim(),
-        servicios: d.servicios,
-        frase: d.frase.trim(),
-        whatsapp: wa || ""
+        nombre: p.nombre || "",
+        zona: [p.localidad, p.zona].filter(Boolean).join(" · "),
+        destacado: p.destacado || "",
+        servicios: p.servicios || "",
+        frase: (d.frase || "").trim(),
+        whatsapp: p.whatsapp || ""
       };
     }
 
@@ -483,20 +477,17 @@
 
     var espera = null;
     function alCambiar() {
-      d.nombre = cNombre.value; d.zona = cZona.value; d.destacado = cDest.value;
-      d.servicios = cServ.value; d.frase = cFrase.value; d.whatsapp = cWa.value;
+      d.frase = cFrase.value;
       d.conFoto = cFoto.checked;
-      if (normalizarWa(d.whatsapp) === null) msj.mostrar("El WhatsApp tiene que tener 10 números (código de área + número, sin 0 ni 15). Mientras tanto no se muestra.", "espera");
-      else msj.limpiar();
       guardar(CLAVE, d);
       clearTimeout(espera);
       espera = setTimeout(regenerar, 300);
     }
-    [cNombre, cZona, cDest, cServ, cFrase, cWa].forEach(function (c) { c.addEventListener("input", alCambiar); });
+    cFrase.addEventListener("input", alCambiar);
     cFoto.addEventListener("change", alCambiar);
     restaurar.addEventListener("click", function () {
       borrar(CLAVE);
-      d = desdePerfil(p);
+      d = opcionesIniciales();
       volcar();
       pintarTextos();
       msj.limpiar();
