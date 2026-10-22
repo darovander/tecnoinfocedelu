@@ -1462,12 +1462,17 @@
       resumen.appendChild(dato("Comisiones a cobrar a alumnos", pesos(aCobrar), "Por trabajos que les pasaste"));
       zona.appendChild(resumen);
 
-      adminPedidos(zona, porId);
-      adminAlumnos(zona, tecnicos, recargar);
-      adminPasarTrabajo(zona, tecnicos, recargar);
-      adminTrabajos(zona, trabajos, porId, recargar);
-      preciosAdmin(zona);
-      adminComisiones(zona, conf, recargar);
+      // cada sección por separado: si una falla, las demás se muestran igual
+      [
+        function () { adminPedidos(zona, porId); },
+        function () { adminAlumnos(zona, tecnicos, recargar); },
+        function () { adminPasarTrabajo(zona, tecnicos, recargar); },
+        function () { adminTrabajos(zona, trabajos, porId, recargar); },
+        function () { preciosAdmin(zona); },
+        function () { adminComisiones(zona, conf, recargar); }
+      ].forEach(function (seccionAdmin) {
+        try { seccionAdmin(); } catch (e) { zona.appendChild(el("div", "r-aviso error", "Una sección no se pudo mostrar: " + traducirError(e))); }
+      });
     }).catch(function (err) {
       espera.remove();
       zona.appendChild(el("div", "r-aviso error", "No se pudo cargar el panel: " + traducirError(err)));
