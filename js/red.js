@@ -1134,6 +1134,29 @@
     });
   }
 
+  // Botón de borrar en dos toques: el primero pregunta, el segundo borra.
+  function botonBorrar(accion, msj) {
+    var b = boton("boton hueco chico r-borrar", "Borrar");
+    var confirmar = false, reloj = null;
+    b.addEventListener("click", function () {
+      if (!confirmar) {
+        confirmar = true;
+        b.textContent = "¿Seguro?";
+        reloj = setTimeout(function () { confirmar = false; b.textContent = "Borrar"; }, 3000);
+        return;
+      }
+      clearTimeout(reloj);
+      ocupado(b, true, "…");
+      accion().catch(function (err) {
+        ocupado(b, false);
+        confirmar = false;
+        b.textContent = "Borrar";
+        msj.mostrar(traducirError(err), "error");
+      });
+    });
+    return b;
+  }
+
   // ----- pedidos de presupuesto -----
 
   var ESTADOS_PEDIDO = { nuevo: "Nuevo", respondido: "Respondido", aceptado: "Aceptó", no_acepto: "No aceptó" };
@@ -1283,7 +1306,17 @@
               msj.mostrar("Pedido actualizado.", "ok");
             });
           });
-          celda(tr, g);
+          var acc = el("div", "r-acciones-fila");
+          acc.appendChild(g);
+          acc.appendChild(botonBorrar(function () {
+            return db().from("pedidos").delete().eq("id", x.id).then(function (res) {
+              if (res.error) throw res.error;
+              todos.splice(todos.indexOf(x), 1);
+              msj.mostrar("Pedido borrado.", "ok");
+              dibujar();
+            });
+          }, msj));
+          celda(tr, acc);
           t.cuerpo.appendChild(tr);
         });
         if (!t.cuerpo.children.length) {
@@ -1491,7 +1524,7 @@
     lista.forEach(function (x) {
       var tr = el("tr");
       celda(tr, fecha(x.creado));
-      celda(tr, x.equipo, x.cliente_nombre ? "Cliente: " + x.cliente_nombre : null);
+      celda(tr, x.equipo, [x.cliente_nombre ? "Cliente: " + x.cliente_nombre : "", x.orden ? "Orden: " + x.orden : ""].filter(Boolean).join(" · ") || null);
       celda(tr, estadoChip(x.estado));
       celda(tr, pesos(x.monto));
       celda(tr, pesos(x.comision));
@@ -1514,6 +1547,7 @@
       info.appendChild(el("strong", null, x.equipo));
       if (x.falla) info.appendChild(el("small", null, x.falla));
       if (x.cliente_nombre || x.cliente_telefono) info.appendChild(el("small", null, [x.cliente_nombre, x.cliente_telefono].filter(Boolean).join(" · ")));
+      if (x.orden) info.appendChild(el("small", null, "Orden: " + x.orden));
       celda(tr, info);
       var est = selector("estado", Object.keys(ESTADOS_TRABAJO).map(function (k) { return [k, ESTADOS_TRABAJO[k]]; }), x.estado);
       celda(tr, est);
@@ -1783,6 +1817,8 @@
         info.appendChild(el("strong", null, x.equipo));
         if (x.falla) info.appendChild(el("small", null, x.falla));
         if (x.cliente_nombre || x.cliente_telefono) info.appendChild(el("small", null, [x.cliente_nombre, x.cliente_telefono].filter(Boolean).join(" · ")));
+        if (x.orden) info.appendChild(el("small", null, "Orden TecnoGest: " + x.orden));
+        if (x.notas) info.appendChild(el("small", null, "Nota: " + x.notas));
         celda(tr, info);
         var est = selector("estado", Object.keys(ESTADOS_TRABAJO).map(function (k) { return [k, ESTADOS_TRABAJO[k]]; }), x.estado);
         celda(tr, est);
@@ -1806,8 +1842,76 @@
             recargar();
           });
         });
-        celda(tr, b);
+        var acciones = el("div", "r-acciones-fila");
+        acciones.appendChild(b);
+        var ed = boton("boton hueco chico", "Editar");
+        acciones.appendChild(ed);
+        acciones.appendChild(botonBorrar(function () {
+          return db().from("trabajos").delete().eq("id", x.id).then(function (r) {
+            if (r.error) throw r.error;
+            trabajos.splice(trabajos.indexOf(x), 1);
+            msj.mostrar("Trabajo borrado: " + x.equipo + ".", "ok");
+            dibujar();
+          });
+        }, msj));
+        celda(tr, acciones);
         t.cuerpo.appendChild(tr);
+
+        var filaEd = null;
+        ed.addEventListener("click", function () {
+          if (filaEd) { filaEd.remove(); filaEd = null; return; }
+          filaEd = el("tr", "r-fila-edicion");
+          var td = el("td");
+          td.colSpan = 8;
+          var f = el("form", "r-form dos");
+          var opcionesTec = Object.keys(porId).map(function (id) { return [id, porId[id].nombre]; });
+          var eTec = selector("tecnico_id", opcionesTec, x.tecnico_id);
+          var eSent = selector("sentido", [["deriva", "El alumno te lo derivó"], ["recibe", "Vos se lo pasaste"]], x.sentido);
+          var eEq = entrada("text", "equipo", x.equipo, { required: "", maxlength: "160" });
+          var eFa = texto("falla", x.falla, { maxlength: "1000", rows: "2" });
+          var eCli = entrada("text", "cliente_nombre", x.cliente_nombre, { maxlength: "120" });
+          var eTel = entrada("tel", "cliente_telefono", x.cliente_telefono, { maxlength: "40" });
+          var eOrd = entrada("text", "orden", x.orden, { maxlength: "40", placeholder: "Ej: 2026-0154" });
+          var eNot = entrada("text", "notas", x.notas, { maxlength: "1000", placeholder: "Nota interna" });
+          f.appendChild(campo("Alumno", eTec));
+          f.appendChild(campo("Sentido", eSent));
+          f.appendChild(campo("Equipo", eEq, null, true));
+          f.appendChild(campo("Falla", eFa, null, true));
+          f.appendChild(campo("Cliente", eCli));
+          f.appendChild(campo("Teléfono del cliente", eTel));
+          f.appendChild(campo("N° de orden en TecnoGest", eOrd));
+          f.appendChild(campo("Nota interna", eNot));
+          var ac = el("div", "acciones ancho");
+          var g = boton("boton", "Guardar cambios", "submit");
+          var cancelar = boton("boton hueco", "Cancelar");
+          cancelar.addEventListener("click", function () { filaEd.remove(); filaEd = null; });
+          ac.appendChild(g);
+          ac.appendChild(cancelar);
+          f.appendChild(ac);
+          f.addEventListener("submit", function (e) {
+            e.preventDefault();
+            if (!limpio(eEq.value)) return msj.mostrar("Falta el equipo.", "error");
+            ocupado(g, true);
+            db().from("trabajos").update({
+              tecnico_id: eTec.value,
+              sentido: eSent.value,
+              equipo: limpio(eEq.value),
+              falla: limpio(eFa.value),
+              cliente_nombre: limpio(eCli.value),
+              cliente_telefono: limpio(eTel.value),
+              orden: limpio(eOrd.value),
+              notas: limpio(eNot.value)
+            }).eq("id", x.id).then(function (r) {
+              ocupado(g, false);
+              if (r.error) return msj.mostrar(traducirError(r.error), "error");
+              recargar();
+            });
+          });
+          td.appendChild(f);
+          filaEd.appendChild(td);
+          tr.parentNode.insertBefore(filaEd, tr.nextSibling);
+          eEq.focus();
+        });
       });
       if (!t.cuerpo.children.length) {
         var tr = el("tr");

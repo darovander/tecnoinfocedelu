@@ -208,6 +208,8 @@ create table if not exists public.trabajos (
   actualizado timestamptz not null default now()
 );
 create index if not exists trabajos_tecnico on public.trabajos (tecnico_id);
+-- número de orden en TecnoGest (lo carga el admin; sirve para integrar más adelante)
+alter table public.trabajos add column if not exists orden text check (char_length(orden) <= 40);
 
 create or replace function public.calcular_comision(p_tecnico uuid, p_sentido text, p_monto numeric, p_estado text)
 returns numeric
@@ -254,6 +256,7 @@ begin
       new.estado := 'recibido';
       new.monto := null;
       new.notas := null;
+      new.orden := null;
       new.comision_pagada := false;
     end if;
   else
@@ -270,6 +273,7 @@ begin
       new.equipo := old.equipo;
       new.falla := old.falla;
       new.notas := old.notas;
+      new.orden := old.orden;
       new.comision_pagada := old.comision_pagada;
       new.comision := old.comision;
     end if;

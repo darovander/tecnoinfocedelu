@@ -188,3 +188,5 @@
 .r-direccion { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; border: var(--borde); background: var(--panel); padding: 12px 14px; margin: 0 0 16px; }
 .r-direccion span { width: 100%; font-family: var(--fuente-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--azul); }
 .r-direccion strong { color: var(--texto); font-weight: 500; }
+.r-fila-edicion td { background: var(--panel-alto); padding: 18px 16px; }
+.r-borrar:hover { background: #ff6b5b; border-color: #ff6b5b; color: #05080d; }
