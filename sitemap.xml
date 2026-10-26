@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://tecnoinformatica-cdu.com.ar/</loc><priority>1.0</priority></url>
-  <url><loc>https://tecnoinformatica-cdu.com.ar/servicios.html</loc><priority>0.9</priority></url>
-  <url><loc>https://tecnoinformatica-cdu.com.ar/taller.html</loc><priority>0.7</priority></url>
-  <url><loc>https://tecnoinformatica-cdu.com.ar/tecnicos.html</loc><priority>0.8</priority></url>
-  <url><loc>https://tecnoinformatica-cdu.com.ar/tienda.html</loc><priority>0.8</priority></url>
-  <url><loc>https://tecnoinformatica-cdu.com.ar/presupuesto.html</loc><priority>0.8</priority></url>
-  <url><loc>https://tecnoinformatica-cdu.com.ar/seguimiento.html</loc><priority>0.6</priority></url>
-  <url><loc>https://tecnoinformatica-cdu.com.ar/contacto.html</loc><priority>0.8</priority></url>
+  <url><loc>https://tecnoinformatica-cdu.com.ar/servicios</loc><priority>0.9</priority></url>
+  <url><loc>https://tecnoinformatica-cdu.com.ar/taller</loc><priority>0.7</priority></url>
+  <url><loc>https://tecnoinformatica-cdu.com.ar/tecnicos</loc><priority>0.8</priority></url>
+  <url><loc>https://tecnoinformatica-cdu.com.ar/tienda</loc><priority>0.8</priority></url>
+  <url><loc>https://tecnoinformatica-cdu.com.ar/presupuesto</loc><priority>0.8</priority></url>
+  <url><loc>https://tecnoinformatica-cdu.com.ar/seguimiento</loc><priority>0.6</priority></url>
+  <url><loc>https://tecnoinformatica-cdu.com.ar/contacto</loc><priority>0.8</priority></url>
+  <url><loc>https://tecnoinformatica-cdu.com.ar/red</loc><priority>0.6</priority></url>
+  <url><loc>https://tecnoinformatica-cdu.com.ar/puntos</loc><priority>0.6</priority></url>
 </urlset>
