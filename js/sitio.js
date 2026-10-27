@@ -33,6 +33,58 @@
 
   function html(id) { return document.getElementById(id); }
 
+  // ---- Medición de visitas y clics ----
+  // Vercel Analytics cuenta las visitas. Si en "analitica.ga4" va un ID (G-XXXXXXX),
+  // Google Analytics 4 también registra los clics en WhatsApp, Instagram y compras.
+  var ana = C.analitica || { vercel: true };
+  var local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+
+  function medir(evento, datos) {
+    if (borrador || local) return;
+    datos = datos || {};
+    datos.pagina = pagina;
+    if (pagina === "producto") {
+      var t = document.querySelector("h1");
+      if (t) datos.producto = t.textContent.slice(0, 80);
+    }
+    try { if (window.gtag) window.gtag("event", evento, datos); } catch (e) {}
+    try { if (window.va) window.va("event", { name: evento, data: datos }); } catch (e) {}
+  }
+
+  (function iniciarMedicion() {
+    if (borrador || local) return;
+    if (ana.vercel !== false) {
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+      var v = document.createElement("script");
+      v.defer = true;
+      v.src = "/_vercel/insights/script.js";
+      document.head.appendChild(v);
+    }
+    if (ana.ga4 && /^G-[A-Z0-9]{6,}$/.test(ana.ga4)) {
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag("js", new Date());
+      window.gtag("config", ana.ga4);
+      var g = document.createElement("script");
+      g.async = true;
+      g.src = "https://www.googletagmanager.com/gtag/js?id=" + ana.ga4;
+      document.head.appendChild(g);
+    }
+    document.addEventListener("click", function (ev) {
+      var n = ev.target && ev.target.closest ? ev.target.closest("a, button") : null;
+      if (!n) return;
+      var href = n.getAttribute("href") || "";
+      var texto = (n.textContent || "").trim().slice(0, 60);
+      if (/wa\.me|whatsapp\.com/.test(href) || (n.tagName === "BUTTON" && /whatsapp/i.test(texto))) return medir("click_whatsapp", { texto: texto });
+      if (href.indexOf("instagram.com") > -1) return medir("click_instagram", { texto: texto });
+      if (href.indexOf("tel:") === 0) return medir("click_llamada", { texto: texto });
+      if (href.indexOf("mailto:") === 0) return medir("click_email", { texto: texto });
+      if (/^Comprar ahora/.test(texto)) return medir("comprar_ahora");
+      if (/^Agregar al carrito/.test(texto)) return medir("agregar_carrito");
+      if (/^Pagar con Mercado Pago/.test(texto)) return medir("pagar_mercado_pago");
+    });
+  })();
+
   function linkWa(mensaje) {
     var base = neg.whatsappLink || "#";
     if (!mensaje) return base;
@@ -45,6 +97,7 @@
       img.src = src;
       img.alt = alt || "";
       img.loading = "lazy";
+      img.decoding = "async";
       return img;
     }
     return el("div", "sin-foto", placeholder);
@@ -271,6 +324,49 @@
     return seccion;
   }
 
+  // Franja de Instagram: invita a seguir el perfil y, si hay publicaciones cargadas
+  // (código del link: instagram.com/p/CODIGO/), las muestra incrustadas.
+  function seccionInstagram(datos) {
+    var ig = datos || {};
+    if (ig.activo === false || !neg.instagramLink) return null;
+    var seccion = el("section", "seccion ajustada");
+    var cont = el("div", "contenedor");
+    var cab = el("div", "seccion-cabeza");
+    cab.appendChild(el("div", "etiqueta", ig.etiqueta || "Instagram"));
+    cab.appendChild(el("h2", null, ig.titulo || "Mirá cómo trabajamos"));
+    cab.appendChild(el("p", null, ig.texto || "Reparaciones reales y novedades del taller en " + (neg.instagram || "Instagram") + "."));
+    cont.appendChild(cab);
+
+    var codigos = (ig.publicaciones || []).filter(function (c) {
+      return /^[A-Za-z0-9_-]{5,20}$/.test(c);
+    }).slice(0, 3);
+    if (codigos.length) {
+      var grilla = el("div", "grilla");
+      codigos.forEach(function (codigo) {
+        var marco = el("iframe");
+        marco.src = "https://www.instagram.com/p/" + codigo + "/embed";
+        marco.title = "Publicación de Instagram";
+        marco.loading = "lazy";
+        marco.setAttribute("scrolling", "no");
+        marco.style.cssText = "width:100%;height:540px;border:0;border-radius:12px;background:#fff";
+        grilla.appendChild(marco);
+      });
+      cont.appendChild(grilla);
+    }
+
+    var fila = el("div", "hoja-acciones");
+    fila.style.marginTop = "28px";
+    fila.style.marginBottom = "0";
+    var boton = el("a", "boton", ig.boton || "Seguinos en Instagram");
+    boton.href = neg.instagramLink;
+    boton.target = "_blank";
+    boton.rel = "noopener";
+    fila.appendChild(boton);
+    cont.appendChild(fila);
+    seccion.appendChild(cont);
+    return seccion;
+  }
+
   function pintarInicio() {
     var d = C.inicio;
     pintarMeta(d);
@@ -310,7 +406,12 @@
 
     if (d.hero.imagen) {
       var figura = el("figure", "hero-foto");
-      figura.appendChild(imagenO("Foto del taller", d.hero.imagen, d.hero.epigrafeImagen));
+      var fotoPortada = imagenO("Foto del taller", d.hero.imagen, d.hero.epigrafeImagen);
+      if (fotoPortada.tagName === "IMG") {
+        fotoPortada.loading = "eager";
+        fotoPortada.setAttribute("fetchpriority", "high");
+      }
+      figura.appendChild(fotoPortada);
       if (d.hero.epigrafeImagen) figura.appendChild(el("figcaption", null, d.hero.epigrafeImagen));
       cabecera.appendChild(figura);
     }
@@ -365,6 +466,9 @@
     raiz.appendChild(sProc);
 
     if (mod.seguimiento) raiz.appendChild(seccionSeguimiento());
+
+    var sIg = seccionInstagram(d.instagram);
+    if (sIg) raiz.appendChild(sIg);
 
     var fin = cierre(d.cierre);
     if (fin) raiz.appendChild(fin);

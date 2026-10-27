@@ -28,6 +28,10 @@ window.CONTENIDO = {
     "galeria": true,
     "seguimiento": false
   },
+  "analitica": {
+    "vercel": true,
+    "ga4": ""
+  },
   "seguimiento": {
     "endpoint": "",
     "titulo": "Seguí tu reparación",
@@ -43,7 +47,7 @@ window.CONTENIDO = {
       "texto": "Reparamos la falla en el circuito: no encendido, sin video, no carga, fuentes y componentes SMD. Diagnóstico con multímetro, fuente de banco, esquemático y boardview antes de tocar nada.",
       "botonPrimario": "Consultar por WhatsApp",
       "botonSecundario": "Ver servicios",
-      "imagen": "img/banco-de-trabajo.jpg",
+      "imagen": "img/banco-de-trabajo.webp",
       "epigrafeImagen": "Banco de trabajo del taller"
     },
     "rotulo": {
@@ -107,6 +111,14 @@ window.CONTENIDO = {
       "ASRock",
       "Biostar"
     ],
+    "instagram": {
+      "activo": true,
+      "etiqueta": "Instagram",
+      "titulo": "Mirá cómo trabajamos",
+      "texto": "Reparaciones reales bajo microscopio, antes y después, y novedades del taller. Seguinos en @tecnoinformatica_.",
+      "boton": "Seguinos en Instagram",
+      "publicaciones": ["Cnfn70-AhQK"]
+    },
     "cierre": {
       "titulo": "Contanos qué le pasa al equipo",
       "texto": "Escribinos por WhatsApp con la marca, el modelo y qué hace cuando lo prendés. Con eso ya te podemos orientar.",
@@ -214,15 +226,15 @@ window.CONTENIDO = {
     ],
     "galeria": [
       {
-        "imagen": "img/galeria-microscopio.jpg",
+        "imagen": "img/galeria-microscopio.webp",
         "epigrafe": "Reparación bajo microscopio"
       },
       {
-        "imagen": "img/galeria-medicion.jpg",
+        "imagen": "img/galeria-medicion.webp",
         "epigrafe": "Medición sobre placa madre"
       },
       {
-        "imagen": "img/galeria-soldadura-smd.jpg",
+        "imagen": "img/galeria-soldadura-smd.webp",
         "epigrafe": "Trabajo de soldadura SMD"
       }
     ]
