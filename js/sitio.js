@@ -329,39 +329,65 @@
   function seccionInstagram(datos) {
     var ig = datos || {};
     if (ig.activo === false || !neg.instagramLink) return null;
+    var codigos = (ig.publicaciones || []).filter(function (c) {
+      return /^[A-Za-z0-9_-]{5,20}$/.test(c);
+    }).slice(0, 2);
+
     var seccion = el("section", "seccion ajustada");
     var cont = el("div", "contenedor");
+    // texto a la izquierda y video a la derecha; en pantallas angostas se apilan solos
+    var fila = el("div");
+    fila.style.cssText = "display:flex;flex-wrap:wrap;align-items:center;gap:40px 64px";
+
+    var texto = el("div");
+    texto.style.cssText = "flex:1 1 320px;min-width:0";
     var cab = el("div", "seccion-cabeza");
+    cab.style.marginBottom = "28px";
     cab.appendChild(el("div", "etiqueta", ig.etiqueta || "Instagram"));
     cab.appendChild(el("h2", null, ig.titulo || "Mirá cómo trabajamos"));
     cab.appendChild(el("p", null, ig.texto || "Reparaciones reales y novedades del taller en " + (neg.instagram || "Instagram") + "."));
-    cont.appendChild(cab);
+    texto.appendChild(cab);
+    var acciones = el("div", "hoja-acciones");
+    acciones.style.marginBottom = "0";
+    var boton = el("a", "boton", ig.boton || "Seguinos en Instagram");
+    boton.href = neg.instagramLink;
+    boton.target = "_blank";
+    boton.rel = "noopener";
+    acciones.appendChild(boton);
+    texto.appendChild(acciones);
+    fila.appendChild(texto);
 
-    var codigos = (ig.publicaciones || []).filter(function (c) {
-      return /^[A-Za-z0-9_-]{5,20}$/.test(c);
-    }).slice(0, 3);
     if (codigos.length) {
-      var grilla = el("div", "grilla");
+      var videos = el("div");
+      videos.style.cssText = "display:flex;flex-wrap:wrap;justify-content:center;gap:24px;flex:0 1 auto;max-width:100%";
+      var marcos = [];
       codigos.forEach(function (codigo) {
         var marco = el("iframe");
         marco.src = "https://www.instagram.com/p/" + codigo + "/embed";
         marco.title = "Publicación de Instagram";
         marco.loading = "lazy";
         marco.setAttribute("scrolling", "no");
-        marco.style.cssText = "width:100%;height:540px;border:0;border-radius:12px;background:#fff";
-        grilla.appendChild(marco);
+        marco.style.cssText = "width:min(100%,380px);height:700px;max-width:100%;border:0;border-radius:12px;background:#fff";
+        marcos.push(marco);
+        videos.appendChild(marco);
       });
-      cont.appendChild(grilla);
+      // Instagram avisa cuánto mide su contenido; así el recuadro no queda cortado ni con blanco de más.
+      window.addEventListener("message", function (ev) {
+        if (String(ev.origin).indexOf("instagram.com") === -1) return;
+        var m = ev.data;
+        if (typeof m === "string") {
+          try { m = JSON.parse(m); } catch (e) { return; }
+        }
+        if (!m || m.type !== "MEASURE" || !m.details || !m.details.height) return;
+        marcos.forEach(function (marco) {
+          if (marco.contentWindow === ev.source) {
+            marco.style.height = Math.min(1400, Math.max(300, Math.ceil(m.details.height))) + "px";
+          }
+        });
+      });
+      fila.appendChild(videos);
     }
 
-    var fila = el("div", "hoja-acciones");
-    fila.style.marginTop = "28px";
-    fila.style.marginBottom = "0";
-    var boton = el("a", "boton", ig.boton || "Seguinos en Instagram");
-    boton.href = neg.instagramLink;
-    boton.target = "_blank";
-    boton.rel = "noopener";
-    fila.appendChild(boton);
     cont.appendChild(fila);
     seccion.appendChild(cont);
     return seccion;
