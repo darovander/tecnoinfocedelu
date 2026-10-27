@@ -117,7 +117,7 @@ window.CONTENIDO = {
       "titulo": "Mirá cómo trabajamos",
       "texto": "Reparaciones reales bajo microscopio, antes y después, y novedades del taller. Seguinos en @tecnoinformatica_.",
       "boton": "Seguinos en Instagram",
-      "publicaciones": ["Cnfn70-AhQK"]
+      "publicaciones": ["CKLDyCcF4rB"]
     },
     "cierre": {
       "titulo": "Contanos qué le pasa al equipo",
