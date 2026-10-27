@@ -332,12 +332,32 @@
     var codigos = (ig.publicaciones || []).filter(function (c) {
       return /^[A-Za-z0-9_-]{5,20}$/.test(c);
     }).slice(0, 2);
+    var chips = ig.chips || ["Bajo microscopio", "Soldadura SMD", "Casos reales"];
 
     var seccion = el("section", "seccion ajustada");
     var cont = el("div", "contenedor");
-    // texto a la izquierda y video a la derecha; en pantallas angostas se apilan solos
+
+    // Panel con fondo degradado y resplandores, para que no quede un recuadro flotando sobre el negro.
+    var panel = el("div", "aparece");
+    panel.style.cssText = "position:relative;overflow:hidden;border:1px solid var(--linea);" +
+      "background:linear-gradient(135deg,var(--panel-alto) 0%,var(--panel) 55%,var(--fondo) 100%);" +
+      "padding:clamp(26px,5vw,60px)";
+    var brilloAzul = el("div");
+    brilloAzul.style.cssText = "position:absolute;right:-90px;top:50%;width:560px;height:560px;transform:translateY(-50%);" +
+      "background:radial-gradient(circle,rgba(41,169,255,0.20),transparent 66%);pointer-events:none";
+    var brilloNaranja = el("div");
+    brilloNaranja.style.cssText = "position:absolute;left:-120px;bottom:-200px;width:440px;height:440px;" +
+      "background:radial-gradient(circle,rgba(254,149,54,0.13),transparent 66%);pointer-events:none";
+    var filete = el("div");
+    filete.style.cssText = "position:absolute;left:0;top:0;width:100%;height:3px;" +
+      "background:linear-gradient(90deg,var(--naranja),var(--azul) 55%,transparent)";
+    panel.appendChild(brilloAzul);
+    panel.appendChild(brilloNaranja);
+    panel.appendChild(filete);
+
+    // texto a la izquierda y publicación a la derecha; en pantallas angostas se apilan solos
     var fila = el("div");
-    fila.style.cssText = "display:flex;flex-wrap:wrap;align-items:center;gap:40px 64px";
+    fila.style.cssText = "position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:40px 64px";
 
     var texto = el("div");
     texto.style.cssText = "flex:1 1 320px;min-width:0";
@@ -348,28 +368,42 @@
     cab.appendChild(el("p", null, ig.texto || "Reparaciones reales y novedades del taller en " + (neg.instagram || "Instagram") + "."));
     texto.appendChild(cab);
     var acciones = el("div", "hoja-acciones");
-    acciones.style.marginBottom = "0";
+    acciones.style.marginBottom = "26px";
     var boton = el("a", "boton", ig.boton || "Seguinos en Instagram");
     boton.href = neg.instagramLink;
     boton.target = "_blank";
     boton.rel = "noopener";
     acciones.appendChild(boton);
     texto.appendChild(acciones);
+    if (chips.length) {
+      var marcas = el("div", "marcas");
+      marcas.style.paddingTop = "0";
+      chips.forEach(function (c) { marcas.appendChild(el("span", null, c)); });
+      texto.appendChild(marcas);
+    }
     fila.appendChild(texto);
 
     if (codigos.length) {
       var videos = el("div");
-      videos.style.cssText = "display:flex;flex-wrap:wrap;justify-content:center;gap:24px;flex:0 1 auto;max-width:100%";
+      videos.style.cssText = "display:flex;flex-wrap:wrap;justify-content:center;gap:32px;flex:0 1 auto;max-width:100%;padding-right:14px";
       var marcos = [];
       codigos.forEach(function (codigo) {
+        // marco con borde, sombra profunda y un desplazado azul que le da volumen
+        var marcoCaja = el("div");
+        marcoCaja.style.cssText = "padding:10px;background:var(--panel-alto);border:1px solid rgba(41,169,255,0.35);" +
+          "box-shadow:14px 14px 0 var(--azul-hondo),0 30px 70px rgba(0,0,0,0.6),0 0 70px rgba(41,169,255,0.14);" +
+          "transition:transform 0.25s ease;max-width:100%";
+        marcoCaja.addEventListener("mouseenter", function () { marcoCaja.style.transform = "translate(-4px,-6px)"; });
+        marcoCaja.addEventListener("mouseleave", function () { marcoCaja.style.transform = ""; });
         var marco = el("iframe");
         marco.src = "https://www.instagram.com/p/" + codigo + "/embed";
         marco.title = "Publicación de Instagram";
         marco.loading = "lazy";
         marco.setAttribute("scrolling", "no");
-        marco.style.cssText = "width:min(100%,380px);height:700px;max-width:100%;border:0;border-radius:12px;background:#fff";
+        marco.style.cssText = "display:block;width:min(100%,360px);height:700px;max-width:100%;border:0;border-radius:6px;background:#fff";
         marcos.push(marco);
-        videos.appendChild(marco);
+        marcoCaja.appendChild(marco);
+        videos.appendChild(marcoCaja);
       });
       // Instagram avisa cuánto mide su contenido; así el recuadro no queda cortado ni con blanco de más.
       window.addEventListener("message", function (ev) {
@@ -388,7 +422,8 @@
       fila.appendChild(videos);
     }
 
-    cont.appendChild(fila);
+    panel.appendChild(fila);
+    cont.appendChild(panel);
     seccion.appendChild(cont);
     return seccion;
   }
