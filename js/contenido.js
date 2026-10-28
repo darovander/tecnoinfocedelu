@@ -240,6 +240,10 @@ window.CONTENIDO = {
       {
         "imagen": "img/galeria-soldadura-smd.webp",
         "epigrafe": "Trabajo de soldadura SMD"
+      },
+      {
+        "imagen": "img/galeria-reemplazo-kbc.webp",
+        "epigrafe": "Reemplazo de KBC"
       }
     ]
   },
