@@ -113,7 +113,7 @@ window.CONTENIDO = {
     ],
     "franja": {
       "imagen": "img/franja-componente.webp",
-      "epigrafe": "Retiro de un integrado SMD sobre la placa, con pinza"
+      "epigrafe": ""
     },
     "instagram": {
       "activo": true,
