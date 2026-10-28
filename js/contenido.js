@@ -111,6 +111,10 @@ window.CONTENIDO = {
       "ASRock",
       "Biostar"
     ],
+    "franja": {
+      "imagen": "img/franja-componente.webp",
+      "epigrafe": "Retiro de un integrado SMD sobre la placa, con pinza"
+    },
     "instagram": {
       "activo": true,
       "etiqueta": "Instagram",

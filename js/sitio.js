@@ -497,6 +497,28 @@
     sDif.appendChild(cDif);
     raiz.appendChild(sDif);
 
+    // Franja con una foto panorámica entera (sin recorte), entre "Cómo trabajamos" y "Paso a paso"
+    if (d.franja && d.franja.imagen) {
+      var sFr = el("section", "seccion ajustada");
+      var cFr = el("div", "contenedor");
+      var figFr = el("figure", "hero-foto aparece");
+      figFr.style.margin = "0";
+      figFr.style.animation = "none";
+      var imgFr = el("img");
+      imgFr.src = d.franja.imagen;
+      imgFr.alt = d.franja.epigrafe || "Reparación a nivel componente";
+      imgFr.loading = "lazy";
+      imgFr.decoding = "async";
+      imgFr.width = 1600;
+      imgFr.height = 778;
+      imgFr.style.cssText = "width:100%;height:auto;aspect-ratio:1600/778;object-fit:cover";
+      figFr.appendChild(imgFr);
+      if (d.franja.epigrafe) figFr.appendChild(el("figcaption", null, d.franja.epigrafe));
+      cFr.appendChild(figFr);
+      sFr.appendChild(cFr);
+      raiz.appendChild(sFr);
+    }
+
     var sProc = el("section", "seccion ajustada");
     var cProc = el("div", "contenedor");
     var cabProc = el("div", "seccion-cabeza");
