@@ -48,7 +48,7 @@ window.CONTENIDO = {
       "botonPrimario": "Consultar por WhatsApp",
       "botonSecundario": "Ver servicios",
       "imagen": "img/banco-de-trabajo.webp",
-      "epigrafeImagen": "Banco de trabajo del taller"
+      "epigrafeImagen": ""
     },
     "rotulo": {
       "linea1": "Reparación a nivel componente",

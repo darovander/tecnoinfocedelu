@@ -467,7 +467,7 @@
 
     if (d.hero.imagen) {
       var figura = el("figure", "hero-foto");
-      var fotoPortada = imagenO("Foto del taller", d.hero.imagen, d.hero.epigrafeImagen);
+      var fotoPortada = imagenO("Foto del taller", d.hero.imagen, d.hero.epigrafeImagen || "Banco de trabajo del taller");
       if (fotoPortada.tagName === "IMG") {
         fotoPortada.loading = "eager";
         fotoPortada.setAttribute("fetchpriority", "high");
