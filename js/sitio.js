@@ -565,11 +565,6 @@
         img.src = item.imagen;
         img.alt = item.titulo;
         img.loading = "lazy";
-        img.decoding = "async";
-        if (item.imagenAncha) {
-          // foto panorámica: se muestra entera, sin el recorte de la miniatura
-          img.style.cssText = "width:100%;max-width:560px;height:auto;aspect-ratio:1600/778;object-fit:cover";
-        }
         foto.appendChild(img);
         sum.appendChild(foto);
       }

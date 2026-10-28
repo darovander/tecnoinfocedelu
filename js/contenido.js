@@ -134,8 +134,6 @@ window.CONTENIDO = {
       {
         "etiqueta": "Placa",
         "titulo": "Reparación a nivel componente",
-        "imagen": "img/reparacion-componente.webp",
-        "imagenAncha": true,
         "texto": "Equipos que no encienden, que encienden y no dan video, que se apagan solos o que no cargan. Se trabaja sobre la placa madre: cortocircuitos, componentes SMD, integrados de carga, secciones de alimentación.",
         "detalle": [
           "No enciende",
