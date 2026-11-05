@@ -18,7 +18,8 @@ window.CONTENIDO = {
     "dominio": "tecnoinformatica-cdu.com.ar",
     "logo": "img/logo.png",
     "isotipo": "img/isotipo.png",
-    "mapa": "https://www.google.com/maps/search/?api=1&query=12+de+Octubre+1180+Concepci%C3%B3n+del+Uruguay+Entre+R%C3%ADos"
+    "mapa": "https://www.google.com/maps/search/?api=1&query=-32.4738586%2C-58.2426737&query_place_id=ChIJ01jcB1far5URvgtIKyxTOHg",
+    "coordenadas": "-32.4738586,-58.2426737"
 ,
     "resenaLink": "https://search.google.com/local/writereview?placeid=ChIJ01jcB1far5URvgtIKyxTOHg",
     "opinionesLink": "https://search.google.com/local/reviews?placeid=ChIJ01jcB1far5URvgtIKyxTOHg"

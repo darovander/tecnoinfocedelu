@@ -966,7 +966,7 @@
     cont.appendChild(datos);
 
     // Mapa del taller (Google Maps embebido por dirección, sin clave)
-    var consulta = [neg.direccion, neg.ciudad].filter(Boolean).join(", ");
+    var consulta = neg.coordenadas || [neg.direccion, neg.ciudad].filter(Boolean).join(", ");
     if (consulta) {
       var cajaMapa = el("div", "mapa-taller");
       cajaMapa.style.marginTop = "28px";
