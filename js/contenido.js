@@ -39,8 +39,8 @@ window.CONTENIDO = {
     "placeholder": "Número de orden"
   },
   "inicio": {
-    "tituloPestana": "TecnoInformática | Reparación de notebooks y PCs a nivel placa",
-    "metaDescripcion": "Taller de reparación electrónica de notebooks y PCs en Concepción del Uruguay. Diagnóstico a nivel componente, no encendido, sin video, fallas de carga, soldadura SMD.",
+    "tituloPestana": "TecnoInformática | Servicio técnico de notebooks y PCs a nivel placa",
+    "metaDescripcion": "Servicio técnico de notebooks y PCs en Concepción del Uruguay, para particulares y empresas. Reparación a nivel placa: no enciende, sin video, no carga, soldadura SMD.",
     "hero": {
       "etiqueta": "Taller de reparaciones electrónicas",
       "titulo": "Cuando el equipo no enciende, nosotros lo solucionamos.",
@@ -301,6 +301,96 @@ window.CONTENIDO = {
     "--naranja": "#fe9536",
     "--linea": "#1b2531",
     "--linea-fina": "#131b25"
+  },
+  "empresas": {
+    "tituloPestana": "Servicio técnico para empresas y aseguradoras | TecnoInformática",
+    "metaDescripcion": "Servicio técnico de notebooks y PCs para empresas, aseguradoras e instituciones en Entre Ríos. Reparación a nivel placa, informe técnico y garantía de reparación.",
+    "titulo": "Servicio técnico para empresas, aseguradoras y comercios",
+    "intro": "Reparamos notebooks, PCs y placas madre a nivel componente para empresas, oficinas, instituciones y aseguradoras de Concepción del Uruguay y la región. Diagnóstico por escrito, presupuesto antes de reparar y equipos devueltos probados y con garantía de reparación.",
+    "bloques": [
+      {
+        "titulo": "Empresas y oficinas",
+        "texto": "Equipos de trabajo que no pueden quedar parados. Nos ocupamos del parque de PCs y notebooks de tu empresa: diagnóstico, reparación, mantenimiento preventivo y cambio de componentes, con un único interlocutor."
+      },
+      {
+        "titulo": "Aseguradoras y peritajes",
+        "texto": "Diagnóstico técnico de equipos con daño por sobretensión, líquidos, golpes o fallas electrónicas. El informe indica la falla, el componente afectado y si la reparación conviene frente al reemplazo del equipo."
+      },
+      {
+        "titulo": "Comercios e instituciones",
+        "texto": "Escuelas, estudios, comercios y organismos con varias computadoras. Trabajamos por lotes, coordinamos la entrega y la devolución, y te pasamos un presupuesto por equipo."
+      },
+      {
+        "titulo": "Mayoristas y servicios técnicos",
+        "texto": "Si vendés equipos o tenés un servicio técnico, nos encargamos de la parte electrónica de los casos que no podés resolver: placas que no encienden, sin video, cortocircuitos y fallas de carga."
+      },
+      {
+        "titulo": "Qué reparamos",
+        "texto": "Fallas de placa madre en notebooks y PCs de escritorio, daños por sobretensión o líquidos, cambio de pantallas, discos y memoria, actualización de hardware, formateo y mantenimiento preventivo."
+      },
+      {
+        "titulo": "Con qué trabajamos",
+        "texto": "Multímetro, fuente de laboratorio, osciloscopio, estación de soldadura SMD y microscopio, con esquemático y boardview de cada placa. Se busca el componente que falló antes de cambiar módulos completos."
+      }
+    ],
+    "proceso": [
+      {
+        "titulo": "Nos contás qué necesitás",
+        "texto": "Cantidad de equipos, marcas y qué falla tienen. Coordinamos por WhatsApp o por mail."
+      },
+      {
+        "titulo": "Ingreso y diagnóstico",
+        "texto": "Cada equipo se registra y se diagnostica a nivel componente. Te informamos el valor del diagnóstico antes de empezar."
+      },
+      {
+        "titulo": "Informe y presupuesto",
+        "texto": "Recibís el informe de la falla y un presupuesto por equipo. No se repara nada sin tu aprobación."
+      },
+      {
+        "titulo": "Reparación y entrega",
+        "texto": "Reparamos, probamos el equipo y lo devolvemos con garantía de reparación."
+      }
+    ],
+    "preguntas": [
+      {
+        "pregunta": "¿Son servicio técnico oficial de alguna marca?",
+        "respuesta": "No. Somos un taller de electrónica independiente, especializado en reparación a nivel componente. Trabajamos sobre equipos fuera de la garantía de fábrica o cuando se busca una alternativa al cambio de placa completa. Si el equipo todavía está en garantía de fábrica, conviene gestionarla primero con la marca."
+      },
+      {
+        "pregunta": "¿Atienden empresas de forma continua o por convenio?",
+        "respuesta": "Sí. Las condiciones de cada empresa se coordinan por WhatsApp o mail: cantidad de equipos, plazos y forma de facturación."
+      },
+      {
+        "pregunta": "¿Trabajan con aseguradoras?",
+        "respuesta": "Sí. Hacemos el diagnóstico e informe técnico de equipos con daño por sobretensión, líquidos o golpes, indicando la falla, el componente afectado y si conviene reparar."
+      },
+      {
+        "pregunta": "¿Tienen garantía las reparaciones?",
+        "respuesta": "Sí. Cada reparación se entrega probada y con garantía de reparación. Las condiciones se detallan en el presupuesto."
+      },
+      {
+        "pregunta": "¿Cuánto tardan?",
+        "respuesta": "Depende de la falla y de los repuestos. Te damos el plazo estimado junto con el presupuesto, antes de reparar."
+      },
+      {
+        "pregunta": "¿Reciben equipos de otras localidades?",
+        "respuesta": "Sí, por correo o encomienda. Coordinamos el envío y el embalaje por WhatsApp."
+      },
+      {
+        "pregunta": "¿Hacen mantenimiento preventivo para varias PCs?",
+        "respuesta": "Sí. Limpieza, mantenimiento preventivo, actualización de hardware y formateo, por equipo o por lote."
+      },
+      {
+        "pregunta": "¿Con qué marcas trabajan?",
+        "respuesta": "Notebooks Lenovo, HP, Dell, Asus, Acer, Apple, MSI, Samsung, Toshiba, Bangho, EXO y Gfast. Placas madre de PC Asus, MSI, Gigabyte / AORUS, ASRock y Biostar."
+      }
+    ],
+    "cierre": {
+      "titulo": "Contanos cuántos equipos y qué necesitan",
+      "texto": "Escribinos con el nombre de la empresa, la cantidad de equipos y el tipo de falla. Te respondemos cómo trabajaríamos y en qué tiempos.",
+      "boton": "Escribir por WhatsApp",
+      "mensaje": "Hola, te escribo por una empresa o institución y quiero consultar por servicio técnico para nuestros equipos."
+    }
   },
   "tecnicos": {
     "tituloPestana": "Para técnicos y talleres | TecnoInformática",

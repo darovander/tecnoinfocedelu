@@ -107,6 +107,7 @@
     { id: "inicio", texto: "Inicio", url: "index.html" },
     { id: "servicios", texto: "Servicios", url: "servicios.html" },
     { id: "taller", texto: "El taller", url: "taller.html" },
+    { id: "empresas", texto: "Empresas", url: "empresas.html" },
     { id: "tecnicos", texto: "Para técnicos", url: "tecnicos.html" },
     { id: "tienda", texto: "Tienda", url: "tienda.html", modulo: "tienda" },
     { id: "contacto", texto: "Contacto", url: "contacto.html" }
@@ -253,6 +254,9 @@
     var presu = el("a", null, "Pedir presupuesto");
     presu.href = "presupuesto.html";
     col2.appendChild(presu);
+    var emp = el("a", null, "Servicio para empresas");
+    emp.href = "empresas.html";
+    col2.appendChild(emp);
     var red = el("a", null, "Red de técnicos");
     red.href = "red.html";
     col2.appendChild(red);
@@ -667,15 +671,17 @@
     raiz.appendChild(cierre(C.inicio.cierre));
   }
 
-  function pintarTecnicos() {
-    var d = C.tecnicos;
+  function pintarTecnicos() { pintarDerivacion(C.tecnicos, "Derivaciones"); }
+  function pintarEmpresas() { pintarDerivacion(C.empresas, "Empresas"); }
+
+  function pintarDerivacion(d, etiqueta) {
     pintarMeta(d);
     var raiz = html("contenido");
 
     var seccion = el("section", "seccion");
     var cont = el("div", "contenedor");
     var cab = el("div", "seccion-cabeza");
-    cab.appendChild(el("div", "etiqueta", "Derivaciones"));
+    cab.appendChild(el("div", "etiqueta", etiqueta));
     cab.appendChild(el("h1", null, d.titulo));
     cab.appendChild(el("p", null, d.intro));
     cont.appendChild(cab);
@@ -1219,6 +1225,7 @@
     inicio: pintarInicio,
     servicios: pintarServicios,
     taller: pintarTaller,
+    empresas: pintarEmpresas,
     tecnicos: pintarTecnicos,
     tienda: pintarConTienda,
     producto: pintarConTienda,
