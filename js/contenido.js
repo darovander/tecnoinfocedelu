@@ -31,7 +31,7 @@ window.CONTENIDO = {
   },
   "analitica": {
     "vercel": true,
-    "ga4": ""
+    "ga4": "G-ZG2L8EF23V"
   },
   "seguimiento": {
     "endpoint": "",
