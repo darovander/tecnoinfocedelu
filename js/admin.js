@@ -255,6 +255,110 @@
       ]
     },
     {
+      id: "marcas",
+      titulo: "Marcas",
+      bloques: [
+        {
+          legend: "Encabezado",
+          campos: [
+            ["marcas.titulo", "Título", "texto"],
+            ["marcas.intro", "Introducción", "area"]
+          ]
+        },
+        {
+          legend: "Bloques de texto",
+          tipo: "lista",
+          ruta: "marcas.bloques",
+          rotulo: "Bloque",
+          nuevo: { titulo: "", texto: "" },
+          campos: [["titulo", "Título", "texto"], ["texto", "Texto", "area"]]
+        },
+        {
+          legend: "Cómo trabajamos (pasos)",
+          tipo: "lista",
+          ruta: "marcas.proceso",
+          rotulo: "Paso",
+          nuevo: { titulo: "", texto: "" },
+          campos: [["titulo", "Título", "texto"], ["texto", "Texto", "area"]]
+        },
+        {
+          legend: "Preguntas frecuentes",
+          tipo: "lista",
+          ruta: "marcas.preguntas",
+          rotulo: "Pregunta",
+          nuevo: { pregunta: "", respuesta: "" },
+          campos: [["pregunta", "Pregunta", "texto"], ["respuesta", "Respuesta", "area"]]
+        },
+        {
+          legend: "Recuadro final",
+          campos: [
+            ["marcas.cierre.titulo", "Título", "texto"],
+            ["marcas.cierre.texto", "Texto", "area"],
+            ["marcas.cierre.boton", "Texto del botón", "texto"],
+            ["marcas.cierre.mensaje", "Mensaje de WhatsApp", "area"]
+          ]
+        },
+        {
+          legend: "Buscadores",
+          campos: [
+            ["marcas.tituloPestana", "Título de pestaña", "texto"],
+            ["marcas.metaDescripcion", "Descripción para Google", "area"]
+          ]
+        }
+      ]
+    },    {
+      id: "tecnicos",
+      titulo: "Para técnicos",
+      bloques: [
+        {
+          legend: "Encabezado",
+          campos: [
+            ["tecnicos.titulo", "Título", "texto"],
+            ["tecnicos.intro", "Introducción", "area"]
+          ]
+        },
+        {
+          legend: "Bloques de texto",
+          tipo: "lista",
+          ruta: "tecnicos.bloques",
+          rotulo: "Bloque",
+          nuevo: { titulo: "", texto: "" },
+          campos: [["titulo", "Título", "texto"], ["texto", "Texto", "area"]]
+        },
+        {
+          legend: "Cómo trabajamos (pasos)",
+          tipo: "lista",
+          ruta: "tecnicos.proceso",
+          rotulo: "Paso",
+          nuevo: { titulo: "", texto: "" },
+          campos: [["titulo", "Título", "texto"], ["texto", "Texto", "area"]]
+        },
+        {
+          legend: "Preguntas frecuentes",
+          tipo: "lista",
+          ruta: "tecnicos.preguntas",
+          rotulo: "Pregunta",
+          nuevo: { pregunta: "", respuesta: "" },
+          campos: [["pregunta", "Pregunta", "texto"], ["respuesta", "Respuesta", "area"]]
+        },
+        {
+          legend: "Recuadro final",
+          campos: [
+            ["tecnicos.cierre.titulo", "Título", "texto"],
+            ["tecnicos.cierre.texto", "Texto", "area"],
+            ["tecnicos.cierre.boton", "Texto del botón", "texto"],
+            ["tecnicos.cierre.mensaje", "Mensaje de WhatsApp", "area"]
+          ]
+        },
+        {
+          legend: "Buscadores",
+          campos: [
+            ["tecnicos.tituloPestana", "Título de pestaña", "texto"],
+            ["tecnicos.metaDescripcion", "Descripción para Google", "area"]
+          ]
+        }
+      ]
+    },    {
       id: "empresas",
       titulo: "Empresas",
       bloques: [

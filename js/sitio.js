@@ -257,6 +257,9 @@
     var emp = el("a", null, "Servicio para empresas");
     emp.href = "empresas.html";
     col2.appendChild(emp);
+    var mar = el("a", null, "Para marcas y distribuidores");
+    mar.href = "marcas.html";
+    col2.appendChild(mar);
     var red = el("a", null, "Red de técnicos");
     red.href = "red.html";
     col2.appendChild(red);
@@ -672,6 +675,7 @@
   }
 
   function pintarTecnicos() { pintarDerivacion(C.tecnicos, "Derivaciones"); }
+  function pintarMarcas() { pintarDerivacion(C.marcas, "Marcas"); }
   function pintarEmpresas() { pintarDerivacion(C.empresas, "Empresas"); }
 
   function pintarDerivacion(d, etiqueta) {
@@ -1226,6 +1230,7 @@
     servicios: pintarServicios,
     taller: pintarTaller,
     empresas: pintarEmpresas,
+    marcas: pintarMarcas,
     tecnicos: pintarTecnicos,
     tienda: pintarConTienda,
     producto: pintarConTienda,

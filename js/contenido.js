@@ -392,6 +392,88 @@ window.CONTENIDO = {
       "mensaje": "Hola, te escribo por una empresa o institución y quiero consultar por servicio técnico para nuestros equipos."
     }
   },
+  "marcas": {
+    "tituloPestana": "Servicio técnico para marcas y distribuidores en Entre Ríos | TecnoInformática",
+    "metaDescripcion": "Taller de electrónica en Concepción del Uruguay, Entre Ríos, para marcas, fabricantes y distribuidores que buscan un servicio técnico de garantía y posgarantía de notebooks y PCs.",
+    "titulo": "Servicio técnico para marcas y distribuidores en Entre Ríos",
+    "intro": "Si tu marca necesita un servicio técnico de notebooks y PCs en Concepción del Uruguay y la región, hablemos. Somos un taller de electrónica con reparación a nivel componente y estamos abiertos a acuerdos de servicio técnico, garantía y posgarantía.",
+    "bloques": [
+      {
+        "titulo": "Presencia en la zona",
+        "texto": "Taller propio en 12 de Octubre 1180, Concepción del Uruguay, trabajando en reparación electrónica desde 2008. Atendemos a la ciudad y la región, y recibimos equipos de otras localidades por correo o encomienda."
+      },
+      {
+        "titulo": "Qué podemos resolver por tu marca",
+        "texto": "Diagnóstico y reparación de equipos en garantía y fuera de garantía, incluso fallas de placa que normalmente terminan en un cambio de módulo completo. Menos logística y menos equipos viajando a otra provincia."
+      },
+      {
+        "titulo": "Capacidad técnica",
+        "texto": "Multímetro, fuente de laboratorio, osciloscopio, estación de soldadura SMD y microscopio, con esquemático y boardview de cada placa. Experiencia en Lenovo, HP, Dell, Asus, Acer, Apple, MSI, Samsung, Toshiba, Bangho, EXO y Gfast."
+      },
+      {
+        "titulo": "Red de técnicos",
+        "texto": "Además del taller, trabajamos con una red de técnicos independientes de la región, que permite cubrir localidades cercanas. Se puede ver en la sección Red de técnicos del sitio."
+      },
+      {
+        "titulo": "Nos adaptamos a tu proceso",
+        "texto": "Alta como servicio técnico, capacitación, uso de repuestos de la marca, registro de cada equipo y reportes por orden: nos ajustamos a los requisitos y a las herramientas que use tu marca."
+      },
+      {
+        "titulo": "Quién está detrás",
+        "texto": "Dario Defazy, técnico electrónico que repara a nivel componente desde 2018 y dicta cursos de reparación de PCs. Vas a hablar directamente con quien hace el trabajo."
+      }
+    ],
+    "proceso": [
+      {
+        "titulo": "Primer contacto",
+        "texto": "Nos contás qué marcas y productos representan, en qué zona necesitan cobertura y qué requisitos tiene el servicio."
+      },
+      {
+        "titulo": "Evaluación",
+        "texto": "Te mostramos el taller, el equipamiento y casos reales de reparación, y vemos qué requiere tu marca para homologar un servicio."
+      },
+      {
+        "titulo": "Acuerdo",
+        "texto": "Definimos alcance, repuestos, plazos, reportes y condiciones comerciales."
+      },
+      {
+        "titulo": "Operación",
+        "texto": "Empezamos a atender equipos con registro de cada orden y reporte de los resultados."
+      }
+    ],
+    "preguntas": [
+      {
+        "pregunta": "¿Hoy son servicio técnico oficial de alguna marca?",
+        "respuesta": "No. Hoy somos un taller independiente. Justamente buscamos acuerdos con marcas, fabricantes y distribuidores para convertirnos en su servicio técnico en la zona."
+      },
+      {
+        "pregunta": "¿Qué zona pueden cubrir?",
+        "respuesta": "Concepción del Uruguay y la región, y equipos de otras localidades por correo o encomienda. Con la red de técnicos de la zona se pueden cubrir localidades cercanas."
+      },
+      {
+        "pregunta": "¿Pueden atender equipos en garantía?",
+        "respuesta": "Sí, siempre dentro de las condiciones que defina cada marca: procedimiento, repuestos, registro y reportes."
+      },
+      {
+        "pregunta": "¿Qué tipos de equipos reparan?",
+        "respuesta": "Notebooks y PCs de escritorio, con foco en fallas de placa madre: no enciende, sin video, cortocircuitos, fallas de carga y daño por sobretensión o líquidos."
+      },
+      {
+        "pregunta": "¿Aceptan capacitación y requisitos de la marca?",
+        "respuesta": "Sí. Nos ajustamos a la capacitación, las herramientas y los procesos que pida cada marca."
+      },
+      {
+        "pregunta": "¿Con quién tratamos?",
+        "respuesta": "Directamente con Dario Defazy, responsable del taller y de las reparaciones. Escribinos por WhatsApp o a dariodefazy@gmail.com."
+      }
+    ],
+    "cierre": {
+      "titulo": "Hablemos de un acuerdo de servicio técnico",
+      "texto": "Escribinos con el nombre de la marca, los productos que representan y la zona que necesitan cubrir. Te respondemos con cómo podemos trabajar juntos.",
+      "boton": "Escribir por WhatsApp",
+      "mensaje": "Hola, represento a una marca o distribuidora y quiero hablar de un acuerdo de servicio técnico en Entre Ríos."
+    }
+  },
   "tecnicos": {
     "tituloPestana": "Para técnicos y talleres | TecnoInformática",
     "metaDescripcion": "Servicio de diagnóstico y reparación a nivel componente para técnicos y talleres que derivan casos complejos: no enciende, sin video, cortocircuitos. Trabajo discreto, tu cliente no se entera.",
