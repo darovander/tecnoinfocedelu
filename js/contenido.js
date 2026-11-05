@@ -313,10 +313,6 @@ window.CONTENIDO = {
         "texto": "Equipos de trabajo que no pueden quedar parados. Nos ocupamos del parque de PCs y notebooks de tu empresa: diagnóstico, reparación, mantenimiento preventivo y cambio de componentes, con un único interlocutor."
       },
       {
-        "titulo": "Aseguradoras y peritajes",
-        "texto": "Diagnóstico técnico de equipos con daño por sobretensión, líquidos, golpes o fallas electrónicas. El informe indica la falla, el componente afectado y si la reparación conviene frente al reemplazo del equipo."
-      },
-      {
         "titulo": "Comercios e instituciones",
         "texto": "Escuelas, estudios, comercios y organismos con varias computadoras. Trabajamos por lotes, coordinamos la entrega y la devolución, y te pasamos un presupuesto por equipo."
       },
@@ -359,10 +355,6 @@ window.CONTENIDO = {
       {
         "pregunta": "¿Atienden empresas de forma continua o por convenio?",
         "respuesta": "Sí. Las condiciones de cada empresa se coordinan por WhatsApp o mail: cantidad de equipos, plazos y forma de facturación."
-      },
-      {
-        "pregunta": "¿Trabajan con aseguradoras?",
-        "respuesta": "Sí. Hacemos el diagnóstico e informe técnico de equipos con daño por sobretensión, líquidos o golpes, indicando la falla, el componente afectado y si conviene reparar."
       },
       {
         "pregunta": "¿Tienen garantía las reparaciones?",
