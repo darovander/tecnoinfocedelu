@@ -420,7 +420,7 @@ window.CONTENIDO = {
       },
       {
         "titulo": "Quién está detrás",
-        "texto": "Dario Defazy, técnico electrónico que repara a nivel componente desde 2018 y dicta cursos de reparación de PCs. Vas a hablar directamente con quien hace el trabajo."
+        "texto": "Dario Defazy, técnico electrónico que repara a nivel componente desde 2018. Vas a hablar directamente con quien hace el trabajo."
       }
     ],
     "proceso": [
