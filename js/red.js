@@ -314,7 +314,7 @@
 
       var pie = el("p", "r-vacio");
       pie.appendChild(document.createTextNode("¿Sos técnico? "));
-      pie.appendChild(enlace(null, "Sumate a la red", "acceso.html"));
+      pie.appendChild(enlace(null, "Sumate a la red", "acceso"));
       c.appendChild(pie);
     });
   }
@@ -331,7 +331,7 @@
     var serv = lineas(t.servicios).slice(0, 4).join(" · ");
     if (serv) cu.appendChild(el("p", null, serv));
     var bs = el("div", "botones");
-    bs.appendChild(enlace("boton hueco chico", "Ver perfil", "tecnico.html?t=" + encodeURIComponent(t.slug)));
+    bs.appendChild(enlace("boton hueco chico", "Ver perfil", "tecnico?t=" + encodeURIComponent(t.slug)));
     if (t.whatsapp && t.disponible !== false) {
       bs.appendChild(enlaceExterno("boton wa chico", "WhatsApp",
         linkWaTecnico(t.whatsapp, "Hola " + t.nombre.split(" ")[0] + ", te encontré en la Red de técnicos de TecnoInformática. Te consulto por una reparación.")));
@@ -455,7 +455,7 @@
           var acc = el("div");
           acc.style.marginTop = "8px";
           var ver = el("a", null, "Ver perfil");
-          ver.href = "tecnico.html?t=" + encodeURIComponent(t.slug);
+          ver.href = "tecnico?t=" + encodeURIComponent(t.slug);
           acc.appendChild(ver);
           if (t.whatsapp && t.disponible !== false) {
             acc.appendChild(document.createTextNode(" · "));
@@ -553,7 +553,7 @@
       pie.appendChild(document.createTextNode("¿Tu localidad no está? "));
       pie.appendChild(enlaceExterno(null, "Escribinos", K.linkWa("Hola, soy de otra localidad y quiero hacer una reparación de placa.")));
       pie.appendChild(document.createTextNode(" y coordinamos el envío. ¿Sos técnico y querés ser punto de recepción? "));
-      pie.appendChild(enlace(null, "Sumate a la red", "acceso.html"));
+      pie.appendChild(enlace(null, "Sumate a la red", "acceso"));
       c.appendChild(pie);
     });
   }
@@ -567,7 +567,7 @@
     if (t.direccion) cu.appendChild(el("p", null, t.direccion));
     if (t.horarios) cu.appendChild(el("p", null, t.horarios));
     var bs = el("div", "botones");
-    bs.appendChild(enlace("boton hueco chico", "Ver perfil", "tecnico.html?t=" + encodeURIComponent(t.slug)));
+    bs.appendChild(enlace("boton hueco chico", "Ver perfil", "tecnico?t=" + encodeURIComponent(t.slug)));
     if (t.direccion) bs.appendChild(enlaceExterno("boton hueco chico", "Cómo llegar", mapa(t)));
     if (t.whatsapp) {
       bs.appendChild(enlaceExterno("boton wa chico", "WhatsApp",
@@ -593,7 +593,7 @@
         var v = el("div", "r-caja");
         v.appendChild(el("h2", null, "No encontramos ese técnico"));
         v.appendChild(el("p", null, "Puede que el link esté mal escrito o que el perfil ya no esté publicado."));
-        v.appendChild(enlace("boton", "Ver la red de técnicos", "red.html"));
+        v.appendChild(enlace("boton", "Ver la red de técnicos", "red"));
         c.appendChild(v);
         return;
       }
@@ -681,7 +681,7 @@
       }
 
       var volver = el("p", "r-vacio");
-      volver.appendChild(enlace(null, "← Ver todos los técnicos", "red.html"));
+      volver.appendChild(enlace(null, "← Ver todos los técnicos", "red"));
       c.appendChild(volver);
     });
   }
@@ -741,7 +741,7 @@
         ocupado(b, true, "Ingresando…");
         db().auth.signInWithPassword({ email: email.value.trim(), password: clave.value }).then(function (r) {
           if (r.error) { ocupado(b, false); return msj.mostrar(traducirError(r.error), "error"); }
-          location.href = "panel.html";
+          location.href = "panel";
         });
       });
       cuerpo.appendChild(f);
@@ -771,7 +771,7 @@
         }).then(function (r) {
           ocupado(b, false);
           if (r.error) return msj.mostrar(traducirError(r.error), "error");
-          if (r.data && r.data.session) { location.href = "panel.html"; return; }
+          if (r.data && r.data.session) { location.href = "panel"; return; }
           cuerpo.textContent = "";
           msj.mostrar("¡Listo! Te mandamos un email a " + email.value.trim() + " para confirmar la cuenta. Abrilo y tocá el link (revisá también spam).", "ok");
         });
@@ -819,7 +819,7 @@
         db().auth.updateUser({ password: clave.value }).then(function (r) {
           ocupado(b, false);
           if (r.error) return msj.mostrar(traducirError(r.error), "error");
-          location.href = "panel.html";
+          location.href = "panel";
         });
       });
       cuerpo.appendChild(f);
@@ -833,7 +833,7 @@
     if (recuperando) { formNuevaClave(); return; }
     db().auth.getSession().then(function (r) {
       if (recuperando) return;
-      if (r.data && r.data.session) { location.href = "panel.html"; return; }
+      if (r.data && r.data.session) { location.href = "panel"; return; }
       ir("ingresar");
     });
   }
@@ -847,7 +847,7 @@
 
     db().auth.getSession().then(function (r) {
       var sesion = r.data && r.data.session;
-      if (!sesion) { location.href = "acceso.html"; return; }
+      if (!sesion) { location.href = "acceso"; return; }
       var usuario = sesion.user;
 
       Promise.all([
@@ -886,7 +886,7 @@
     cab.appendChild(izq);
     var salir = boton("boton hueco chico", "Cerrar sesión");
     salir.addEventListener("click", function () {
-      db().auth.signOut().then(function () { location.href = "acceso.html"; });
+      db().auth.signOut().then(function () { location.href = "acceso"; });
     });
     cab.appendChild(salir);
     c.appendChild(cab);
@@ -1025,7 +1025,7 @@
         est.appendChild(document.createTextNode(yo.disponible === false
           ? "Tu página está publicada pero marcada como no disponible. "
           : "Tu página está publicada en la Red de técnicos. "));
-        est.appendChild(enlaceExterno(null, "Ver mi página", "tecnico.html?t=" + encodeURIComponent(yo.slug)));
+        est.appendChild(enlaceExterno(null, "Ver mi página", "tecnico?t=" + encodeURIComponent(yo.slug)));
       } else {
         est.textContent = "Tu perfil está suspendido y no aparece en la red. Consultá con TecnoInformática.";
       }
@@ -2119,7 +2119,7 @@
     tecnicos.forEach(function (x) {
       var tr = el("tr");
       var info = el("div");
-      if (x.estado === "aprobado") info.appendChild(enlaceExterno(null, x.nombre, "tecnico.html?t=" + encodeURIComponent(x.slug)));
+      if (x.estado === "aprobado") info.appendChild(enlaceExterno(null, x.nombre, "tecnico?t=" + encodeURIComponent(x.slug)));
       else info.appendChild(el("strong", null, x.nombre));
       info.appendChild(el("small", null, [x.email, lugar(x), x.whatsapp].filter(Boolean).join(" · ")));
       celda(tr, info);

@@ -104,13 +104,13 @@
   }
 
   var paginas = [
-    { id: "inicio", texto: "Inicio", url: "index.html" },
-    { id: "servicios", texto: "Servicios", url: "servicios.html" },
-    { id: "taller", texto: "El taller", url: "taller.html" },
-    { id: "empresas", texto: "Empresas", url: "empresas.html" },
-    { id: "tecnicos", texto: "Para técnicos", url: "tecnicos.html" },
-    { id: "tienda", texto: "Tienda", url: "tienda.html", modulo: "tienda" },
-    { id: "contacto", texto: "Contacto", url: "contacto.html" }
+    { id: "inicio", texto: "Inicio", url: "/" },
+    { id: "servicios", texto: "Servicios", url: "servicios" },
+    { id: "taller", texto: "El taller", url: "taller" },
+    { id: "empresas", texto: "Empresas", url: "empresas" },
+    { id: "tecnicos", texto: "Para técnicos", url: "tecnicos" },
+    { id: "tienda", texto: "Tienda", url: "tienda", modulo: "tienda" },
+    { id: "contacto", texto: "Contacto", url: "contacto" }
   ];
 
   // producto.html y carrito.html cuentan como "Tienda" en el menú
@@ -129,7 +129,7 @@
 
   function bloqueMarca() {
     var a = el("a", "marca");
-    a.href = "index.html";
+    a.href = "/";
     if (neg.logo) {
       var img = el("img");
       img.src = neg.logo;
@@ -168,7 +168,7 @@
     var carro = null;
     if (mod.tienda) {
       carro = el("a", "menu-carrito" + (pagina === "carrito" ? " activo" : ""));
-      carro.href = "carrito.html";
+      carro.href = "carrito";
       carro.setAttribute("aria-label", "Carrito");
       carro.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 10.2a1.5 1.5 0 0 0 1.5 1.1h8.6a1.5 1.5 0 0 0 1.4-1l2.1-6.3H6.2"/><circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/></svg>';
       var cuenta = el("span", "menu-carrito-n");
@@ -249,25 +249,25 @@
     }
     grilla.appendChild(col2);
     var segui = el("a", null, "Seguí tu reparación");
-    segui.href = "seguimiento.html";
+    segui.href = "seguimiento";
     col2.appendChild(segui);
     var presu = el("a", null, "Pedir presupuesto");
-    presu.href = "presupuesto.html";
+    presu.href = "presupuesto";
     col2.appendChild(presu);
     var emp = el("a", null, "Servicio para empresas");
-    emp.href = "empresas.html";
+    emp.href = "empresas";
     col2.appendChild(emp);
     var mar = el("a", null, "Para marcas y distribuidores");
-    mar.href = "marcas.html";
+    mar.href = "marcas";
     col2.appendChild(mar);
     var red = el("a", null, "Red de técnicos");
-    red.href = "red.html";
+    red.href = "red";
     col2.appendChild(red);
     var puntos = el("a", null, "Puntos de recepción");
-    puntos.href = "puntos.html";
+    puntos.href = "puntos";
     col2.appendChild(puntos);
     var acceso = el("a", null, "Acceso técnicos");
-    acceso.href = "acceso.html";
+    acceso.href = "acceso";
     col2.appendChild(acceso);
 
     var col3 = el("div");
@@ -323,7 +323,7 @@
     fila.appendChild(boton);
     if (pagina !== "presupuesto") {
       var pres = el("a", "boton hueco", "Pedir presupuesto");
-      pres.href = "presupuesto.html";
+      pres.href = "presupuesto";
       fila.appendChild(pres);
     }
     cont.appendChild(fila);
@@ -453,9 +453,9 @@
     b1.target = "_blank";
     b1.rel = "noopener";
     var b2 = el("a", "boton hueco", d.hero.botonSecundario);
-    b2.href = "servicios.html";
+    b2.href = "servicios";
     var b3 = el("a", "boton", "Pedir presupuesto");
-    b3.href = "presupuesto.html";
+    b3.href = "presupuesto";
     acciones.appendChild(b1);
     acciones.appendChild(b3);
     acciones.appendChild(b2);
@@ -753,10 +753,10 @@
       accRed.style.gap = "12px";
       accRed.style.marginTop = "22px";
       var aSumar = el("a", "boton", d.red.botonSumar || "Quiero sumarme");
-      aSumar.href = "acceso.html";
+      aSumar.href = "acceso";
       accRed.appendChild(aSumar);
       var aVer = el("a", "boton hueco", d.red.botonVer || "Ver la red");
-      aVer.href = "red.html";
+      aVer.href = "red";
       accRed.appendChild(aVer);
       cRed.appendChild(accRed);
       sRed.appendChild(cRed);
@@ -797,7 +797,7 @@
       cv.appendChild(el("h1", null, "Tienda no disponible"));
       cv.appendChild(el("p", null, "Esta sección está desactivada. Consultá repuestos por WhatsApp."));
       var volver = el("a", "boton", "Volver al inicio");
-      volver.href = "index.html";
+      volver.href = "/";
       cv.appendChild(volver);
       vacio.appendChild(cv);
       raiz.appendChild(vacio);

@@ -138,7 +138,7 @@
     var caja = el("div", "t-aviso");
     caja.setAttribute("role", "status");
     caja.appendChild(el("span", null, texto));
-    if (conLink) caja.appendChild(enlace(null, "Ver carrito", "carrito.html"));
+    if (conLink) caja.appendChild(enlace(null, "Ver carrito", "carrito"));
     document.body.appendChild(caja);
     setTimeout(function () { caja.classList.add("fuera"); }, 3200);
     setTimeout(function () { caja.remove(); }, 3700);
@@ -185,7 +185,7 @@
   }
 
   function tarjeta(p, i) {
-    var a = enlace("t-tarjeta aparece" + (hayStock(p) ? "" : " agotado"), null, "producto.html?id=" + encodeURIComponent(p.id));
+    var a = enlace("t-tarjeta aparece" + (hayStock(p) ? "" : " agotado"), null, "producto?id=" + encodeURIComponent(p.id));
     a.style.setProperty("--i", i % 8);
     a.appendChild(foto(p));
     if (!hayStock(p)) a.appendChild(el("span", "t-marca-agotado", "Sin stock"));
@@ -213,7 +213,7 @@
 
   function buscador(valor) {
     var form = el("form", "t-buscador");
-    form.action = "tienda.html";
+    form.action = "tienda";
     form.setAttribute("role", "search");
     var input = el("input");
     input.type = "search";
@@ -544,7 +544,7 @@
       var vacio = el("div", "t-vacio");
       vacio.appendChild(el("h1", null, "Este producto ya no está publicado"));
       vacio.appendChild(el("p", null, "Puede que se haya vendido o que el link esté mal escrito."));
-      vacio.appendChild(enlace("boton", "Ver la tienda", "tienda.html"));
+      vacio.appendChild(enlace("boton", "Ver la tienda", "tienda"));
       cont.appendChild(vacio);
       return;
     }
@@ -554,14 +554,14 @@
       metaDescripcion: (p.descripcion || p.nombre).slice(0, 155)
     });
     var canon = document.querySelector('link[rel="canonical"]');
-    if (canon) canon.href = "https://" + (K.C.negocio.dominio || location.host) + "/producto.html?id=" + encodeURIComponent(p.id);
+    if (canon) canon.href = "https://" + (K.C.negocio.dominio || location.host) + "/producto?id=" + encodeURIComponent(p.id);
     datosEstructurados(p);
 
     var migas = el("nav", "t-migas");
     migas.setAttribute("aria-label", "Ubicación");
-    migas.appendChild(enlace(null, "Tienda", "tienda.html"));
+    migas.appendChild(enlace(null, "Tienda", "tienda"));
     migas.appendChild(el("span", null, "›"));
-    migas.appendChild(enlace(null, p.categoria, "tienda.html?cat=" + encodeURIComponent(p.categoria)));
+    migas.appendChild(enlace(null, p.categoria, "tienda?cat=" + encodeURIComponent(p.categoria)));
     cont.appendChild(migas);
 
     var ficha = el("div", "t-ficha");
@@ -602,7 +602,7 @@
       ya.type = "button";
       ya.addEventListener("click", function () {
         agregarAlCarrito(p, parseInt(sel.value, 10));
-        location.href = "carrito.html";
+        location.href = "carrito";
       });
       var sumar = el("button", "boton hueco t-ancho", "Agregar al carrito");
       sumar.type = "button";
@@ -788,7 +788,7 @@
         var vacio = el("div", "t-vacio");
         vacio.appendChild(el("h2", null, "Tu carrito está vacío"));
         vacio.appendChild(el("p", null, "Buscá repuestos y accesorios en la tienda."));
-        vacio.appendChild(enlace("boton", "Ir a la tienda", "tienda.html"));
+        vacio.appendChild(enlace("boton", "Ir a la tienda", "tienda"));
         zona.appendChild(vacio);
         return;
       }
@@ -802,12 +802,12 @@
       lineas.forEach(function (l) {
         var p = porId[l.id];
         var fila = el("div", "t-linea");
-        var link = enlace("t-linea-foto", null, "producto.html?id=" + encodeURIComponent(p.id));
+        var link = enlace("t-linea-foto", null, "producto?id=" + encodeURIComponent(p.id));
         link.appendChild(foto(p, "t-foto"));
         fila.appendChild(link);
 
         var info = el("div", "t-linea-info");
-        info.appendChild(enlace("t-linea-nombre", p.nombre, "producto.html?id=" + encodeURIComponent(p.id)));
+        info.appendChild(enlace("t-linea-nombre", p.nombre, "producto?id=" + encodeURIComponent(p.id)));
         info.appendChild(lineaEnvio(p));
         if (!hayStock(p)) problemas.push(p.nombre + " se quedó sin stock");
         else if (!p.precio) problemas.push(p.nombre + " tiene precio a consultar");
