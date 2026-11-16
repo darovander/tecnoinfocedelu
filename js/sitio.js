@@ -435,6 +435,67 @@
     return seccion;
   }
 
+  // Tres caminos según quién llega: particular, empresa/aseguradora o técnico colega.
+  // Cada uno abre WhatsApp con un mensaje prellenado o lleva a su página.
+  function seccionCaminos() {
+    var sec = el("section", "seccion ajustada");
+    var c = el("div", "contenedor");
+    var cab = el("div", "seccion-cabeza");
+    cab.appendChild(el("div", "etiqueta", "Empezá por acá"));
+    cab.appendChild(el("h2", null, "¿Qué necesitás?"));
+    c.appendChild(cab);
+    var grilla = el("div", "grilla");
+    var caminos = [
+      {
+        etiqueta: "Particular",
+        titulo: "Mi equipo falla",
+        texto: "No enciende, no da video o no carga. Contanos el síntoma y te orientamos por WhatsApp.",
+        wa: "Hola, soy particular. Mi equipo no enciende, no da video o no carga. ¿Me podés orientar?"
+      },
+      {
+        etiqueta: "Empresa o aseguradora",
+        titulo: "Necesito presupuesto o informe",
+        texto: "Parque de equipos, lotes y pedidos de informe técnico por escrito para empresas y siniestros.",
+        href: "empresas",
+        textoHref: "Ver servicio para empresas",
+        wa: "Hola, soy de una empresa o aseguradora. Necesito presupuesto o informe técnico."
+      },
+      {
+        etiqueta: "Técnico colega",
+        titulo: "Tengo una placa que no puedo resolver",
+        texto: "Derivación de casos a nivel placa, con diagnóstico y presupuesto por escrito.",
+        href: "tecnicos",
+        textoHref: "Ver red de técnicos",
+        wa: "Hola, soy técnico y quiero consultar por una derivación de placa."
+      }
+    ];
+    caminos.forEach(function (camino, i) {
+      var tarjeta = el("article", "tarjeta aparece");
+      tarjeta.style.setProperty("--i", i);
+      tarjeta.appendChild(el("div", "etiqueta", camino.etiqueta));
+      tarjeta.appendChild(el("h3", null, camino.titulo));
+      tarjeta.appendChild(el("p", null, camino.texto));
+      var acciones = el("div", "hoja-acciones");
+      if (camino.wa) {
+        var bWa = el("a", "boton wa chico", "Escribir por WhatsApp");
+        bWa.href = linkWa(camino.wa);
+        bWa.target = "_blank";
+        bWa.rel = "noopener";
+        acciones.appendChild(bWa);
+      }
+      if (camino.href) {
+        var bPag = el("a", "boton hueco chico", camino.textoHref);
+        bPag.href = camino.href;
+        acciones.appendChild(bPag);
+      }
+      tarjeta.appendChild(acciones);
+      grilla.appendChild(tarjeta);
+    });
+    c.appendChild(grilla);
+    sec.appendChild(c);
+    return sec;
+  }
+
   function pintarInicio() {
     var d = C.inicio;
     pintarMeta(d);
@@ -484,6 +545,7 @@
       cabecera.appendChild(figura);
     }
     raiz.appendChild(cabecera);
+    raiz.appendChild(seccionCaminos());
 
     var sDif = el("section", "seccion");
     var cDif = el("div", "contenedor");
