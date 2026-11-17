@@ -435,7 +435,7 @@
     return seccion;
   }
 
-  // Tres caminos según quién llega: particular, empresa/aseguradora o técnico colega.
+  // Tres caminos según quién llega: particular, empresa o técnico colega.
   // Cada uno abre WhatsApp con un mensaje prellenado o lleva a su página.
   function seccionCaminos() {
     var sec = el("section", "seccion ajustada");
@@ -453,12 +453,12 @@
         wa: "Hola, soy particular. Mi equipo no enciende, no da video o no carga. ¿Me podés orientar?"
       },
       {
-        etiqueta: "Empresa o aseguradora",
-        titulo: "Necesito presupuesto o informe",
-        texto: "Parque de equipos, lotes y pedidos de informe técnico por escrito para empresas y siniestros.",
+        etiqueta: "Empresa",
+        titulo: "Necesito presupuesto para mis equipos",
+        texto: "Parque de equipos, lotes y presupuesto por escrito para empresas, comercios e instituciones.",
         href: "empresas",
         textoHref: "Ver servicio para empresas",
-        wa: "Hola, soy de una empresa o aseguradora. Necesito presupuesto o informe técnico."
+        wa: "Hola, soy de una empresa. Necesito presupuesto para reparar equipos."
       },
       {
         etiqueta: "Técnico colega",

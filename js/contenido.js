@@ -304,10 +304,10 @@ window.CONTENIDO = {
     "--linea-fina": "#131b25"
   },
   "empresas": {
-    "tituloPestana": "Servicio técnico para empresas y aseguradoras | TecnoInformática",
-    "metaDescripcion": "Servicio técnico de notebooks y PCs para empresas, aseguradoras e instituciones en Entre Ríos. Reparación a nivel placa, informe técnico y garantía de reparación.",
-    "titulo": "Servicio técnico para empresas, aseguradoras y comercios",
-    "intro": "Reparamos notebooks, PCs y placas madre a nivel componente para empresas, oficinas, instituciones y aseguradoras de Concepción del Uruguay y la región. Diagnóstico por escrito, presupuesto antes de reparar y equipos devueltos probados y con garantía de reparación.",
+    "tituloPestana": "Servicio técnico para empresas | TecnoInformática",
+    "metaDescripcion": "Servicio técnico de notebooks y PCs para empresas e instituciones en Entre Ríos. Reparación a nivel placa, informe técnico y garantía de reparación.",
+    "titulo": "Servicio técnico para empresas y comercios",
+    "intro": "Reparamos notebooks, PCs y placas madre a nivel componente para empresas, oficinas e instituciones de Concepción del Uruguay y la región. Diagnóstico por escrito, presupuesto antes de reparar y equipos devueltos probados y con garantía de reparación.",
     "bloques": [
       {
         "titulo": "Empresas y oficinas",
