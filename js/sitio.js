@@ -77,6 +77,8 @@
       var texto = (n.textContent || "").trim().slice(0, 60);
       if (/wa\.me|whatsapp\.com/.test(href) || (n.tagName === "BUTTON" && /whatsapp/i.test(texto))) return medir("click_whatsapp", { texto: texto });
       if (href.indexOf("instagram.com") > -1) return medir("click_instagram", { texto: texto });
+      if (href.indexOf("youtube.com") > -1) return medir("click_youtube", { texto: texto });
+      if (href.indexOf("tiktok.com") > -1) return medir("click_tiktok", { texto: texto });
       if (href.indexOf("tel:") === 0) return medir("click_llamada", { texto: texto });
       if (href.indexOf("mailto:") === 0) return medir("click_email", { texto: texto });
       if (/^Comprar ahora/.test(texto)) return medir("comprar_ahora");
@@ -234,6 +236,20 @@
       ig.target = "_blank";
       ig.rel = "noopener";
       col2.appendChild(ig);
+    }
+    if (neg.youtube) {
+      var yt = el("a", null, "YouTube " + neg.youtube);
+      yt.href = neg.youtubeLink;
+      yt.target = "_blank";
+      yt.rel = "noopener";
+      col2.appendChild(yt);
+    }
+    if (neg.tiktok) {
+      var tk = el("a", null, "TikTok " + neg.tiktok);
+      tk.href = neg.tiktokLink;
+      tk.target = "_blank";
+      tk.rel = "noopener";
+      col2.appendChild(tk);
     }
     if (neg.resenaLink) {
       var res = el("a", null, "Dejanos tu reseña en Google");
@@ -1000,6 +1016,28 @@
       aIg.rel = "noopener";
       dIg.appendChild(aIg);
       datos.appendChild(dIg);
+    }
+
+    if (neg.youtube) {
+      var dYt = el("div", "dato");
+      dYt.appendChild(el("span", null, "YouTube"));
+      var aYt = el("a", null, neg.youtube);
+      aYt.href = neg.youtubeLink;
+      aYt.target = "_blank";
+      aYt.rel = "noopener";
+      dYt.appendChild(aYt);
+      datos.appendChild(dYt);
+    }
+
+    if (neg.tiktok) {
+      var dTk = el("div", "dato");
+      dTk.appendChild(el("span", null, "TikTok"));
+      var aTk = el("a", null, neg.tiktok);
+      aTk.href = neg.tiktokLink;
+      aTk.target = "_blank";
+      aTk.rel = "noopener";
+      dTk.appendChild(aTk);
+      datos.appendChild(dTk);
     }
 
     if (neg.resenaLink) {
