@@ -40,7 +40,7 @@ window.CONTENIDO = {
     "placeholder": "Número de orden"
   },
   "inicio": {
-    "tituloPestana": "TecnoInformática | Servicio técnico de notebooks y PCs a nivel placa",
+    "tituloPestana": "TecnoInformática | Reparación de notebooks y PCs en Concepción del Uruguay",
     "metaDescripcion": "Servicio técnico de notebooks y PCs en Concepción del Uruguay, para particulares y empresas. Reparación a nivel placa: no enciende, sin video, no carga, soldadura SMD.",
     "hero": {
       "etiqueta": "Taller de reparaciones electrónicas",
@@ -131,7 +131,7 @@ window.CONTENIDO = {
     }
   },
   "servicios": {
-    "tituloPestana": "Servicios | TecnoInformática",
+    "tituloPestana": "Servicios de reparación de notebooks y PCs en Concepción del Uruguay | TecnoInformática",
     "metaDescripcion": "Reparación a nivel placa, cambio de pantallas, mantenimiento preventivo, actualización de hardware, formateo y venta de repuestos en Concepción del Uruguay.",
     "titulo": "Servicios",
     "intro": "Trabajamos sobre notebooks y PCs de escritorio. Lo que sigue es lo que hacemos todos los días en el taller.",
@@ -249,7 +249,7 @@ window.CONTENIDO = {
     ]
   },
   "tienda": {
-    "tituloPestana": "Tienda | TecnoInformática",
+    "tituloPestana": "Repuestos para notebooks y PCs en Concepción del Uruguay | TecnoInformática",
     "metaDescripcion": "Repuestos y accesorios para notebooks y PCs en Concepción del Uruguay.",
     "titulo": "Tienda",
     "intro": "Repuestos y accesorios disponibles en el taller. La compra se coordina por WhatsApp.",
